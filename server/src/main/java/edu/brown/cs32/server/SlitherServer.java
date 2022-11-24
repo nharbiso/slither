@@ -28,7 +28,7 @@ public class SlitherServer extends WebSocketServer {
     this.activeConnections.add(webSocket);
     System.out.println("server: New client joined - Connection from " + webSocket.getRemoteSocketAddress().getAddress().getHostAddress());
     System.out.println("server: new activeConnections: " + this.activeConnections);
-    String messageJson = "{\"type\": \"NEW_CLIENT\", \"message\": \"welcome, client!\"}";
+    String messageJson = "{\"type\": \"NEW_CLIENT\", \"data\": \"welcome, client!\"}";
     webSocket.send(messageJson);
   }
 
@@ -44,7 +44,7 @@ public class SlitherServer extends WebSocketServer {
     System.out.println("server: Message received from client: " + message);
     // can deserialize the message with Moshi (if required)
     // ideally, we would want to do different things based on the message's type
-    webSocket.send("{\"message\": \"Message received\", \"type\": \"NO_REPLY\"}");
+    webSocket.send("{\"data\": \"Message received\", \"type\": \"NO_REPLY\"}");
   }
 
   @Override
