@@ -18,7 +18,7 @@ function registerSocket() {
     socket.send(
       JSON.stringify({
         type: "NEW_CLIENT",
-        message: "A new client socket was opened",
+        data: "A new client socket was opened",
       })
     );
   };
@@ -34,7 +34,7 @@ function registerSocket() {
     socket.send(
       JSON.stringify({
         type: "NO_REPLY",
-        message: `The client received a message: ${message}`,
+        data: `The client received a message: ${message}`,
       })
     );
   };
