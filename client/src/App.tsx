@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
+import Message from "./message/message";
+import MessageType from "./message/messageTypes";
 
 const AppConfig = {
   PROTOCOL: "ws:",
   HOST: "//localhost",
   PORT: ":9000",
 };
+
+let toregister: boolean = true;
 
 function registerSocket() {
   let socket: WebSocket = new WebSocket(
@@ -15,12 +19,14 @@ function registerSocket() {
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
-    socket.send(
-      JSON.stringify({
-        type: "NEW_CLIENT",
-        data: "A new client socket was opened",
-      })
-    );
+    const message: Message = {
+      type: MessageType.NEW_CLIENT,
+      data: {
+        username: (Math.random() * 1000).toString(), // TODO: random string for now; pass user chosen username later
+        msg: "A new client socket was opened!",
+      },
+    };
+    socket.send(JSON.stringify(message));
   };
 
   socket.onmessage = (response: MessageEvent) => {
@@ -41,7 +47,14 @@ function registerSocket() {
 }
 
 function App() {
-  registerSocket();
+  useEffect(() => {
+    if (!toregister) {
+      return;
+    }
+    toregister = false;
+    registerSocket();
+  }, []);
+  // registerSocket();
   return (
     <div className="App">
       <header className="App-header">
