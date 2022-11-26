@@ -25,17 +25,6 @@ function registerSocket() {
     let message = JSON.parse(response.data);
     // ideally, we would want to do different things based on the message's type
     console.log("client: A message was received: " + response.data);
-    if (message.type === "NO_REPLY") {
-      console.log("client: A NO_REPLY message was received from the server");
-      return;
-    } else {
-      socket.send(
-        JSON.stringify({
-          type: "NO_REPLY",
-          data: `The client received a message: ${message}`,
-        })
-      );
-    }
   };
 }
 
