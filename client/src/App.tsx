@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import Message, { NewClientMessage } from "./message/message";
-import MessageType from "./message/messageTypes";
+import { sendNewClientMessage } from "./message/message";
 
 const AppConfig = {
   PROTOCOL: "ws:",
@@ -19,13 +18,7 @@ function registerSocket() {
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
-    const message: NewClientMessage = {
-      type: MessageType.NEW_CLIENT,
-      data: {
-        username: (Math.random() * 1000).toString(), // TODO: random string for now; pass user chosen username later
-      },
-    };
-    socket.send(JSON.stringify(message));
+    sendNewClientMessage(socket, (Math.random() * 1000).toString()); // TODO: random string for now; pass user chosen username later)
   };
 
   socket.onmessage = (response: MessageEvent) => {
@@ -35,13 +28,14 @@ function registerSocket() {
     if (message.type === "NO_REPLY") {
       console.log("client: A NO_REPLY message was received from the server");
       return;
+    } else {
+      socket.send(
+        JSON.stringify({
+          type: "NO_REPLY",
+          data: `The client received a message: ${message}`,
+        })
+      );
     }
-    socket.send(
-      JSON.stringify({
-        type: "NO_REPLY",
-        data: `The client received a message: ${message}`,
-      })
-    );
   };
 }
 
