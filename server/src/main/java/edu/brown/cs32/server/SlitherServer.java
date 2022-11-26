@@ -24,8 +24,8 @@ import org.java_websocket.server.WebSocketServer;
 public class SlitherServer extends WebSocketServer {
 
   Set<WebSocket> activeConnections;
-  private Leaderboard leaderboard;
-  private Map<WebSocket, User> socketToUser;
+  private final Leaderboard leaderboard;
+  private final Map<WebSocket, User> socketToUser;
 
   public SlitherServer(int port) {
     super(new InetSocketAddress(port));
