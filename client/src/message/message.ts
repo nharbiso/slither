@@ -19,6 +19,12 @@ export interface UpdateScoreMessage {
   };
 }
 
+export interface UserDiedMessage {
+  type: MessageType.USER_DIED;
+  data: {};
+}
+
+// sent to register a username for a client
 export function sendNewClientMessage(socket: WebSocket, username: string) {
   const message: NewClientMessage = {
     type: MessageType.NEW_CLIENT,
@@ -35,6 +41,14 @@ export function sendUpdateScoreMessage(socket: WebSocket, newScore: number) {
     data: {
       newScore: newScore,
     },
+  };
+  socket.send(JSON.stringify(message));
+}
+
+export function sendUserDiedMessage(socket: WebSocket) {
+  const message: UserDiedMessage = {
+    type: MessageType.USER_DIED,
+    data: {},
   };
   socket.send(JSON.stringify(message));
 }
