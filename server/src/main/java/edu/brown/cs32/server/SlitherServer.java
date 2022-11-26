@@ -1,7 +1,21 @@
 package edu.brown.cs32.server;
 
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+import edu.brown.cs32.actionHandlers.NewClientHandler;
+import edu.brown.cs32.actionHandlers.UpdateScoreHandler;
+import edu.brown.cs32.exceptions.ClientAlreadyExistsException;
+import edu.brown.cs32.exceptions.MissingFieldException;
+import edu.brown.cs32.exceptions.NoUserException;
+import edu.brown.cs32.leaderboard.Leaderboard;
+import edu.brown.cs32.message.Message;
+import edu.brown.cs32.message.MessageType;
+import edu.brown.cs32.user.User;
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -10,16 +24,26 @@ import org.java_websocket.server.WebSocketServer;
 public class SlitherServer extends WebSocketServer {
 
   Set<WebSocket> activeConnections;
+  private Leaderboard leaderboard;
+  private Map<WebSocket, User> socketToUser;
 
   public SlitherServer(int port) {
     super(new InetSocketAddress(port));
     this.activeConnections = new HashSet<>();
+    this.leaderboard = new Leaderboard();
   }
 
   private void sendToAllConnections(String messageJson) {
     for (WebSocket webSocket : this.activeConnections) {
       webSocket.send(messageJson);
     }
+  }
+
+  public boolean addWebsocketUser(WebSocket websocket, User user) {
+    if (this.socketToUser.containsKey(websocket))
+      return false;
+    this.socketToUser.put(websocket, user);
+    return true;
   }
 
   @Override
@@ -40,11 +64,64 @@ public class SlitherServer extends WebSocketServer {
   }
 
   @Override
-  public void onMessage(WebSocket webSocket, String message) {
-    System.out.println("server: Message received from client: " + message);
-    // can deserialize the message with Moshi (if required)
-    // ideally, we would want to do different things based on the message's type
-    webSocket.send("{\"data\": \"Message received\", \"type\": \"NO_REPLY\"}");
+  public void onMessage(WebSocket webSocket, String jsonMessage) {
+    System.out.println("server: Message received from client: " + jsonMessage);
+    Moshi moshi = new Moshi.Builder().build();
+    JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
+    String jsonResponse;
+    try {
+      Message deserializedMessage = jsonAdapter.fromJson(jsonMessage);
+      switch (deserializedMessage.type()) {
+        case NEW_CLIENT -> {
+          User newUser = new NewClientHandler().handleNewClient(deserializedMessage, webSocket, this);
+          this.leaderboard.addNewUser(newUser);
+          Map<String, Object> data = new HashMap<>();
+          data.put("msg", "New client added");
+          jsonResponse = this.serialize(new Message(MessageType.SUCCESS, data));
+          webSocket.send(jsonResponse);
+          break;
+        }
+        case UPDATE_SCORE -> {
+          User user = this.socketToUser.get(webSocket);
+          if (user == null)
+            throw new NoUserException(deserializedMessage.type());
+          int newScore = new UpdateScoreHandler().handleScoreUpdate(deserializedMessage, user);
+          this.leaderboard.updateScore(user, newScore);
+          Map<String, Object> data = new HashMap<>();
+          data.put("msg", "Score updated");
+          jsonResponse = this.serialize(new Message(MessageType.SUCCESS, data));
+          webSocket.send(jsonResponse);
+          break;
+        }
+        default -> {
+          Map<String, Object> data = new HashMap<>();
+          data.put("msg", "The message sent by the client had an unexpected type");
+          jsonResponse = this.serialize(new Message(MessageType.ERROR, data));
+          webSocket.send(jsonResponse);
+          break;
+        }
+      }
+    } catch (IOException e) {
+      Map<String, Object> data = new HashMap<>();
+      data.put("msg", "The server could not deserialize the client's message");
+      jsonResponse = this.serialize(new Message(MessageType.ERROR, data));
+      webSocket.send(jsonResponse);
+    } catch (MissingFieldException e) {
+      Map<String, Object> data = new HashMap<>();
+      data.put("msg", "The message sent by the client was missing a required field");
+      jsonResponse = this.serialize(new Message(MessageType.ERROR, data));
+      webSocket.send(jsonResponse);
+    } catch (NoUserException e) {
+      Map<String, Object> data = new HashMap<>();
+      data.put("msg", "An operation requiring a user was tried before the user existed");
+      jsonResponse = this.serialize(new Message(MessageType.ERROR, data));
+      webSocket.send(jsonResponse);
+    } catch(ClientAlreadyExistsException e) {
+      Map<String, Object> data = new HashMap<>();
+      data.put("msg", "Tried to add a client that already exists");
+      jsonResponse = this.serialize(new Message(MessageType.ERROR, data));
+      webSocket.send(jsonResponse);
+    }
   }
 
   @Override
@@ -58,6 +135,12 @@ public class SlitherServer extends WebSocketServer {
   @Override
   public void onStart() {
     System.out.println("server: Server started!");
+  }
+
+  public String serialize(Message message) {
+    Moshi moshi = new Moshi.Builder().build();
+    JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
+    return jsonAdapter.toJson(message);
   }
 
   public static void main(String args[]) {
