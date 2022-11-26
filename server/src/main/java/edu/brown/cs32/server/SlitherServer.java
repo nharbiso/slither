@@ -83,7 +83,8 @@ public class SlitherServer extends WebSocketServer {
       Message deserializedMessage = jsonAdapter.fromJson(jsonMessage);
       switch (deserializedMessage.type()) {
         case NEW_CLIENT -> {
-          // TODO: Need to update this case to include the stuff with the game code
+          // TODO: Need to update this case to include the stuff with the game code (note: each game
+          //  would need its own leaderboard so need to account for that too)
           this.inactiveConnections.remove(webSocket);
           User newUser = new NewClientHandler().handleNewClient(deserializedMessage, webSocket, this);
           this.leaderboard.addNewUser(newUser);
