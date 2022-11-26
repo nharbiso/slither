@@ -53,8 +53,10 @@ public class SlitherServer extends WebSocketServer {
     this.activeConnections.add(webSocket);
     System.out.println("server: New client joined - Connection from " + webSocket.getRemoteSocketAddress().getAddress().getHostAddress());
     System.out.println("server: new activeConnections: " + this.activeConnections);
-    String messageJson = "{\"type\": \"NEW_CLIENT\", \"data\": \"welcome, client!\"}";
-    webSocket.send(messageJson);
+    Map<String, Object> data = new HashMap<>();
+    data.put("msg", "New socket opened");
+    String jsonResponse = this.serialize(new Message(MessageType.SUCCESS, data));
+    webSocket.send(jsonResponse);
   }
 
   @Override
