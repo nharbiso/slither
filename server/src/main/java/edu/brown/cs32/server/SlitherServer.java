@@ -31,6 +31,7 @@ public class SlitherServer extends WebSocketServer {
     super(new InetSocketAddress(port));
     this.activeConnections = new HashSet<>();
     this.leaderboard = new Leaderboard();
+    this.socketToUser = new HashMap<>();
   }
 
   private void sendToAllConnections(String messageJson) {
