@@ -24,7 +24,7 @@ export interface UserDiedMessage {
   data: {};
 }
 
-// sent to register a username for a client
+// sent to register a username for a client (when a client is joining a game)
 export function sendNewClientMessage(socket: WebSocket, username: string) {
   const message: NewClientMessage = {
     type: MessageType.NEW_CLIENT,
