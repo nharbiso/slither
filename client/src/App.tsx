@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import Message from "./message/message";
+import Message, { NewClientMessage } from "./message/message";
 import MessageType from "./message/messageTypes";
 
 const AppConfig = {
@@ -19,11 +19,10 @@ function registerSocket() {
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
-    const message: Message = {
+    const message: NewClientMessage = {
       type: MessageType.NEW_CLIENT,
       data: {
         username: (Math.random() * 1000).toString(), // TODO: random string for now; pass user chosen username later
-        msg: "A new client socket was opened!",
       },
     };
     socket.send(JSON.stringify(message));
