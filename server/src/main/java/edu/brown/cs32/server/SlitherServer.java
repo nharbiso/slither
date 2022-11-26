@@ -4,6 +4,7 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import edu.brown.cs32.actionHandlers.NewClientHandler;
 import edu.brown.cs32.actionHandlers.UpdateScoreHandler;
+import edu.brown.cs32.actionHandlers.UserDiedHandler;
 import edu.brown.cs32.exceptions.ClientAlreadyExistsException;
 import edu.brown.cs32.exceptions.MissingFieldException;
 import edu.brown.cs32.exceptions.NoUserException;
@@ -23,19 +24,23 @@ import org.java_websocket.server.WebSocketServer;
 
 public class SlitherServer extends WebSocketServer {
 
-  Set<WebSocket> activeConnections;
+  Set<WebSocket> allConnections; // stores all connections
+  Set<WebSocket> inactiveConnections; // stores connections for clients whose users are not actively playing
   private final Leaderboard leaderboard;
   private final Map<WebSocket, User> socketToUser;
 
   public SlitherServer(int port) {
     super(new InetSocketAddress(port));
-    this.activeConnections = new HashSet<>();
+    this.allConnections = new HashSet<>();
+    this.inactiveConnections = new HashSet<>();
     this.leaderboard = new Leaderboard();
     this.socketToUser = new HashMap<>();
   }
 
-  private void sendToAllConnections(String messageJson) {
-    for (WebSocket webSocket : this.activeConnections) {
+  private void sendToAllActiveConnections(String messageJson) {
+    for (WebSocket webSocket : this.allConnections) {
+      if (this.inactiveConnections.contains(webSocket))
+        continue;
       webSocket.send(messageJson);
     }
   }
@@ -50,9 +55,10 @@ public class SlitherServer extends WebSocketServer {
   @Override
   public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
     System.out.println("server: onOpen called");
-    this.activeConnections.add(webSocket);
+    this.allConnections.add(webSocket);
+    this.inactiveConnections.add(webSocket);
     System.out.println("server: New client joined - Connection from " + webSocket.getRemoteSocketAddress().getAddress().getHostAddress());
-    System.out.println("server: new activeConnections: " + this.activeConnections);
+    System.out.println("server: new activeConnections: " + this.allConnections);
     Map<String, Object> data = new HashMap<>();
     data.put("msg", "New socket opened");
     String jsonResponse = this.serialize(new Message(MessageType.SUCCESS, data));
@@ -62,8 +68,9 @@ public class SlitherServer extends WebSocketServer {
   @Override
   public void onClose(WebSocket webSocket, int code, String reason, boolean remote) {
     System.out.println("server: onClose called");
-    this.activeConnections.remove(webSocket);
-    System.out.println("server: reduced activeConnections: " + this.activeConnections);
+    this.allConnections.remove(webSocket);
+    this.inactiveConnections.remove(webSocket);
+    System.out.println("server: reduced activeConnections: " + this.allConnections);
   }
 
   @Override
@@ -76,6 +83,8 @@ public class SlitherServer extends WebSocketServer {
       Message deserializedMessage = jsonAdapter.fromJson(jsonMessage);
       switch (deserializedMessage.type()) {
         case NEW_CLIENT -> {
+          // TODO: Need to update this case to include the stuff with the game code
+          this.inactiveConnections.remove(webSocket);
           User newUser = new NewClientHandler().handleNewClient(deserializedMessage, webSocket, this);
           this.leaderboard.addNewUser(newUser);
           Map<String, Object> data = new HashMap<>();
@@ -92,6 +101,22 @@ public class SlitherServer extends WebSocketServer {
           this.leaderboard.updateScore(user, newScore);
           Map<String, Object> data = new HashMap<>();
           data.put("msg", "Score updated");
+          jsonResponse = this.serialize(new Message(MessageType.SUCCESS, data));
+          webSocket.send(jsonResponse);
+          break;
+        }
+        case USER_DIED -> {
+          User user = this.socketToUser.get(webSocket);
+          if (user == null)
+            throw new NoUserException(deserializedMessage.type());
+          System.out.println("Leaderboard before: "  + this.leaderboard.getLeaderboard().length);
+          System.out.println("Inactive connections before: " + this.inactiveConnections);
+          new UserDiedHandler().handleUserDied(user, this.leaderboard);
+          this.inactiveConnections.add(webSocket);
+          System.out.println("Leaderboard after: " + this.leaderboard.getLeaderboard().length);
+          System.out.println("Inactive connections after: " + this.inactiveConnections);
+          Map<String, Object> data = new HashMap<>();
+          data.put("msg", "User removed from leaderboard");
           jsonResponse = this.serialize(new Message(MessageType.SUCCESS, data));
           webSocket.send(jsonResponse);
           break;
@@ -130,7 +155,7 @@ public class SlitherServer extends WebSocketServer {
   @Override
   public void onError(WebSocket connection, Exception e) {
     if (connection != null) {
-      this.activeConnections.remove(connection);
+      this.allConnections.remove(connection);
       System.out.println("server: An error occurred from: " + connection.getRemoteSocketAddress().getAddress().getHostAddress());
     }
   }
