@@ -1,7 +1,10 @@
 import React, { useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import { sendNewClientMessage } from "./message/message";
+import {
+  sendNewClientWithCodeMessage,
+  sendNewClientNoCodeMessage,
+} from "./message/message";
 
 const AppConfig = {
   PROTOCOL: "ws:",
@@ -18,7 +21,13 @@ function registerSocket() {
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
-    sendNewClientMessage(socket, (Math.random() * 1000).toString()); // TODO: random string for now; pass user chosen username later)
+    // TODO: random string username for now; pass user chosen username later); also pass chosen game code later
+    sendNewClientNoCodeMessage(socket, (Math.random() * 1000).toString());
+    // sendNewClientWithCodeMessage(
+    //   socket,
+    //   (Math.random() * 1000).toString(),
+    //   "123456"
+    // );
   };
 
   socket.onmessage = (response: MessageEvent) => {

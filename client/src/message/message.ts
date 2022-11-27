@@ -5,10 +5,18 @@ export default interface Message {
   data: any; // TODO: update later to make this more specific if possible
 }
 
-export interface NewClientMessage {
-  type: MessageType.NEW_CLIENT;
+export interface NewClientNoCodeMessage {
+  type: MessageType.NEW_CLIENT_NO_CODE;
   data: {
     username: string;
+  };
+}
+
+export interface NewClientOldCodeMessage {
+  type: MessageType.NEW_CLIENT_WITH_CODE;
+  data: {
+    username: string;
+    gameCode: string;
   };
 }
 
@@ -24,12 +32,30 @@ export interface UserDiedMessage {
   data: {};
 }
 
-// sent to register a username for a client (when a client is joining a game)
-export function sendNewClientMessage(socket: WebSocket, username: string) {
-  const message: NewClientMessage = {
-    type: MessageType.NEW_CLIENT,
+export function sendNewClientNoCodeMessage(
+  socket: WebSocket,
+  username: string
+) {
+  const message: NewClientNoCodeMessage = {
+    type: MessageType.NEW_CLIENT_NO_CODE,
     data: {
       username: username,
+    },
+  };
+  socket.send(JSON.stringify(message));
+}
+
+// sent to register a username for a client (when a client is joining a game)
+export function sendNewClientWithCodeMessage(
+  socket: WebSocket,
+  username: string,
+  gameCode: string
+) {
+  const message: NewClientOldCodeMessage = {
+    type: MessageType.NEW_CLIENT_WITH_CODE,
+    data: {
+      username: username,
+      gameCode: gameCode,
     },
   };
   socket.send(JSON.stringify(message));
