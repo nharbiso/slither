@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
+import {
+  sendNewClientWithCodeMessage,
+  sendNewClientNoCodeMessage,
+} from "./message/message";
 
 const AppConfig = {
   PROTOCOL: "ws:",
   HOST: "//localhost",
   PORT: ":9000",
 };
+
+let toregister: boolean = true;
 
 function registerSocket() {
   let socket: WebSocket = new WebSocket(
@@ -15,33 +21,31 @@ function registerSocket() {
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
-    socket.send(
-      JSON.stringify({
-        type: "NEW_CLIENT",
-        data: "A new client socket was opened",
-      })
-    );
+    // TODO: random string username for now; pass user chosen username later); also pass chosen game code later
+    sendNewClientNoCodeMessage(socket, (Math.random() * 1000).toString());
+    // sendNewClientWithCodeMessage(
+    //   socket,
+    //   (Math.random() * 1000).toString(),
+    //   "123456"
+    // );
   };
 
   socket.onmessage = (response: MessageEvent) => {
     let message = JSON.parse(response.data);
     // ideally, we would want to do different things based on the message's type
     console.log("client: A message was received: " + response.data);
-    if (message.type === "NO_REPLY") {
-      console.log("client: A NO_REPLY message was received from the server");
-      return;
-    }
-    socket.send(
-      JSON.stringify({
-        type: "NO_REPLY",
-        data: `The client received a message: ${message}`,
-      })
-    );
   };
 }
 
 function App() {
-  registerSocket();
+  useEffect(() => {
+    if (!toregister) {
+      return;
+    }
+    toregister = false;
+    registerSocket();
+  }, []);
+  // registerSocket();
   return (
     <div className="App">
       <header className="App-header">
