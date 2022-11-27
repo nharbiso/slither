@@ -24,8 +24,8 @@ import org.java_websocket.server.WebSocketServer;
 
 public class SlitherServer extends WebSocketServer {
 
-  Set<WebSocket> allConnections; // stores all connections
-  Set<WebSocket> inactiveConnections; // stores connections for clients whose users are not actively playing
+  private final Set<WebSocket> allConnections; // stores all connections
+  private final Set<WebSocket> inactiveConnections; // stores connections for clients whose users are not actively playing
   private final Leaderboard leaderboard;
   private final Map<WebSocket, User> socketToUser;
 
@@ -35,6 +35,14 @@ public class SlitherServer extends WebSocketServer {
     this.inactiveConnections = new HashSet<>();
     this.leaderboard = new Leaderboard();
     this.socketToUser = new HashMap<>();
+  }
+
+  public Set<WebSocket> getAllConnections() {
+    return new HashSet<>(this.allConnections);
+  }
+
+  public Set<WebSocket> getInactiveConnections() {
+    return new HashSet<>(this.inactiveConnections);
   }
 
   private void sendToAllActiveConnections(String messageJson) {
