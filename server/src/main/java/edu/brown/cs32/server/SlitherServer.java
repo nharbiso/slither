@@ -67,9 +67,7 @@ public class SlitherServer extends WebSocketServer {
     this.inactiveConnections.add(webSocket);
     System.out.println("server: New client joined - Connection from " + webSocket.getRemoteSocketAddress().getAddress().getHostAddress());
     System.out.println("server: new activeConnections: " + this.allConnections);
-    Map<String, Object> data = new HashMap<>();
-    data.put("msg", "New socket opened");
-    String jsonResponse = this.serialize(new Message(MessageType.SUCCESS, data));
+    String jsonResponse = this.serialize(this.generateMessage("New socket opened", MessageType.SUCCESS));
     webSocket.send(jsonResponse);
   }
 
@@ -96,9 +94,7 @@ public class SlitherServer extends WebSocketServer {
           this.inactiveConnections.remove(webSocket);
           User newUser = new NewClientHandler().handleNewClient(deserializedMessage, webSocket, this);
           this.leaderboard.addNewUser(newUser);
-          Map<String, Object> data = new HashMap<>();
-          data.put("msg", "New client added");
-          jsonResponse = this.serialize(new Message(MessageType.SUCCESS, data));
+          jsonResponse = this.serialize(this.generateMessage("New client added", MessageType.SUCCESS));
           webSocket.send(jsonResponse);
           break;
         }
@@ -108,9 +104,7 @@ public class SlitherServer extends WebSocketServer {
             throw new NoUserException(deserializedMessage.type());
           int newScore = new UpdateScoreHandler().handleScoreUpdate(deserializedMessage, user);
           this.leaderboard.updateScore(user, newScore);
-          Map<String, Object> data = new HashMap<>();
-          data.put("msg", "Score updated");
-          jsonResponse = this.serialize(new Message(MessageType.SUCCESS, data));
+          jsonResponse = this.serialize(this.generateMessage("Score updated", MessageType.SUCCESS));
           webSocket.send(jsonResponse);
           break;
         }
@@ -118,45 +112,29 @@ public class SlitherServer extends WebSocketServer {
           User user = this.socketToUser.get(webSocket);
           if (user == null)
             throw new NoUserException(deserializedMessage.type());
-          System.out.println("Leaderboard before: "  + this.leaderboard.getLeaderboard().length);
-          System.out.println("Inactive connections before: " + this.inactiveConnections);
           new UserDiedHandler().handleUserDied(user, this.leaderboard);
           this.inactiveConnections.add(webSocket);
-          System.out.println("Leaderboard after: " + this.leaderboard.getLeaderboard().length);
-          System.out.println("Inactive connections after: " + this.inactiveConnections);
-          Map<String, Object> data = new HashMap<>();
-          data.put("msg", "User removed from leaderboard");
-          jsonResponse = this.serialize(new Message(MessageType.SUCCESS, data));
+          jsonResponse = this.serialize(this.generateMessage("User removed from leaderboard", MessageType.SUCCESS));
           webSocket.send(jsonResponse);
           break;
         }
         default -> {
-          Map<String, Object> data = new HashMap<>();
-          data.put("msg", "The message sent by the client had an unexpected type");
-          jsonResponse = this.serialize(new Message(MessageType.ERROR, data));
+          jsonResponse = this.serialize(this.generateMessage("The message sent by the client had an unexpected type", MessageType.ERROR));
           webSocket.send(jsonResponse);
           break;
         }
       }
     } catch (IOException e) {
-      Map<String, Object> data = new HashMap<>();
-      data.put("msg", "The server could not deserialize the client's message");
-      jsonResponse = this.serialize(new Message(MessageType.ERROR, data));
+      jsonResponse = this.serialize(this.generateMessage("The server could not deserialize the client's message", MessageType.ERROR));
       webSocket.send(jsonResponse);
     } catch (MissingFieldException e) {
-      Map<String, Object> data = new HashMap<>();
-      data.put("msg", "The message sent by the client was missing a required field");
-      jsonResponse = this.serialize(new Message(MessageType.ERROR, data));
+      jsonResponse = this.serialize(this.generateMessage("The message sent by the client was missing a required field", MessageType.ERROR));
       webSocket.send(jsonResponse);
     } catch (NoUserException e) {
-      Map<String, Object> data = new HashMap<>();
-      data.put("msg", "An operation requiring a user was tried before the user existed");
-      jsonResponse = this.serialize(new Message(MessageType.ERROR, data));
+      jsonResponse = this.serialize(this.generateMessage("An operation requiring a user was tried before the user existed", MessageType.ERROR));
       webSocket.send(jsonResponse);
     } catch(ClientAlreadyExistsException e) {
-      Map<String, Object> data = new HashMap<>();
-      data.put("msg", "Tried to add a client that already exists");
-      jsonResponse = this.serialize(new Message(MessageType.ERROR, data));
+      jsonResponse = this.serialize(this.generateMessage("Tried to add a client that already exists", MessageType.ERROR));
       webSocket.send(jsonResponse);
     }
   }
@@ -174,10 +152,16 @@ public class SlitherServer extends WebSocketServer {
     System.out.println("server: Server started!");
   }
 
-  public String serialize(Message message) {
+  private String serialize(Message message) {
     Moshi moshi = new Moshi.Builder().build();
     JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
     return jsonAdapter.toJson(message);
+  }
+
+  private Message generateMessage(String msg, MessageType messageType) {
+    Map<String, Object> data = new HashMap<>();
+    data.put("msg", msg);
+    return new Message(messageType, data);
   }
 
   public static void main(String args[]) {
