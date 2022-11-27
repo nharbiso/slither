@@ -1,6 +1,7 @@
 package edu.brown.cs32.actionHandlers;
 
 import edu.brown.cs32.exceptions.ClientAlreadyExistsException;
+import edu.brown.cs32.exceptions.IncorrectGameCodeException;
 import edu.brown.cs32.exceptions.MissingFieldException;
 import edu.brown.cs32.message.Message;
 import edu.brown.cs32.server.SlitherServer;
@@ -9,7 +10,21 @@ import org.java_websocket.WebSocket;
 
 public class NewClientHandler {
 
-  public User handleNewClient(Message message, WebSocket websocket, SlitherServer server) throws MissingFieldException, ClientAlreadyExistsException {
+  public User handleNewClientWithCode(Message message, WebSocket websocket, SlitherServer server) throws MissingFieldException, ClientAlreadyExistsException, IncorrectGameCodeException {
+    if (!message.data().containsKey("username") || !message.data().containsKey("gameCode"))
+      throw new MissingFieldException(message);
+    User user = new User(message.data().get("username").toString());
+    String gameCode = message.data().get("gameCode").toString();
+    if (!server.getExistingGameCodes().contains(gameCode))
+      throw new IncorrectGameCodeException();
+    boolean result = server.addWebsocketUser(websocket, user);
+    if (!result)
+      throw new ClientAlreadyExistsException();
+    server.addGameCodeToUser(gameCode, user);
+    return user;
+  }
+
+  public User handleNewClientNoCode(Message message, WebSocket websocket, SlitherServer server) throws MissingFieldException, ClientAlreadyExistsException {
     if (!message.data().containsKey("username"))
       throw new MissingFieldException(message);
     User user = new User(message.data().get("username").toString());

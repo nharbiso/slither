@@ -6,8 +6,10 @@ import edu.brown.cs32.actionHandlers.NewClientHandler;
 import edu.brown.cs32.actionHandlers.UpdateScoreHandler;
 import edu.brown.cs32.actionHandlers.UserDiedHandler;
 import edu.brown.cs32.exceptions.ClientAlreadyExistsException;
+import edu.brown.cs32.exceptions.IncorrectGameCodeException;
 import edu.brown.cs32.exceptions.MissingFieldException;
 import edu.brown.cs32.exceptions.NoUserException;
+import edu.brown.cs32.gamecode.GameCodeGenerator;
 import edu.brown.cs32.leaderboard.Leaderboard;
 import edu.brown.cs32.message.Message;
 import edu.brown.cs32.message.MessageType;
@@ -26,14 +28,18 @@ public class SlitherServer extends WebSocketServer {
 
   private final Set<WebSocket> allConnections; // stores all connections
   private final Set<WebSocket> inactiveConnections; // stores connections for clients whose users are not actively playing
-  private final Leaderboard leaderboard;
+//  private final Leaderboard leaderboard;
+  private final Map<User, String> userToGameCode;
+  private final Map<String, Leaderboard> gameCodeToLeaderboard;
   private final Map<WebSocket, User> socketToUser;
 
   public SlitherServer(int port) {
     super(new InetSocketAddress(port));
     this.allConnections = new HashSet<>();
     this.inactiveConnections = new HashSet<>();
-    this.leaderboard = new Leaderboard();
+    this.userToGameCode = new HashMap<>();
+    this.gameCodeToLeaderboard = new HashMap<>();
+//    this.leaderboard = new Leaderboard();
     this.socketToUser = new HashMap<>();
   }
 
@@ -45,12 +51,21 @@ public class SlitherServer extends WebSocketServer {
     return new HashSet<>(this.inactiveConnections);
   }
 
+  public Set<String> getExistingGameCodes() { return this.gameCodeToLeaderboard.keySet(); }
+
   private void sendToAllActiveConnections(String messageJson) {
     for (WebSocket webSocket : this.allConnections) {
       if (this.inactiveConnections.contains(webSocket))
         continue;
       webSocket.send(messageJson);
     }
+  }
+
+  public boolean addGameCodeToUser(String gameCode, User user) {
+    if (this.userToGameCode.containsKey(user))
+      return false;
+    this.userToGameCode.put(user, gameCode);
+    return true;
   }
 
   public boolean addWebsocketUser(WebSocket websocket, User user) {
@@ -88,13 +103,26 @@ public class SlitherServer extends WebSocketServer {
     try {
       Message deserializedMessage = jsonAdapter.fromJson(jsonMessage);
       switch (deserializedMessage.type()) {
-        case NEW_CLIENT -> {
-          // TODO: Need to update this case to include the stuff with the game code (note: each game
-          //  would need its own leaderboard so need to account for that too)
+        case NEW_CLIENT_WITH_CODE -> {
           this.inactiveConnections.remove(webSocket);
-          User newUser = new NewClientHandler().handleNewClient(deserializedMessage, webSocket, this);
-          this.leaderboard.addNewUser(newUser);
-          jsonResponse = this.serialize(this.generateMessage("New client added", MessageType.SUCCESS));
+          User newUser = new NewClientHandler().handleNewClientWithCode(deserializedMessage, webSocket, this);
+//          this.leaderboard.addNewUser(newUser);
+          this.gameCodeToLeaderboard.get(this.userToGameCode.get(newUser)).addNewUser(newUser);
+          jsonResponse = this.serialize(this.generateMessage("New client added to existing game code", MessageType.SUCCESS));
+          webSocket.send(jsonResponse);
+          break;
+        }
+        case NEW_CLIENT_NO_CODE -> {
+          this.inactiveConnections.remove(webSocket);
+          User newUser = new NewClientHandler().handleNewClientNoCode(deserializedMessage, webSocket, this);
+          String gameCode = new GameCodeGenerator().generateGameCode(this.getExistingGameCodes());
+          Leaderboard leaderboard = new Leaderboard();
+          leaderboard.addNewUser(newUser);
+          this.userToGameCode.put(newUser, gameCode);
+          this.gameCodeToLeaderboard.put(gameCode, leaderboard);
+          Message message = this.generateMessage("New client added to new game", MessageType.SUCCESS);
+          message.data().put("gameCode", gameCode);
+          jsonResponse = this.serialize(message);
           webSocket.send(jsonResponse);
           break;
         }
@@ -103,7 +131,8 @@ public class SlitherServer extends WebSocketServer {
           if (user == null)
             throw new NoUserException(deserializedMessage.type());
           int newScore = new UpdateScoreHandler().handleScoreUpdate(deserializedMessage, user);
-          this.leaderboard.updateScore(user, newScore);
+//          this.leaderboard.updateScore(user, newScore);
+          this.gameCodeToLeaderboard.get(this.userToGameCode.get(user)).updateScore(user, newScore);
           jsonResponse = this.serialize(this.generateMessage("Score updated", MessageType.SUCCESS));
           webSocket.send(jsonResponse);
           break;
@@ -112,7 +141,9 @@ public class SlitherServer extends WebSocketServer {
           User user = this.socketToUser.get(webSocket);
           if (user == null)
             throw new NoUserException(deserializedMessage.type());
-          new UserDiedHandler().handleUserDied(user, this.leaderboard);
+//          new UserDiedHandler().handleUserDied(user, this.leaderboard);
+          new UserDiedHandler().handleUserDied(user, this.gameCodeToLeaderboard.get(this.userToGameCode.get(user)));
+          this.userToGameCode.remove(user);
           this.inactiveConnections.add(webSocket);
           jsonResponse = this.serialize(this.generateMessage("User removed from leaderboard", MessageType.SUCCESS));
           webSocket.send(jsonResponse);
@@ -135,6 +166,9 @@ public class SlitherServer extends WebSocketServer {
       webSocket.send(jsonResponse);
     } catch(ClientAlreadyExistsException e) {
       jsonResponse = this.serialize(this.generateMessage("Tried to add a client that already exists", MessageType.ERROR));
+      webSocket.send(jsonResponse);
+    } catch(IncorrectGameCodeException e) {
+      jsonResponse = this.serialize(this.generateMessage("The provided gameCode was incorrect", MessageType.ERROR));
       webSocket.send(jsonResponse);
     }
   }
