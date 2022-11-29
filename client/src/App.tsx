@@ -39,10 +39,9 @@ function registerSocket() {
   };
 }
 
-const orbInfo: OrbInfo = {x: 100, y:500, size:OrbSize.LARGE};
+const orbInfo: OrbInfo = { x: 100, y: 500, size: OrbSize.LARGE };
 
 function App() {
-
   useEffect(() => {
     if (!toregister) {
       return;
