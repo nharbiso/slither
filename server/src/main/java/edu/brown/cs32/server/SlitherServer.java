@@ -11,12 +11,16 @@ import edu.brown.cs32.exceptions.IncorrectGameCodeException;
 import edu.brown.cs32.exceptions.InvalidOrbCoordinateException;
 import edu.brown.cs32.exceptions.MissingFieldException;
 import edu.brown.cs32.exceptions.NoUserException;
+import edu.brown.cs32.exceptions.UserNoGameCodeException;
+import edu.brown.cs32.exceptions.GameCodeNoGameStateException;
+import edu.brown.cs32.exceptions.GameCodeNoLeaderboardException;
 import edu.brown.cs32.gameState.GameState;
 import edu.brown.cs32.gamecode.GameCodeGenerator;
 import edu.brown.cs32.leaderboard.Leaderboard;
 import edu.brown.cs32.message.Message;
 import edu.brown.cs32.message.MessageType;
 import edu.brown.cs32.user.User;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -114,6 +118,12 @@ public class SlitherServer extends WebSocketServer {
           this.inactiveConnections.remove(webSocket);
           User newUser = new NewClientHandler().handleNewClientWithCode(deserializedMessage, webSocket, this);
 //          this.leaderboard.addNewUser(newUser);
+          if (this.userToGameCode.get(newUser) == null) {
+            throw new UserNoGameCodeException();
+          }
+          if (this.gameCodeToLeaderboard.get(this.userToGameCode.get(newUser)) == null) {
+            throw new GameCodeNoLeaderboardException();
+          }
           this.gameCodeToLeaderboard.get(this.userToGameCode.get(newUser)).addNewUser(newUser);
           jsonResponse = this.serialize(this.generateMessage("New client added to existing game code", MessageType.SUCCESS));
           webSocket.send(jsonResponse);
@@ -139,6 +149,12 @@ public class SlitherServer extends WebSocketServer {
             throw new NoUserException(deserializedMessage.type());
           int newScore = new UpdateScoreHandler().handleScoreUpdate(deserializedMessage, user);
 //          this.leaderboard.updateScore(user, newScore);
+          if (this.userToGameCode.get(user) == null) {
+            throw new UserNoGameCodeException();
+          }
+          if (this.gameCodeToLeaderboard.get(this.userToGameCode.get(user)) == null) {
+            throw new GameCodeNoLeaderboardException();
+          }
           this.gameCodeToLeaderboard.get(this.userToGameCode.get(user)).updateScore(user, newScore);
           jsonResponse = this.serialize(this.generateMessage("Score updated", MessageType.SUCCESS));
           webSocket.send(jsonResponse);
@@ -160,7 +176,13 @@ public class SlitherServer extends WebSocketServer {
           User user = this.socketToUser.get(webSocket);
           if (user == null)
             throw new NoUserException(deserializedMessage.type());
+          if (this.userToGameCode.get(user) == null) {
+            throw new UserNoGameCodeException();
+          }
           String gameCode = this.userToGameCode.get(user);
+          if (this.gameCodeToGameState.get(gameCode) == null) {
+            throw new GameCodeNoGameStateException();
+          }
           GameState gameState = this.gameCodeToGameState.get(gameCode);
           boolean result = new RemoveOrbHandler().handleRemoveOrb(deserializedMessage, gameState);
           if (!result)
@@ -192,6 +214,15 @@ public class SlitherServer extends WebSocketServer {
       webSocket.send(jsonResponse);
     } catch (InvalidOrbCoordinateException e) {
       jsonResponse = this.serialize(this.generateMessage("The provided orb coordinate was invalid", MessageType.ERROR));
+      webSocket.send(jsonResponse);
+    } catch (UserNoGameCodeException e) {
+      jsonResponse = this.serialize(this.generateMessage("User had no corresponding game code", MessageType.ERROR));
+      webSocket.send(jsonResponse);
+    } catch (GameCodeNoGameStateException e) {
+      jsonResponse = this.serialize(this.generateMessage("Game code had no corresponding game state", MessageType.ERROR));
+      webSocket.send(jsonResponse);
+    } catch (GameCodeNoLeaderboardException e) {
+      jsonResponse = this.serialize(this.generateMessage("Game code had no corresponding leaderboard", MessageType.ERROR));
       webSocket.send(jsonResponse);
     }
   }
