@@ -14,11 +14,9 @@ public class GameCodeGenerator {
   }
 
   public String generateGameCode(Set<String> existingGameCodes) {
-    String gameCode;
-    while (true) {
+    String gameCode = this.createGameCode();
+    while (existingGameCodes.contains(gameCode)) {
       gameCode = this.createGameCode();
-      if (!existingGameCodes.contains(gameCode))
-        break;
     }
     return gameCode;
   }
