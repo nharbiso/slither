@@ -19,10 +19,19 @@ public class OrbGenerator {
     int size = orbs.size();
     for (int i = 0; i < this.MAX_ORB_COUNT - size; i++) {
       Orb orb = new Orb(new Coordinate(this.round(random.nextFloat(this.MAP_MIN_COORDINATE, this.MAP_MAX_COORDINATE)),
-                                       this.round(random.nextFloat(this.MAP_MIN_COORDINATE, this.MAP_MAX_COORDINATE))), OrbSize.SMALL);
+                                       this.round(random.nextFloat(this.MAP_MIN_COORDINATE, this.MAP_MAX_COORDINATE))),
+                        this.generateOrbSize());
       orbs.add(orb);
     }
     return orbs;
+  }
+
+  private OrbSize generateOrbSize() {
+    // 75% -- small; 25% -- large
+    Random random = new Random();
+    if (random.nextFloat() <= 0.75)
+      return OrbSize.SMALL;
+    return OrbSize.LARGE;
   }
 
 }

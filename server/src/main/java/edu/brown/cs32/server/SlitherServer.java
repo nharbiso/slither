@@ -162,6 +162,7 @@ public class SlitherServer extends WebSocketServer {
           break;
         }
         case USER_DIED -> {
+          // TODO: Add to deathOrbs set in gamestate when this happens
           User user = this.socketToUser.get(webSocket);
           if (user == null)
             throw new NoUserException(deserializedMessage.type());

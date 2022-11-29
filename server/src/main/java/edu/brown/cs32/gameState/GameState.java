@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class GameState {
 
   private Set<Orb> orbs;
+  private Set<Orb> deathOrbs; // only formed when people die
   private final int ORB_GENERATION_TIME_INTERVAL = 5;
 
   public GameState() {
