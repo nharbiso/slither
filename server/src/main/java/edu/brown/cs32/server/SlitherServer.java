@@ -3,12 +3,15 @@ package edu.brown.cs32.server;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import edu.brown.cs32.actionHandlers.NewClientHandler;
+import edu.brown.cs32.actionHandlers.RemoveOrbHandler;
 import edu.brown.cs32.actionHandlers.UpdateScoreHandler;
 import edu.brown.cs32.actionHandlers.UserDiedHandler;
 import edu.brown.cs32.exceptions.ClientAlreadyExistsException;
 import edu.brown.cs32.exceptions.IncorrectGameCodeException;
+import edu.brown.cs32.exceptions.InvalidOrbCoordinateException;
 import edu.brown.cs32.exceptions.MissingFieldException;
 import edu.brown.cs32.exceptions.NoUserException;
+import edu.brown.cs32.gameState.GameState;
 import edu.brown.cs32.gamecode.GameCodeGenerator;
 import edu.brown.cs32.leaderboard.Leaderboard;
 import edu.brown.cs32.message.Message;
@@ -32,6 +35,7 @@ public class SlitherServer extends WebSocketServer {
   private final Map<User, String> userToGameCode;
   private final Map<String, Leaderboard> gameCodeToLeaderboard;
   private final Map<WebSocket, User> socketToUser;
+  private final Map<String, GameState> gameCodeToGameState;
 
   public SlitherServer(int port) {
     super(new InetSocketAddress(port));
@@ -41,6 +45,7 @@ public class SlitherServer extends WebSocketServer {
     this.gameCodeToLeaderboard = new HashMap<>();
 //    this.leaderboard = new Leaderboard();
     this.socketToUser = new HashMap<>();
+    this.gameCodeToGameState = new HashMap<>();
   }
 
   public Set<WebSocket> getAllConnections() {
@@ -50,6 +55,8 @@ public class SlitherServer extends WebSocketServer {
   public Set<WebSocket> getInactiveConnections() {
     return new HashSet<>(this.inactiveConnections);
   }
+
+  public Map<String, GameState> getGameCodeToGameState() { return new HashMap<>(this.gameCodeToGameState); }
 
   public Set<String> getExistingGameCodes() { return this.gameCodeToLeaderboard.keySet(); }
 
@@ -149,6 +156,19 @@ public class SlitherServer extends WebSocketServer {
           webSocket.send(jsonResponse);
           break;
         }
+        case REMOVE_ORB -> {
+          User user = this.socketToUser.get(webSocket);
+          if (user == null)
+            throw new NoUserException(deserializedMessage.type());
+          String gameCode = this.userToGameCode.get(user);
+          GameState gameState = this.gameCodeToGameState.get(gameCode);
+          boolean result = new RemoveOrbHandler().handleRemoveOrb(deserializedMessage, gameState);
+          if (!result)
+            throw new InvalidOrbCoordinateException();
+          jsonResponse = this.serialize(this.generateMessage("Orb removed", MessageType.SUCCESS));
+          webSocket.send(jsonResponse);
+          break;
+        }
         default -> {
           jsonResponse = this.serialize(this.generateMessage("The message sent by the client had an unexpected type", MessageType.ERROR));
           webSocket.send(jsonResponse);
@@ -164,11 +184,14 @@ public class SlitherServer extends WebSocketServer {
     } catch (NoUserException e) {
       jsonResponse = this.serialize(this.generateMessage("An operation requiring a user was tried before the user existed", MessageType.ERROR));
       webSocket.send(jsonResponse);
-    } catch(ClientAlreadyExistsException e) {
+    } catch (ClientAlreadyExistsException e) {
       jsonResponse = this.serialize(this.generateMessage("Tried to add a client that already exists", MessageType.ERROR));
       webSocket.send(jsonResponse);
-    } catch(IncorrectGameCodeException e) {
+    } catch (IncorrectGameCodeException e) {
       jsonResponse = this.serialize(this.generateMessage("The provided gameCode was incorrect", MessageType.ERROR));
+      webSocket.send(jsonResponse);
+    } catch (InvalidOrbCoordinateException e) {
+      jsonResponse = this.serialize(this.generateMessage("The provided orb coordinate was invalid", MessageType.ERROR));
       webSocket.send(jsonResponse);
     }
   }
