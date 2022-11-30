@@ -25,6 +25,7 @@ import edu.brown.cs32.user.User;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -123,22 +124,16 @@ public class SlitherServer extends WebSocketServer {
     System.out.println("server: onClose called");
     this.allConnections.remove(webSocket);
     this.inactiveConnections.remove(webSocket);
-
     User user = this.socketToUser.get(webSocket);
-    if (user == null) 
+    if (user == null)
       return;
-    
     String gameCode = this.userToGameCode.get(user);
-    if (gameCode == null) 
+    if (gameCode == null)
       return;
-  
     GameState gameState = this.gameCodeToGameState.get(gameCode);
     if (gameState == null)
       return;
-
     this.gameStateToSockets.get(gameState).remove(webSocket);
-
-    System.out.println("server: reduced activeConnections: " + this.allConnections);
   }
 
   @Override
@@ -170,6 +165,7 @@ public class SlitherServer extends WebSocketServer {
           User newUser = new NewClientHandler().handleNewClientNoCode(deserializedMessage, webSocket, this);
           String gameCode = new GameCodeGenerator().generateGameCode(this.getExistingGameCodes());
           this.gameCodeToGameState.put(gameCode, new GameState());
+          this.gameStateToSockets.put(this.gameCodeToGameState.get(gameCode), new HashSet<>());
           Leaderboard leaderboard = new Leaderboard();
           leaderboard.addNewUser(newUser);
           this.userToGameCode.put(newUser, gameCode);
