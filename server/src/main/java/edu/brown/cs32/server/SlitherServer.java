@@ -10,7 +10,9 @@ import edu.brown.cs32.exceptions.ClientAlreadyExistsException;
 import edu.brown.cs32.exceptions.IncorrectGameCodeException;
 import edu.brown.cs32.exceptions.InvalidOrbCoordinateException;
 import edu.brown.cs32.exceptions.MissingFieldException;
+import edu.brown.cs32.exceptions.MissingGameStateException;
 import edu.brown.cs32.exceptions.NoUserException;
+import edu.brown.cs32.exceptions.SocketAlreadyExistsException;
 import edu.brown.cs32.exceptions.UserNoGameCodeException;
 import edu.brown.cs32.exceptions.GameCodeNoGameStateException;
 import edu.brown.cs32.exceptions.GameCodeNoLeaderboardException;
@@ -40,6 +42,7 @@ public class SlitherServer extends WebSocketServer {
   private final Map<String, Leaderboard> gameCodeToLeaderboard;
   private final Map<WebSocket, User> socketToUser;
   private final Map<String, GameState> gameCodeToGameState;
+  private final Map<GameState, Set<WebSocket>> gameStateToSockets;
 
   public SlitherServer(int port) {
     super(new InetSocketAddress(port));
@@ -50,6 +53,7 @@ public class SlitherServer extends WebSocketServer {
 //    this.leaderboard = new Leaderboard();
     this.socketToUser = new HashMap<>();
     this.gameCodeToGameState = new HashMap<>();
+    this.gameStateToSockets = new HashMap<>();
   }
 
   public Set<WebSocket> getAllConnections() {
@@ -72,6 +76,13 @@ public class SlitherServer extends WebSocketServer {
     }
   }
 
+  private void sendToAllGameStateConnections(GameState gameState, String messageJson) {
+    Set<WebSocket> gameSockets = this.gameStateToSockets.get(gameState);
+    for (WebSocket webSocket : gameSockets) {
+      webSocket.send(messageJson);
+    }
+  }
+
   public boolean addGameCodeToUser(String gameCode, User user) {
     if (this.userToGameCode.containsKey(user))
       return false;
@@ -79,10 +90,20 @@ public class SlitherServer extends WebSocketServer {
     return true;
   }
 
-  public boolean addWebsocketUser(WebSocket websocket, User user) {
-    if (this.socketToUser.containsKey(websocket))
+  public boolean addWebsocketUser(WebSocket webSocket, User user) {
+    if (this.socketToUser.containsKey(webSocket))
       return false;
-    this.socketToUser.put(websocket, user);
+    this.socketToUser.put(webSocket, user);
+    return true;
+  }
+
+  public boolean addSocketToGameState(String gameCode, WebSocket webSocket) throws MissingGameStateException {
+    GameState gameState = this.gameCodeToGameState.get(gameCode);
+    if (gameState == null || this.gameStateToSockets.get(gameState) == null) 
+      throw new MissingGameStateException();
+    if (this.gameStateToSockets.get(gameState).contains(webSocket)) 
+      return false;
+    this.gameStateToSockets.get(gameState).add(webSocket);
     return true;
   }
 
@@ -102,6 +123,21 @@ public class SlitherServer extends WebSocketServer {
     System.out.println("server: onClose called");
     this.allConnections.remove(webSocket);
     this.inactiveConnections.remove(webSocket);
+
+    User user = this.socketToUser.get(webSocket);
+    if (user == null) 
+      return;
+    
+    String gameCode = this.userToGameCode.get(user);
+    if (gameCode == null) 
+      return;
+  
+    GameState gameState = this.gameCodeToGameState.get(gameCode);
+    if (gameState == null)
+      return;
+
+    this.gameStateToSockets.get(gameState).remove(webSocket);
+
     System.out.println("server: reduced activeConnections: " + this.allConnections);
   }
 
@@ -138,6 +174,12 @@ public class SlitherServer extends WebSocketServer {
           leaderboard.addNewUser(newUser);
           this.userToGameCode.put(newUser, gameCode);
           this.gameCodeToLeaderboard.put(gameCode, leaderboard);
+
+          boolean result = this.addSocketToGameState(gameCode, webSocket);
+
+          if (!result)
+            throw new SocketAlreadyExistsException();
+
           Message message = this.generateMessage("New client added to new game", MessageType.SUCCESS);
           message.data().put("gameCode", gameCode);
           jsonResponse = this.serialize(message);
@@ -170,6 +212,17 @@ public class SlitherServer extends WebSocketServer {
           new UserDiedHandler().handleUserDied(user, this.gameCodeToLeaderboard.get(this.userToGameCode.get(user)));
           this.userToGameCode.remove(user);
           this.inactiveConnections.add(webSocket);
+          
+          String gameCode = this.userToGameCode.get(user);
+          if (gameCode == null) 
+            throw new UserNoGameCodeException();
+        
+          GameState gameState = this.gameCodeToGameState.get(gameCode);
+          if (gameState == null)
+            throw new GameCodeNoGameStateException();
+
+          this.gameStateToSockets.get(gameState).remove(webSocket);
+
           jsonResponse = this.serialize(this.generateMessage("User removed from leaderboard", MessageType.SUCCESS));
           webSocket.send(jsonResponse);
           break;
@@ -226,7 +279,13 @@ public class SlitherServer extends WebSocketServer {
     } catch (GameCodeNoLeaderboardException e) {
       jsonResponse = this.serialize(this.generateMessage("Game code had no corresponding leaderboard", MessageType.ERROR));
       webSocket.send(jsonResponse);
-    }
+    } catch (SocketAlreadyExistsException e) {
+      jsonResponse = this.serialize(this.generateMessage("This socket already exists", MessageType.ERROR));
+      webSocket.send(jsonResponse);
+    } catch (MissingGameStateException e) {
+      jsonResponse = this.serialize(this.generateMessage("Game state cannot be found", MessageType.ERROR));
+      webSocket.send(jsonResponse);
+    } 
   }
 
   @Override
