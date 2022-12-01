@@ -13,7 +13,7 @@ export interface SnakeData {
     velocityY: number;
 }
 
-export const SNAKE_VELOCITY = 1;
+export const SNAKE_VELOCITY = 5;
 
 export default function Snake({snake}: {snake: SnakeData}) {
     return (<div>
