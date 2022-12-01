@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction} from "react"
 import { OrbData } from './orb/Orb';
 import { SnakeData } from './snake/Snake';
 
