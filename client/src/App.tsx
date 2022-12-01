@@ -7,7 +7,7 @@ import {
 } from "./message/message";
 import Game from "./game/Game";
 import OrbSize from "./orb/orbSize";
-import Orb, { OrbInfo } from "./orb/Orb";
+import Orb, { OrbInfo } from "./orb/Orb"
 
 const AppConfig = {
   PROTOCOL: "ws:",
@@ -54,8 +54,8 @@ function App() {
 
   return (
     <div className="App">
-      <Game />
-      <Orb orbInfo={orbInfo} />
+        <Game/>
+        <Orb orbInfo={orbInfo} />
     </div>
   );
 }

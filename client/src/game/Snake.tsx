@@ -16,7 +16,8 @@ export interface SnakeData {
 export const SNAKE_VELOCITY = 5;
 
 export default function Snake({snake}: {snake: SnakeData}) {
-    return (<div>
+    return (
+    <div>
         {snake.snakeBody.toArray().map((bodyPart: Position, ind: number) => 
             <div className="snake" key={ind} style={{left: bodyPart.x, top: bodyPart.y}}/>)}
     </div>
