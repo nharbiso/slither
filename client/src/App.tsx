@@ -6,6 +6,8 @@ import {
   sendNewClientNoCodeMessage,
 } from "./message/message";
 import Game from "./game/Game";
+import OrbSize from "./orb/orbSize";
+import Orb, { OrbInfo } from "./orb/Orb"
 
 const AppConfig = {
   PROTOCOL: "ws:",
@@ -38,6 +40,8 @@ function registerSocket() {
   };
 }
 
+const orbInfo: OrbInfo = { x: 100, y: 500, size: OrbSize.LARGE };
+
 function App() {
   useEffect(() => {
     if (!toregister) {
@@ -47,8 +51,13 @@ function App() {
     registerSocket();
   }, []);
   // registerSocket();
+
   return (
-    <Game/>
+    <div className="App">
+        <Game/>
+        <Orb orbInfo={orbInfo} />
+      </header>
+    </div>
   );
 }
 

@@ -20,6 +20,14 @@ export interface NewClientOldCodeMessage {
   };
 }
 
+export interface RemoveOrbMessage {
+  type: MessageType.REMOVE_ORB;
+  data: {
+    x: number;
+    y: number;
+  };
+}
+
 export interface UpdateScoreMessage {
   type: MessageType.UPDATE_SCORE;
   data: {
@@ -56,6 +64,17 @@ export function sendNewClientWithCodeMessage(
     data: {
       username: username,
       gameCode: gameCode,
+    },
+  };
+  socket.send(JSON.stringify(message));
+}
+
+export function sendRemoveOrbMessage(socket: WebSocket, x: number, y: number) {
+  const message: RemoveOrbMessage = {
+    type: MessageType.REMOVE_ORB,
+    data: {
+      x: x,
+      y: y,
     },
   };
   socket.send(JSON.stringify(message));
