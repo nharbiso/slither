@@ -11,10 +11,9 @@ export interface SnakeData {
     snakeBody: Denque<Position>;
     velocityX: number;
     velocityY: number;
-    accelAngle: number; // in radians; acceleration just changes direction of snake, not speed
 }
 
-export const SNAKE_VELOCITY = 5;
+export const SNAKE_VELOCITY = 1;
 
 export default function Snake({snake}: {snake: SnakeData}) {
     return (<div>

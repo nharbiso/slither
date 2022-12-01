@@ -4,33 +4,17 @@ import { SnakeData, Position, SNAKE_VELOCITY} from "./Snake"
 
 import GameCanvas from "./GameCanvas"
 
-//dummy snake
-
-const sbp3: Position = {
-    x: 600,
-    y: 100,
-};
-const sbp2: Position = {
-    x: 600,
-    y: 105,
-};
-const sbp1: Position = {
-    x: 600,
-    y: 110,
-};
-
-const snake: SnakeData = {
-    snakeBody: new Denque([sbp1, sbp2, sbp3]),
-    velocityX: 0,
-    velocityY: SNAKE_VELOCITY,
-    accelAngle: 0
-}
-
-//request data from server, server will give gamestate data
-
-let mockGameState = {snakes: [new Denque([sbp1, sbp2, sbp3])]}
-
 export default function Game() {
+    const snakeBody: Position[] = [];
+    for(let i = 0; i < 100; i++) {
+        snakeBody.push({x: 600, y: 100 + 5 * i});
+    }
+    const snake: SnakeData = {
+        snakeBody: new Denque(snakeBody),
+        velocityX: 0,
+        velocityY: SNAKE_VELOCITY,
+    }
+
     const [snakes, setSnakes] = useState<SnakeData[]>([snake]);
     return (
         <GameCanvas snakes={snakes} setSnakes={setSnakes} mySnake={0}/>
