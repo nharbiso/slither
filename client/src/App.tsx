@@ -5,6 +5,8 @@ import {
   sendNewClientWithCodeMessage,
   sendNewClientNoCodeMessage,
 } from "./message/message";
+import OrbSize from "./orb/orbSize";
+import Orb, { OrbInfo } from "./orb/Orb";
 
 const AppConfig = {
   PROTOCOL: "ws:",
@@ -37,6 +39,8 @@ function registerSocket() {
   };
 }
 
+const orbInfo: OrbInfo = { x: 100, y: 500, size: OrbSize.LARGE };
+
 function App() {
   useEffect(() => {
     if (!toregister) {
@@ -46,6 +50,7 @@ function App() {
     registerSocket();
   }, []);
   // registerSocket();
+
   return (
     <div className="App">
       <header className="App-header">
@@ -61,6 +66,7 @@ function App() {
         >
           Learn React
         </a>
+        <Orb orbInfo={orbInfo} />
       </header>
     </div>
   );
