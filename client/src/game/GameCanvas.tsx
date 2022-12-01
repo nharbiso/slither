@@ -1,47 +1,34 @@
-import Snake, { SnakeData, Position, SNAKE_VELOCITY } from "./Snake";
-import { useEffect, useState, Dispatch, SetStateAction} from "react"
-import "./SnakeCircle.css"
+import GameState, { Position } from './GameState';
+import Snake, { SnakeData, SNAKE_VELOCITY } from './snake/Snake';
+import Orb, { OrbData } from './orb/Orb';
+import { useEffect, Dispatch, SetStateAction } from 'react'
 
 let mousePos: Position = {x: 0, y: 0};
 
-export default function GameCanvas({snakes, setSnakes, mySnake}: {snakes: SnakeData[], setSnakes: Dispatch<SetStateAction<SnakeData[]>>, mySnake: number}) {
-    const [mousePosState, setMousePos] = useState<Position>({x: 0, y: 0});
-
-    const onMouseMove = (e: MouseEvent) => setMousePos({x: e.pageX, y: e.pageY});
+export default function GameCanvas({gameState, setGameState, user}: {gameState: GameState, setGameState: Dispatch<SetStateAction<GameState>>, user: String}) {
+    const onMouseMove = (e: MouseEvent) => {mousePos = {x: e.pageX, y: e.pageY}};
 
     useEffect(() => {
         const interval = setInterval(() => {
-            const updatedSnake: SnakeData = moveSnake(snakes[mySnake]);
-            setSnakes(snakes.splice(mySnake, 1, updatedSnake));
+            const mySnake: SnakeData | undefined = gameState.snakes.get(user);
+            if(mySnake !== undefined) {
+                const newGameState: GameState = {...gameState};
+                const updatedSnake: SnakeData = moveSnake(mySnake);
+                newGameState.snakes.set(user, updatedSnake);
+                setGameState(newGameState);
+            }
         }, 15);
         window.addEventListener('mousemove', onMouseMove);
+
         return () => {
             clearInterval(interval);
             window.removeEventListener('mousemove', onMouseMove);
         }
-    }, [])
-    
-    // const [left, setLeft] = useState("10px");
-    // const [top, setTop] = useState("10px");
-
-    // const onMouseMove = (e: any) =>{
-    //     setLeft(e.pageX + 'px')
-    //     setTop(e.pageY + "px")
-    //   }
-
-    // useEffect(() => {
-    //     document.addEventListener('mousemove', onMouseMove);
-    // }, [])
-    //return <div style={{left: left, top: top}} />;
-
-
-    useEffect(() => {
-        mousePos = mousePosState;
-    }, [mousePosState]);
-    
+    }, [])    
 
     return (<div>
-         {snakes.map((snake: SnakeData, ind: number) => <Snake snake={snake} key={ind} />)}
+         {Array.from(gameState.snakes.values()).map((snake: SnakeData, ind: number) => <Snake snake={snake} key={ind} />)}
+         {Array.from(gameState.orbs).map((orb: OrbData, ind: number) => <Orb orbInfo={orb} key={ind} />)}
     </div>)
 }
 

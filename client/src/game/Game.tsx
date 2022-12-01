@@ -1,6 +1,9 @@
 import Denque from "denque"
 import React, { useState } from "react"
-import { SnakeData, Position, SNAKE_VELOCITY} from "./Snake"
+import GameState, { Position } from './GameState'
+import OrbSize from "./orb/orbSize";
+import { OrbData } from "./orb/Orb"
+import { SnakeData, SNAKE_VELOCITY } from "./snake/Snake"
 
 import GameCanvas from "./GameCanvas"
 
@@ -14,10 +17,18 @@ export default function Game() {
         velocityX: 0,
         velocityY: SNAKE_VELOCITY,
     }
+    const orb: OrbData = { x: 100, y: 500, size: OrbSize.LARGE };
 
-    const [snakes, setSnakes] = useState<SnakeData[]>([snake]);
+    const [gameState, setGameState] = useState<GameState>({
+        snakes: new Map([["user1", snake]]),
+        otherBodies: new Set(),
+        orbs: new Set([orb]),
+        scores: new Map([["user1", 0]]),
+        gameCode: "abc"
+    });
+
     return (
-        <GameCanvas snakes={snakes} setSnakes={setSnakes} mySnake={0}/>
+        <GameCanvas gameState={gameState} setGameState={setGameState} user={"user1"}/>
         //leaderboard
         //player's score
     )

@@ -1,11 +1,7 @@
 import { useEffect } from "react";
-import Denque from "denque";
+import Denque from 'denque';
+import { Position } from '../GameState';
 import "./SnakeCircle.css"
-
-export interface Position {
-    x: number;
-    y: number;
-}
 
 export interface SnakeData {
     snakeBody: Denque<Position>;

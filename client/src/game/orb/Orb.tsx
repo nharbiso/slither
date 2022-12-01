@@ -2,13 +2,13 @@ import React from "react";
 import OrbSize from "./orbSize";
 import "./orb.css";
 
-export interface OrbInfo {
+export interface OrbData {
   x: number;
   y: number;
   size: OrbSize;
 }
 
-export default function Orb({ orbInfo }: { orbInfo: OrbInfo }) {
+export default function Orb({ orbInfo }: { orbInfo: OrbData }) {
   return (
     <div
       className="circle"
