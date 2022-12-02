@@ -1,24 +1,96 @@
 import Denque from "denque"
-import React, { useState } from "react"
 import GameState, { Position } from './GameState'
 import OrbSize from "./orb/orbSize";
 import { OrbData } from "./orb/Orb"
 import { SnakeData, SNAKE_VELOCITY } from "./snake/Snake"
+import React, { useState, useEffect } from "react";
 
-import GameCanvas from "./GameCanvas"
+import GameCanvas from "./GameCanvas";
+import MessageType from "../message/messageTypes";
+import {
+  leaderboardData,
+  leaderboardEntry,
+  sendNewClientNoCodeMessage,
+} from "../message/message";
+import Leaderboard from "../leaderboard/Leaderboard";
+import GameCode from "../gameCode/GameCode";
+
+const AppConfig = {
+  PROTOCOL: "ws:",
+  HOST: "//localhost",
+  PORT: ":9000",
+};
+
+let toregister: boolean = true;
+let socket: WebSocket;
+
+function registerSocket(
+  setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>
+) {
+  let socket: WebSocket = new WebSocket(
+    AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT
+  );
+
+  socket.onopen = () => {
+    console.log("client: A new client-side socket was opened!");
+    // TODO: random string username for now; pass user chosen username later); also pass chosen game code later
+    sendNewClientNoCodeMessage(socket, (Math.random() * 1000).toString());
+    // sendNewClientWithCodeMessage(
+    //   socket,
+    //   (Math.random() * 1000).toString(),
+    //   "123456"
+    // );
+  };
+
+  socket.onmessage = (response: MessageEvent) => {
+    let message = JSON.parse(response.data);
+    // ideally, we would want to do different things based on the message's type
+    console.log("client: A message was received: " + response.data);
+    switch (message.type) {
+      case MessageType.UPDATE_LEADERBOARD: {
+        const leaderboardMessage: leaderboardData = message;
+        setScores(
+          extractLeaderboardMap(leaderboardMessage.data.leaderboard)
+        );
+        break;
+      }
+      case MessageType.SET_CODE: {
+        //setCode(message);
+        break;
+      }
+    }
+      
+      // case MessageType.SET_CODE: {
+
+      // }
+    }
+  };
+
 
 export default function Game() {
-    const snakeBody: Position[] = [];
-    for(let i = 0; i < 100; i++) {
-        snakeBody.push({x: 600, y: 100 + 5 * i});
-    }
-    const snake: SnakeData = {
-        snakeBody: new Denque(snakeBody),
-        velocityX: 0,
-        velocityY: SNAKE_VELOCITY,
-    }
+  const snakeBody: Position[] = [];
+  for (let i = 0; i < 100; i++) {
+    snakeBody.push({ x: 600, y: 100 + 5 * i });
+  }
+  const snake: SnakeData = {
+    snakeBody: new Denque(snakeBody),
+    velocityX: 0,
+    velocityY: SNAKE_VELOCITY,
+  };
 
-    const position: Position = {
+  const [scores, setScores] = useState(new Map<string, number>());
+
+  useEffect(() => {
+    if (!toregister) {
+      return;
+    }
+    toregister = false;
+    registerSocket(setScores);
+  }, []);
+
+  const [snakes, setSnakes] = useState<SnakeData[]>([snake]);
+  
+  const position: Position = {
         x: 100,
         y: 500
     };
@@ -32,15 +104,27 @@ export default function Game() {
         scores: new Map([["user1", 0]]),
         gameCode: "abc"
     });
+    
+  return (
+    <div>
+      <GameCanvas gameState={gameState} setGameState={setGameState} user={"user1"}/>
+      <Leaderboard leaderboard={scores} />
+      <GameCode gameCode = "ABCDEF" />
+    </div>
+    //player's score
+  );
+}
+    
+function extractLeaderboardMap(leaderboardData: leaderboardEntry[]) {
+  const leaderboard: Map<string, number> = new Map<string, number>();
+  leaderboardData.forEach((entry: leaderboardEntry) => {
+    leaderboard.set(entry.username, entry.score);
+  });
+  return leaderboard;
 
-    return (
-        <GameCanvas gameState={gameState} setGameState={setGameState} user={"user1"}/>
-        //leaderboard
-        //player's score
-    )
 }
 
-//here we want to take in gamestate data and load everything 
+//here we want to take in gamestate data and load everything
 //i.e. load canvas, put snakes on top, render orbs, check mouse movements to move the snake, send data back to server, etc.
 //essentially we should be calling everything from here
 

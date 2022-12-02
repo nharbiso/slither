@@ -77,7 +77,7 @@ public class SlitherServer extends WebSocketServer {
     }
   }
 
-  private void sendToAllGameStateConnections(GameState gameState, String messageJson) {
+  public void sendToAllGameStateConnections(GameState gameState, String messageJson) {
     Set<WebSocket> gameSockets = this.gameStateToSockets.get(gameState);
     for (WebSocket webSocket : gameSockets) {
       webSocket.send(messageJson);
@@ -156,7 +156,10 @@ public class SlitherServer extends WebSocketServer {
             throw new GameCodeNoLeaderboardException();
           }
           this.gameCodeToLeaderboard.get(this.userToGameCode.get(newUser)).addNewUser(newUser);
-          jsonResponse = this.serialize(this.generateMessage("New client added to existing game code", MessageType.SUCCESS));
+          Message message = this.generateMessage("New client added to existing game code", MessageType.SUCCESS);
+          message.data().put("gameCode", this.userToGameCode.get(newUser));
+          jsonResponse = this.serialize(message);
+          System.out.println("WC: " + jsonResponse);
           webSocket.send(jsonResponse);
           break;
         }
@@ -166,7 +169,7 @@ public class SlitherServer extends WebSocketServer {
           String gameCode = new GameCodeGenerator().generateGameCode(this.getExistingGameCodes());
           this.gameCodeToGameState.put(gameCode, new GameState());
           this.gameStateToSockets.put(this.gameCodeToGameState.get(gameCode), new HashSet<>());
-          Leaderboard leaderboard = new Leaderboard();
+          Leaderboard leaderboard = new Leaderboard(this.gameCodeToGameState.get(gameCode), this);
           leaderboard.addNewUser(newUser);
           this.userToGameCode.put(newUser, gameCode);
           this.gameCodeToLeaderboard.put(gameCode, leaderboard);
@@ -179,6 +182,7 @@ public class SlitherServer extends WebSocketServer {
           Message message = this.generateMessage("New client added to new game", MessageType.SUCCESS);
           message.data().put("gameCode", gameCode);
           jsonResponse = this.serialize(message);
+          System.out.println("NC: " + jsonResponse);
           webSocket.send(jsonResponse);
           break;
         }
@@ -297,7 +301,7 @@ public class SlitherServer extends WebSocketServer {
     System.out.println("server: Server started!");
   }
 
-  private String serialize(Message message) {
+  public String serialize(Message message) {
     Moshi moshi = new Moshi.Builder().build();
     JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
     return jsonAdapter.toJson(message);
