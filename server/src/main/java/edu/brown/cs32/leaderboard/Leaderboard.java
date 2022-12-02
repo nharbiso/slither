@@ -104,7 +104,7 @@ public class Leaderboard {
     LeaderboardEntry[] leaderboard = new LeaderboardEntry[this.userScores.size()];
     int i = 0;
     for (User user : this.userScores.keySet()) {
-      leaderboard[i] = new LeaderboardEntry(user, this.userScores.get(user));
+      leaderboard[i] = new LeaderboardEntry(user.getUsername(), this.userScores.get(user));
       i++;
     }
     Arrays.sort(leaderboard, new Comparator<LeaderboardEntry>() {
