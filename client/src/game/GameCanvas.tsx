@@ -1,6 +1,12 @@
 import Snake, { SnakeData, Position, SNAKE_VELOCITY } from "./Snake";
 import { useEffect, useState, Dispatch, SetStateAction} from "react"
 import "./SnakeCircle.css"
+// import Leaderboard from "../leaderboard/Leaderboard";
+
+// let mockLeaderboard = new Map<string, number>();
+// mockLeaderboard.set("player 1", 100);
+// mockLeaderboard.set("player 2", 32);
+
 
 let mousePos: Position = {x: 0, y: 0};
 
@@ -42,6 +48,7 @@ export default function GameCanvas({snakes, setSnakes, mySnake}: {snakes: SnakeD
 
     return (<div>
          {snakes.map((snake: SnakeData, ind: number) => <Snake snake={snake} key={ind} />)}
+         {/* <Leaderboard leaderboard={mockLeaderboard} /> */}
     </div>)
 }
 

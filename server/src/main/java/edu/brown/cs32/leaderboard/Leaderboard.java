@@ -1,17 +1,48 @@
 package edu.brown.cs32.leaderboard;
 
+import edu.brown.cs32.gameState.GameState;
+import edu.brown.cs32.message.Message;
+import edu.brown.cs32.message.MessageType;
+import edu.brown.cs32.server.SlitherServer;
 import edu.brown.cs32.user.User;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class Leaderboard {
 
   private final Map<User, Integer> userScores;
+  private final int LEADERBOARD_UPDATE_INTERVAL = 5;
+  private final GameState gameState;
+  private final SlitherServer slitherServer;
 
-  public Leaderboard() {
+  public Leaderboard(GameState gameState, SlitherServer slitherServer) {
     this.userScores = new HashMap<User, Integer>();
+    this.gameState = gameState;
+    this.slitherServer = slitherServer;
+
+    ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
+    exec.scheduleAtFixedRate(new Runnable() {
+      public void run() {
+        // code to execute repeatedly
+        System.out.println("Try to generate leaderboard");
+        LeaderboardEntry[] newLeaderboard = Leaderboard.this.getLeaderboard();
+        Map<String, Object> data = new HashMap<>();
+        data.put("leaderboard", newLeaderboard);
+        Message message = new Message(MessageType.UPDATE_LEADERBOARD, data);
+        Leaderboard.this.sendLeaderboardScores(message);
+      }
+    }, 1, this.LEADERBOARD_UPDATE_INTERVAL, TimeUnit.SECONDS); // execute every 60 seconds
+  }
+
+  private void sendLeaderboardScores(Message message) {
+    String json = this.slitherServer.serialize(message);
+    System.out.println("Leaderboard json");
+    System.out.println(json);
+    this.slitherServer.sendToAllGameStateConnections(this.gameState, json);
   }
 
   /**
@@ -26,7 +57,7 @@ public class Leaderboard {
     if (this.userScores.containsKey(user)) {
       return false;
     }
-    this.userScores.put(user, 0);
+    this.userScores.put(user, 20);
     return true;
   }
 
@@ -73,7 +104,7 @@ public class Leaderboard {
     LeaderboardEntry[] leaderboard = new LeaderboardEntry[this.userScores.size()];
     int i = 0;
     for (User user : this.userScores.keySet()) {
-      leaderboard[i] = new LeaderboardEntry(user, this.userScores.get(user));
+      leaderboard[i] = new LeaderboardEntry(user.getUsername(), this.userScores.get(user));
       i++;
     }
     Arrays.sort(leaderboard, new Comparator<LeaderboardEntry>() {

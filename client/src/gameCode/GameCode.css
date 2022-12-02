@@ -1,0 +1,11 @@
+#codeDisplay {
+    /* background-color: lightslategray; */
+    position: fixed;
+    height: 10px;
+    left: 1%;
+    opacity: 70%;
+}
+
+#codeText {
+    color: red
+}
