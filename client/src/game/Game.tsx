@@ -107,7 +107,7 @@ export default function Game() {
     
   return (
     <div>
-      <GameCanvas gameState={gameState} setGameState={setGameState} user={"user1"}/>
+      <GameCanvas gameState={gameState} setGameState={setGameState} user={"user1"} socket={socket}/>
       <Leaderboard leaderboard={scores} />
       <GameCode gameCode = "ABCDEF" />
     </div>

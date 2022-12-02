@@ -4,7 +4,7 @@ import Orb, { OrbData } from './orb/Orb';
 import { formControlUnstyledClasses } from '@mui/base';
 import { sendRemoveOrbMessage, sendUserDiedMessage } from '../message/message';
 import { useEffect, useState, Dispatch, SetStateAction} from "react"
-import "./SnakeCircle.css"
+import "./snake/SnakeCircle.css"
 
 const mousePos: Position = {x: 0, y: 0};
 const offset: Position = {x: 0, y: 0};
