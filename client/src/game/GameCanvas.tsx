@@ -2,11 +2,13 @@ import GameState, { Position } from './GameState';
 import Snake, { SnakeData, SNAKE_VELOCITY } from './snake/Snake';
 import Orb, { OrbData } from './orb/Orb';
 import { useEffect, Dispatch, SetStateAction } from 'react'
+import { formControlUnstyledClasses } from '@mui/base';
+import { sendRemoveOrbMessage, sendUserDiedMessage } from '../message/message';
 
 const mousePos: Position = {x: 0, y: 0};
 const offset: Position = {x: 0, y: 0};
 
-export default function GameCanvas({gameState, setGameState, user}: {gameState: GameState, setGameState: Dispatch<SetStateAction<GameState>>, user: String}) {
+export default function GameCanvas({gameState, setGameState, user, socket}: {gameState: GameState, setGameState: Dispatch<SetStateAction<GameState>>, user: String, socket: WebSocket}) {
     const onMouseMove = (e: MouseEvent) => {
         mousePos.x = e.pageX;
         mousePos.y = e.pageY;
@@ -17,7 +19,7 @@ export default function GameCanvas({gameState, setGameState, user}: {gameState: 
             const mySnake: SnakeData | undefined = gameState.snakes.get(user);
             if(mySnake !== undefined) {
                 const newGameState: GameState = {...gameState};
-                const updatedSnake: SnakeData = moveSnake(mySnake);
+                const updatedSnake: SnakeData = moveSnake(mySnake, gameState, socket);
                 newGameState.snakes.set(user, updatedSnake);
                 setGameState(newGameState);
             }
@@ -45,7 +47,7 @@ export default function GameCanvas({gameState, setGameState, user}: {gameState: 
     </div>);
 }
 
-function moveSnake(snake: SnakeData): SnakeData {
+function moveSnake(snake: SnakeData, gameState: GameState, socket: WebSocket): SnakeData {
     snake.snakeBody.pop();
     const front: Position | undefined = snake.snakeBody.peekFront();
     if(front !== undefined) {
@@ -57,7 +59,21 @@ function moveSnake(snake: SnakeData): SnakeData {
         snake.velocityX = SNAKE_VELOCITY * Math.cos(vel_angle);
         snake.velocityY = SNAKE_VELOCITY * Math.sin(vel_angle);
 
-        snake.snakeBody.unshift({x: front.x + snake.velocityX, y: front.y + snake.velocityY});
+        const newPosition: Position = {
+            x: front.x + snake.velocityX,
+            y: front.y + snake.velocityY
+        }
+
+        snake.snakeBody.unshift({x: newPosition.x, y: newPosition.y});
+
+        if (gameState.otherBodies.has(newPosition)) {
+            sendUserDiedMessage(socket)
+        }
+        // if (allOrbs.has(newPosition)) { //need to somehow get the set of allOrbs (set of Positions representing every orb)
+        //     //might refactor this later if we can't lookup rb positions in constant time
+        //     sendRemoveOrbMessage(socket, newPosition)
+        //     //need to somehow access the size of the orb that i collided with and update my score accordingly
+        // }
     }
     return snake;
 }

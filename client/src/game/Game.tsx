@@ -17,7 +17,13 @@ export default function Game() {
         velocityX: 0,
         velocityY: SNAKE_VELOCITY,
     }
-    const orb: OrbData = { x: 100, y: 500, size: OrbSize.LARGE };
+
+    const position: Position = {
+        x: 100,
+        y: 500
+    };
+
+    const orb: OrbData = { position, size: OrbSize.LARGE };
 
     const [gameState, setGameState] = useState<GameState>({
         snakes: new Map([["user1", snake]]),
