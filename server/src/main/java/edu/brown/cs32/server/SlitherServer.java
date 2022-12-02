@@ -156,7 +156,10 @@ public class SlitherServer extends WebSocketServer {
             throw new GameCodeNoLeaderboardException();
           }
           this.gameCodeToLeaderboard.get(this.userToGameCode.get(newUser)).addNewUser(newUser);
-          jsonResponse = this.serialize(this.generateMessage("New client added to existing game code", MessageType.SUCCESS));
+          Message message = this.generateMessage("New client added to existing game code", MessageType.SUCCESS);
+          message.data().put("gameCode", this.userToGameCode.get(newUser));
+          jsonResponse = this.serialize(message);
+          System.out.println("WC: " + jsonResponse);
           webSocket.send(jsonResponse);
           break;
         }
@@ -179,6 +182,7 @@ public class SlitherServer extends WebSocketServer {
           Message message = this.generateMessage("New client added to new game", MessageType.SUCCESS);
           message.data().put("gameCode", gameCode);
           jsonResponse = this.serialize(message);
+          System.out.println("NC: " + jsonResponse);
           webSocket.send(jsonResponse);
           break;
         }
