@@ -4,10 +4,12 @@ import "./App.css";
 import {
   sendNewClientWithCodeMessage,
   sendNewClientNoCodeMessage,
+  leaderboardData,
 } from "./message/message";
 import Game from "./game/Game";
 import OrbSize from "./orb/orbSize";
 import Orb, { OrbInfo } from "./orb/Orb";
+import MessageType from "./message/messageTypes";
 
 const AppConfig = {
   PROTOCOL: "ws:",
@@ -16,6 +18,7 @@ const AppConfig = {
 };
 
 let toregister: boolean = true;
+let socket: WebSocket;
 
 function registerSocket() {
   let socket: WebSocket = new WebSocket(
@@ -33,11 +36,16 @@ function registerSocket() {
     // );
   };
 
-  socket.onmessage = (response: MessageEvent) => {
-    let message = JSON.parse(response.data);
-    // ideally, we would want to do different things based on the message's type
-    console.log("client: A message was received: " + response.data);
-  };
+  // socket.onmessage = (response: MessageEvent) => {
+  //   let message = JSON.parse(response.data);
+  //   // ideally, we would want to do different things based on the message's type
+  //   console.log("client: A message was received: " + response.data);
+  //   switch (message.type) {
+  //     case MessageType.UPDATE_LEADERBOARD: {
+  //       const leaderboardMessage: leaderboardData = message;
+  //     }
+  //   }
+  // };
 }
 
 const orbInfo: OrbInfo = { x: 100, y: 500, size: OrbSize.LARGE };
@@ -54,7 +62,7 @@ function App() {
 
   return (
     <div className="App">
-      <Game />
+      <Game socket={socket} />
       <Orb orbInfo={orbInfo} />
     </div>
   );

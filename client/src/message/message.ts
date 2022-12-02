@@ -97,3 +97,17 @@ export function sendUserDiedMessage(socket: WebSocket) {
   };
   socket.send(JSON.stringify(message));
 }
+
+// TYPES FOR MESSAGES RECEIVED FROM THE SERVER
+
+export interface leaderboardData {
+  type: MessageType.UPDATE_LEADERBOARD;
+  data: {
+    leaderboard: leaderboardEntry[];
+  };
+}
+
+export interface leaderboardEntry {
+  username: string;
+  score: number;
+}

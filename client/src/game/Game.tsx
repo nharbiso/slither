@@ -3,8 +3,11 @@ import React, { useState } from "react"
 import { SnakeData, Position, SNAKE_VELOCITY} from "./Snake"
 
 import GameCanvas from "./GameCanvas"
+import MessageType from "../message/messageTypes";
+import { leaderboardData, leaderboardEntry } from "../message/message";
+import Leaderboard from "../leaderboard/Leaderboard";
 
-export default function Game() {
+export default function Game({socket}: {socket: WebSocket}) {
     const snakeBody: Position[] = [];
     for(let i = 0; i < 100; i++) {
         snakeBody.push({x: 600, y: 100 + 5 * i});
@@ -15,12 +18,36 @@ export default function Game() {
         velocityY: SNAKE_VELOCITY,
     }
 
+    const [scores, setScores] = useState(new Map<string, number>());
+
+    socket.onmessage = (response: MessageEvent) => {
+        let message = JSON.parse(response.data);
+        // ideally, we would want to do different things based on the message's type
+        console.log("client: A message was received: " + response.data);
+        switch (message.type) {
+          case MessageType.UPDATE_LEADERBOARD: {
+            const leaderboardMessage: leaderboardData = message;
+            setScores(extractLeaderboardMap(leaderboardMessage.data.leaderboard));
+          }
+        }
+      };
+
     const [snakes, setSnakes] = useState<SnakeData[]>([snake]);
     return (
-        <GameCanvas snakes={snakes} setSnakes={setSnakes} mySnake={0}/>
-        //leaderboard
+        <div>
+            <GameCanvas snakes={snakes} setSnakes={setSnakes} mySnake={0}/>
+            <Leaderboard leaderboard={scores} />
+        </div>
         //player's score
     )
+}
+
+function extractLeaderboardMap(leaderboardData: leaderboardEntry[]) {
+    const leaderboard: Map<string, number> = new Map<string, number>();
+    leaderboardData.forEach((entry: leaderboardEntry) => {
+        leaderboard.set(entry.username, entry.score);
+    })
+    return leaderboard;
 }
 
 //here we want to take in gamestate data and load everything 
