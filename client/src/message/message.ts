@@ -1,4 +1,5 @@
 import MessageType from "./messageTypes";
+import { Position } from "../game/GameState";
 
 export default interface Message {
   type: MessageType;
@@ -23,8 +24,7 @@ export interface NewClientOldCodeMessage {
 export interface RemoveOrbMessage {
   type: MessageType.REMOVE_ORB;
   data: {
-    x: number;
-    y: number;
+    position: Position;
   };
 }
 
@@ -69,12 +69,11 @@ export function sendNewClientWithCodeMessage(
   socket.send(JSON.stringify(message));
 }
 
-export function sendRemoveOrbMessage(socket: WebSocket, x: number, y: number) {
+export function sendRemoveOrbMessage(socket: WebSocket, position: Position) {
   const message: RemoveOrbMessage = {
     type: MessageType.REMOVE_ORB,
     data: {
-      x: x,
-      y: y,
+      position: position,
     },
   };
   socket.send(JSON.stringify(message));

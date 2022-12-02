@@ -1,6 +1,9 @@
-import Denque from "denque";
+import Denque from "denque"
+import GameState, { Position } from './GameState'
+import OrbSize from "./orb/orbSize";
+import { OrbData } from "./orb/Orb"
+import { SnakeData, SNAKE_VELOCITY } from "./snake/Snake"
 import React, { useState, useEffect } from "react";
-import { SnakeData, Position, SNAKE_VELOCITY } from "./Snake";
 
 import GameCanvas from "./GameCanvas";
 import MessageType from "../message/messageTypes";
@@ -86,22 +89,39 @@ export default function Game() {
   }, []);
 
   const [snakes, setSnakes] = useState<SnakeData[]>([snake]);
+  
+  const position: Position = {
+        x: 100,
+        y: 500
+    };
+
+    const orb: OrbData = { position, size: OrbSize.LARGE };
+
+    const [gameState, setGameState] = useState<GameState>({
+        snakes: new Map([["user1", snake]]),
+        otherBodies: new Set(),
+        orbs: new Set([orb]),
+        scores: new Map([["user1", 0]]),
+        gameCode: "abc"
+    });
+    
   return (
     <div>
-      <GameCanvas snakes={snakes} setSnakes={setSnakes} mySnake={0} />
+      <GameCanvas gameState={gameState} setGameState={setGameState} user={"user1"}/>
       <Leaderboard leaderboard={scores} />
       <GameCode gameCode = "ABCDEF" />
     </div>
     //player's score
   );
 }
-
+    
 function extractLeaderboardMap(leaderboardData: leaderboardEntry[]) {
   const leaderboard: Map<string, number> = new Map<string, number>();
   leaderboardData.forEach((entry: leaderboardEntry) => {
     leaderboard.set(entry.username, entry.score);
   });
   return leaderboard;
+
 }
 
 //here we want to take in gamestate data and load everything

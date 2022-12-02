@@ -1,11 +1,7 @@
 import { useEffect } from "react";
-import Denque from "denque";
+import Denque from 'denque';
+import { Position } from '../GameState';
 import "./SnakeCircle.css"
-
-export interface Position {
-    x: number;
-    y: number;
-}
 
 export interface SnakeData {
     snakeBody: Denque<Position>;
@@ -15,10 +11,11 @@ export interface SnakeData {
 
 export const SNAKE_VELOCITY = 5;
 
-export default function Snake({snake}: {snake: SnakeData}) {
-    return (<div>
+export default function Snake({snake, offset}: {snake: SnakeData, offset: Position}) {
+    return (
+    <div>
         {snake.snakeBody.toArray().map((bodyPart: Position, ind: number) => 
-            <div className="snake" key={ind} style={{left: bodyPart.x, top: bodyPart.y}}/>)}
+            <div className="snake" key={ind} style={{left: bodyPart.x + offset.x, top: bodyPart.y + offset.y}}/>)}
     </div>
         
         //for each snakebodypart, generate a circle around each coordinate
