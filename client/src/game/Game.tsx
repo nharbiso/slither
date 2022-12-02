@@ -45,13 +45,15 @@ function registerSocket(
     console.log("client: A message was received: " + response.data);
     switch (message.type) {
       case MessageType.UPDATE_LEADERBOARD: {
-        // const leaderboardMessage: leaderboardData = message;
-        // switch (message.type) {
-          // case MessageType.UPDATE_LEADERBOARD: {
         const leaderboardMessage: leaderboardData = message;
         setScores(
           extractLeaderboardMap(leaderboardMessage.data.leaderboard)
         );
+        break;
+      }
+      case MessageType.SET_CODE: {
+        //setCode(message);
+        break;
       }
     }
       
@@ -88,7 +90,7 @@ export default function Game() {
     <div>
       <GameCanvas snakes={snakes} setSnakes={setSnakes} mySnake={0} />
       <Leaderboard leaderboard={scores} />
-      <GameCode gameCode="ABCDEF" />
+      <GameCode gameCode = "ABCDEF" />
     </div>
     //player's score
   );
