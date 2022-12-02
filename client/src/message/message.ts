@@ -111,3 +111,10 @@ export interface leaderboardEntry {
   username: string;
   score: number;
 }
+
+export interface gameCode {
+  type: MessageType.SET_CODE;
+  data: {
+    gameCode: string;
+  };
+}

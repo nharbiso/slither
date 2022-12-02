@@ -10,6 +10,7 @@ import {
   sendNewClientNoCodeMessage,
 } from "../message/message";
 import Leaderboard from "../leaderboard/Leaderboard";
+import GameCode from "../gameCode/GameCode";
 
 const AppConfig = {
   PROTOCOL: "ws:",
@@ -44,19 +45,22 @@ function registerSocket(
     console.log("client: A message was received: " + response.data);
     switch (message.type) {
       case MessageType.UPDATE_LEADERBOARD: {
+        // const leaderboardMessage: leaderboardData = message;
+        // switch (message.type) {
+          // case MessageType.UPDATE_LEADERBOARD: {
         const leaderboardMessage: leaderboardData = message;
-        switch (message.type) {
-          case MessageType.UPDATE_LEADERBOARD: {
-            const leaderboardMessage: leaderboardData = message;
-            setScores(
-              extractLeaderboardMap(leaderboardMessage.data.leaderboard)
-            );
-          }
-        }
+        setScores(
+          extractLeaderboardMap(leaderboardMessage.data.leaderboard)
+        );
       }
     }
+      
+      // case MessageType.SET_CODE: {
+
+      // }
+    }
   };
-}
+
 
 export default function Game() {
   const snakeBody: Position[] = [];
@@ -84,6 +88,7 @@ export default function Game() {
     <div>
       <GameCanvas snakes={snakes} setSnakes={setSnakes} mySnake={0} />
       <Leaderboard leaderboard={scores} />
+      <GameCode gameCode="ABCDEF" />
     </div>
     //player's score
   );
