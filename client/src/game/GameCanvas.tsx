@@ -5,6 +5,7 @@ import Orb, { OrbData } from './orb/Orb';
 import { sendRemoveOrbMessage, sendUserDiedMessage } from '../message/message';
 import { useEffect, useState, Dispatch, SetStateAction} from "react"
 import "./snake/SnakeCircle.css"
+import OtherSnake from './snake/OtherSnake';
 
 const mousePos: Position = {x: 0, y: 0};
 const offset: Position = {x: 0, y: 0};
@@ -45,6 +46,7 @@ export default function GameCanvas({gameState, setGameState, user, socket}: {gam
     return (<div>
          {Array.from(gameState.snakes.values()).map((snake: SnakeData, ind: number) => <Snake snake={snake} offset={offset} key={ind} />)}
          {Array.from(gameState.orbs).map((orb: OrbData, ind: number) => <Orb orbInfo={orb} offset={offset} key={ind} />)}
+         <OtherSnake positions={gameState.otherBodies} offset={offset}/>
     </div>);
 }
 
@@ -67,8 +69,10 @@ function moveSnake(snake: SnakeData, gameState: GameState, socket: WebSocket): S
 
         snake.snakeBody.unshift({x: newPosition.x, y: newPosition.y});
 
-        if (gameState.otherBodies.has(newPosition)) {
+        if (gameState.otherBodies.has(newPosition)) { //might not be as straightforward as just checking if the position is occupied, need to check if the displayed circles are touching
             sendUserDiedMessage(socket)
+            console.log("u died")
+            //need to make snake disappear and show some kind of message indicating u died
         }
         // if (allOrbs.has(newPosition)) { //need to somehow get the set of allOrbs (set of Positions representing every orb)
         //     //might refactor this later if we can't lookup rb positions in constant time

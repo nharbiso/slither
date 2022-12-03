@@ -95,11 +95,16 @@ export default function Game() {
         y: 500
     };
 
+  const otherSnake: Position[] = [];
+  for (let i = 0; i < 50; i ++) {
+    otherSnake.push({x: 100 + 5 * i, y: 400})
+  }
+
     const orb: OrbData = { position, size: OrbSize.LARGE };
 
     const [gameState, setGameState] = useState<GameState>({
         snakes: new Map([["user1", snake]]),
-        otherBodies: new Set(),
+        otherBodies: new Set(otherSnake),
         orbs: new Set([orb]),
         scores: new Map([["user1", 0]]),
         gameCode: "abc"
