@@ -101,7 +101,7 @@ public class SlitherServer extends WebSocketServer {
   public boolean addSocketToGameState(String gameCode, WebSocket webSocket) throws MissingGameStateException {
     GameState gameState = this.gameCodeToGameState.get(gameCode);
     if (gameState == null || this.gameStateToSockets.get(gameState) == null) 
-      throw new MissingGameStateException();
+      throw new MissingGameStateException(MessageType.JOIN_ERROR);
     if (this.gameStateToSockets.get(gameState).contains(webSocket)) 
       return false;
     this.gameStateToSockets.get(gameState).add(webSocket);
@@ -150,13 +150,16 @@ public class SlitherServer extends WebSocketServer {
           User newUser = new NewClientHandler().handleNewClientWithCode(deserializedMessage, webSocket, this);
 //          this.leaderboard.addNewUser(newUser);
           if (this.userToGameCode.get(newUser) == null) {
-            throw new UserNoGameCodeException();
+            throw new UserNoGameCodeException(MessageType.JOIN_ERROR);
           }
           if (this.gameCodeToLeaderboard.get(this.userToGameCode.get(newUser)) == null) {
-            throw new GameCodeNoLeaderboardException();
+            throw new GameCodeNoLeaderboardException(MessageType.JOIN_ERROR);
           }
           this.gameCodeToLeaderboard.get(this.userToGameCode.get(newUser)).addNewUser(newUser);
-          Message message = this.generateMessage("New client added to existing game code", MessageType.SUCCESS);
+          if (!this.gameCodeToGameState.containsKey(this.userToGameCode.get(newUser)))
+            throw new GameCodeNoGameStateException(MessageType.JOIN_ERROR);
+          this.addSocketToGameState(this.userToGameCode.get(newUser), webSocket);
+          Message message = this.generateMessage("New client added to existing game code", MessageType.JOIN_SUCCESS);
           message.data().put("gameCode", this.userToGameCode.get(newUser));
           jsonResponse = this.serialize(message);
           System.out.println("WC: " + jsonResponse);
@@ -177,9 +180,9 @@ public class SlitherServer extends WebSocketServer {
           boolean result = this.addSocketToGameState(gameCode, webSocket);
 
           if (!result)
-            throw new SocketAlreadyExistsException();
+            throw new SocketAlreadyExistsException(MessageType.JOIN_ERROR);
 
-          Message message = this.generateMessage("New client added to new game", MessageType.SUCCESS);
+          Message message = this.generateMessage("New client added to new game", MessageType.JOIN_SUCCESS);
           message.data().put("gameCode", gameCode);
           jsonResponse = this.serialize(message);
           System.out.println("NC: " + jsonResponse);
@@ -193,10 +196,10 @@ public class SlitherServer extends WebSocketServer {
           int newScore = new UpdateScoreHandler().handleScoreUpdate(deserializedMessage, user);
 //          this.leaderboard.updateScore(user, newScore);
           if (this.userToGameCode.get(user) == null) {
-            throw new UserNoGameCodeException();
+            throw new UserNoGameCodeException(MessageType.ERROR);
           }
           if (this.gameCodeToLeaderboard.get(this.userToGameCode.get(user)) == null) {
-            throw new GameCodeNoLeaderboardException();
+            throw new GameCodeNoLeaderboardException(MessageType.ERROR);
           }
           this.gameCodeToLeaderboard.get(this.userToGameCode.get(user)).updateScore(user, newScore);
           jsonResponse = this.serialize(this.generateMessage("Score updated", MessageType.SUCCESS));
@@ -215,11 +218,11 @@ public class SlitherServer extends WebSocketServer {
           
           String gameCode = this.userToGameCode.get(user);
           if (gameCode == null) 
-            throw new UserNoGameCodeException();
+            throw new UserNoGameCodeException(MessageType.ERROR);
         
           GameState gameState = this.gameCodeToGameState.get(gameCode);
           if (gameState == null)
-            throw new GameCodeNoGameStateException();
+            throw new GameCodeNoGameStateException(MessageType.ERROR);
 
           this.gameStateToSockets.get(gameState).remove(webSocket);
 
@@ -232,58 +235,60 @@ public class SlitherServer extends WebSocketServer {
           if (user == null)
             throw new NoUserException(deserializedMessage.type());
           if (this.userToGameCode.get(user) == null) {
-            throw new UserNoGameCodeException();
+            throw new UserNoGameCodeException(MessageType.ERROR);
           }
           String gameCode = this.userToGameCode.get(user);
           if (this.gameCodeToGameState.get(gameCode) == null) {
-            throw new GameCodeNoGameStateException();
+            throw new GameCodeNoGameStateException(MessageType.ERROR);
           }
           GameState gameState = this.gameCodeToGameState.get(gameCode);
           boolean result = new RemoveOrbHandler().handleRemoveOrb(deserializedMessage, gameState);
           if (!result)
-            throw new InvalidOrbCoordinateException();
+            throw new InvalidOrbCoordinateException(MessageType.ERROR);
           jsonResponse = this.serialize(this.generateMessage("Orb removed", MessageType.SUCCESS));
           webSocket.send(jsonResponse);
           break;
         }
         default -> {
-          jsonResponse = this.serialize(this.generateMessage("The message sent by the client had an unexpected type", MessageType.ERROR));
+          MessageType messageType = this.socketToUser.containsKey(webSocket) ? MessageType.ERROR : MessageType.JOIN_ERROR;
+          jsonResponse = this.serialize(this.generateMessage("The message sent by the client had an unexpected type", messageType));
           webSocket.send(jsonResponse);
           break;
         }
       }
     } catch (IOException e) {
-      jsonResponse = this.serialize(this.generateMessage("The server could not deserialize the client's message", MessageType.ERROR));
+      MessageType messageType = this.socketToUser.containsKey(webSocket) ? MessageType.ERROR : MessageType.JOIN_ERROR;
+      jsonResponse = this.serialize(this.generateMessage("The server could not deserialize the client's message", messageType));
       webSocket.send(jsonResponse);
     } catch (MissingFieldException e) {
-      jsonResponse = this.serialize(this.generateMessage("The message sent by the client was missing a required field", MessageType.ERROR));
+      jsonResponse = this.serialize(this.generateMessage("The message sent by the client was missing a required field", e.messageType));
       webSocket.send(jsonResponse);
     } catch (NoUserException e) {
-      jsonResponse = this.serialize(this.generateMessage("An operation requiring a user was tried before the user existed", MessageType.ERROR));
+      jsonResponse = this.serialize(this.generateMessage("An operation requiring a user was tried before the user existed", e.messageType));
       webSocket.send(jsonResponse);
     } catch (ClientAlreadyExistsException e) {
-      jsonResponse = this.serialize(this.generateMessage("Tried to add a client that already exists", MessageType.ERROR));
+      jsonResponse = this.serialize(this.generateMessage("Tried to add a client that already exists", e.messageType));
       webSocket.send(jsonResponse);
     } catch (IncorrectGameCodeException e) {
-      jsonResponse = this.serialize(this.generateMessage("The provided gameCode was incorrect", MessageType.ERROR));
+      jsonResponse = this.serialize(this.generateMessage("The provided gameCode was incorrect", e.messageType));
       webSocket.send(jsonResponse);
     } catch (InvalidOrbCoordinateException e) {
-      jsonResponse = this.serialize(this.generateMessage("The provided orb coordinate was invalid", MessageType.ERROR));
+      jsonResponse = this.serialize(this.generateMessage("The provided orb coordinate was invalid", e.messageType));
       webSocket.send(jsonResponse);
     } catch (UserNoGameCodeException e) {
-      jsonResponse = this.serialize(this.generateMessage("User had no corresponding game code", MessageType.ERROR));
+      jsonResponse = this.serialize(this.generateMessage("User had no corresponding game code", e.messageType));
       webSocket.send(jsonResponse);
     } catch (GameCodeNoGameStateException e) {
-      jsonResponse = this.serialize(this.generateMessage("Game code had no corresponding game state", MessageType.ERROR));
+      jsonResponse = this.serialize(this.generateMessage("Game code had no corresponding game state", e.messageType));
       webSocket.send(jsonResponse);
     } catch (GameCodeNoLeaderboardException e) {
-      jsonResponse = this.serialize(this.generateMessage("Game code had no corresponding leaderboard", MessageType.ERROR));
+      jsonResponse = this.serialize(this.generateMessage("Game code had no corresponding leaderboard", e.messageType));
       webSocket.send(jsonResponse);
     } catch (SocketAlreadyExistsException e) {
-      jsonResponse = this.serialize(this.generateMessage("This socket already exists", MessageType.ERROR));
+      jsonResponse = this.serialize(this.generateMessage("This socket already exists", e.messageType));
       webSocket.send(jsonResponse);
     } catch (MissingGameStateException e) {
-      jsonResponse = this.serialize(this.generateMessage("Game state cannot be found", MessageType.ERROR));
+      jsonResponse = this.serialize(this.generateMessage("Game state cannot be found", e.messageType));
       webSocket.send(jsonResponse);
     } 
   }
