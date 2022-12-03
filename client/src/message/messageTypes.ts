@@ -9,6 +9,8 @@ enum MessageType {
   SET_CODE = "SET_CODE",
   ERROR = "ERROR",
   SUCCESS = "SUCCESS",
+  JOIN_ERROR = "JOIN_ERROR",
+  JOIN_SUCCESS = "JOIN_SUCCESS",
   // Update this as more code is developed
 }
 
