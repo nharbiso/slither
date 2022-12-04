@@ -33,9 +33,10 @@ function ControlledInput({
 interface HomeProps {
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>;
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>;
+  setGameCode: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export default function Home({ setGameStarted, setScores }: HomeProps) {
+export default function Home({ setGameStarted, setScores, setGameCode }: HomeProps) {
   const [username, setUsername] = useState("");
   const [inputGamecode, setInputGamecode] = useState("");
   const [errorText, setErrorText] = useState("");
@@ -59,7 +60,7 @@ export default function Home({ setGameStarted, setScores }: HomeProps) {
             <button
               className="btn btn-light new-game-button"
               onClick={() => {
-                newGameClick(setGameStarted, setScores, setErrorText, username);
+                newGameClick(setGameStarted, setScores, setErrorText, setGameCode, username);
               }}
             >
               Create a new game
@@ -84,6 +85,7 @@ export default function Home({ setGameStarted, setScores }: HomeProps) {
                   setGameStarted,
                   setScores,
                   setErrorText,
+                  setGameCode,
                   username,
                   inputGamecode
                 );
@@ -102,6 +104,7 @@ function newGameClick(
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
+  setGameCode: React.Dispatch<React.SetStateAction<string>>,
   username: string
 ) {
   if (username.trim().length === 0) {
@@ -110,7 +113,7 @@ function newGameClick(
   }
   setErrorText("");
   try {
-    registerSocket(setScores, setGameStarted, setErrorText, username, false);
+    registerSocket(setScores, setGameStarted, setErrorText, setGameCode, username, false);
   } catch (e) {
     setErrorText("Error: Could not connect to server!");
   }
@@ -120,6 +123,7 @@ function withGameCodeClick(
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
+  setGameCode: React.Dispatch<React.SetStateAction<string>>,
   username: string,
   gameCode: string
 ) {
@@ -133,6 +137,7 @@ function withGameCodeClick(
       setScores,
       setGameStarted,
       setErrorText,
+      setGameCode,
       username,
       true,
       gameCode

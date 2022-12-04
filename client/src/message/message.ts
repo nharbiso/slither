@@ -112,7 +112,7 @@ export interface leaderboardEntry {
 }
 
 export interface gameCode {
-  type: MessageType.SET_CODE;
+  type: MessageType.SET_GAME_CODE;
   data: {
     gameCode: string;
   };

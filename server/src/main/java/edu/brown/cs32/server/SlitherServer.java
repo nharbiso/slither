@@ -17,6 +17,7 @@ import edu.brown.cs32.exceptions.UserNoGameCodeException;
 import edu.brown.cs32.exceptions.GameCodeNoGameStateException;
 import edu.brown.cs32.exceptions.GameCodeNoLeaderboardException;
 import edu.brown.cs32.gameState.GameState;
+import edu.brown.cs32.gamecode.GameCode;
 import edu.brown.cs32.gamecode.GameCodeGenerator;
 import edu.brown.cs32.leaderboard.Leaderboard;
 import edu.brown.cs32.message.Message;
@@ -172,6 +173,9 @@ public class SlitherServer extends WebSocketServer {
           String gameCode = new GameCodeGenerator().generateGameCode(this.getExistingGameCodes());
           this.gameCodeToGameState.put(gameCode, new GameState());
           this.gameStateToSockets.put(this.gameCodeToGameState.get(gameCode), new HashSet<>());
+
+          GameCode gC = new GameCode(gameCode, this.gameCodeToGameState.get(gameCode), this);
+
           Leaderboard leaderboard = new Leaderboard(this.gameCodeToGameState.get(gameCode), this);
           leaderboard.addNewUser(newUser);
           this.userToGameCode.put(newUser, gameCode);

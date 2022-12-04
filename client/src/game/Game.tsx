@@ -29,6 +29,7 @@ export function registerSocket(
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
+  setGameCode: React.Dispatch<React.SetStateAction<string>>,
   username: string,
   hasGameCode: boolean,
   gameCode: string = ""
@@ -65,8 +66,9 @@ export function registerSocket(
         setScores(extractLeaderboardMap(leaderboardMessage.data.leaderboard));
         break;
       }
-      case MessageType.SET_CODE: {
-        //setCode(message);
+      case MessageType.SET_GAME_CODE: {
+        //setGameCode("b");
+        setGameCode(message.data.gameCode);
         break;
       }
     }
@@ -80,9 +82,11 @@ export function registerSocket(
 interface GameProps {
   scores: Map<string, number>;
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>;
+  gameCode: string;
+  setGameCode: React.Dispatch<React.SetStateAction<string>>
 }
 
-export default function Game({ scores, setScores }: GameProps) {
+export default function Game({ scores, setScores, gameCode, setGameCode }: GameProps) {
   const snakeBody: Position[] = [];
   for (let i = 0; i < 100; i++) {
     snakeBody.push({ x: 600, y: 100 + 5 * i });
@@ -129,7 +133,7 @@ export default function Game({ scores, setScores }: GameProps) {
         socket={socket}
       />
       <Leaderboard leaderboard={scores} />
-      <GameCode gameCode="ABCDEF" />
+      <GameCode gameCode={gameCode} />
     </div>
     //player's score
   );

@@ -9,7 +9,7 @@ public class GameCodeGenerator {
     Random random = new Random();
     String gameCode = "";
     for (int i = 0; i < 6; i++)
-      gameCode += (char) (random.nextInt(97, 123));
+      gameCode += (char) (random.nextInt(65, 91));
     return gameCode;
   }
 

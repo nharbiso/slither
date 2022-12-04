@@ -66,6 +66,7 @@ function moveSnake(snake: SnakeData, gameState: GameState, socket: WebSocket): S
         }
 
         snake.snakeBody.unshift({x: newPosition.x, y: newPosition.y});
+        console.log('x: ' + newPosition.x + " - y: " + newPosition.y);
 
         if (gameState.otherBodies.has(newPosition)) {
             sendUserDiedMessage(socket)
