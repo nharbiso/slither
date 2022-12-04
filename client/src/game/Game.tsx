@@ -67,7 +67,6 @@ export function registerSocket(
         break;
       }
       case MessageType.SET_GAME_CODE: {
-        //setGameCode("b");
         setGameCode(message.data.gameCode);
         break;
       }

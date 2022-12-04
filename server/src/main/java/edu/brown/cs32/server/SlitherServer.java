@@ -174,9 +174,6 @@ public class SlitherServer extends WebSocketServer {
           String gameCode = new GameCodeGenerator().generateGameCode(this.getExistingGameCodes());
           this.gameCodeToGameState.put(gameCode, new GameState());
           this.gameStateToSockets.put(this.gameCodeToGameState.get(gameCode), new HashSet<>());
-
-          GameCode gC = new GameCode(gameCode, this.gameCodeToGameState.get(gameCode), this);
-
           Leaderboard leaderboard = new Leaderboard(this.gameCodeToGameState.get(gameCode), this);
           leaderboard.addNewUser(newUser);
           this.userToGameCode.put(newUser, gameCode);
@@ -186,6 +183,8 @@ public class SlitherServer extends WebSocketServer {
 
           if (!result)
             throw new SocketAlreadyExistsException(MessageType.JOIN_ERROR);
+
+          GameCode.sendGameCode(gameCode, this.gameCodeToGameState.get(gameCode), this);          
 
           Message message = this.generateMessage("New client added to new game", MessageType.JOIN_SUCCESS);
           message.data().put("gameCode", gameCode);
