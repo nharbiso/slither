@@ -150,17 +150,21 @@ public class SlitherServer extends WebSocketServer {
         case NEW_CLIENT_WITH_CODE -> {
           this.inactiveConnections.remove(webSocket);
           User newUser = new NewClientHandler().handleNewClientWithCode(deserializedMessage, webSocket, this);
+          String existingGameCode = this.userToGameCode.get(newUser);
 //          this.leaderboard.addNewUser(newUser);
-          if (this.userToGameCode.get(newUser) == null) {
+          if (existingGameCode == null) {
             throw new UserNoGameCodeException(MessageType.JOIN_ERROR);
           }
-          if (this.gameCodeToLeaderboard.get(this.userToGameCode.get(newUser)) == null) {
+          if (this.gameCodeToLeaderboard.get(existingGameCode) == null) {
             throw new GameCodeNoLeaderboardException(MessageType.JOIN_ERROR);
           }
-          this.gameCodeToLeaderboard.get(this.userToGameCode.get(newUser)).addNewUser(newUser);
+          this.gameCodeToLeaderboard.get(existingGameCode).addNewUser(newUser);
           if (!this.gameCodeToGameState.containsKey(this.userToGameCode.get(newUser)))
             throw new GameCodeNoGameStateException(MessageType.JOIN_ERROR);
-          this.addSocketToGameState(this.userToGameCode.get(newUser), webSocket);
+          this.addSocketToGameState(existingGameCode, webSocket);
+
+          GameCode.sendGameCode(existingGameCode, this.gameCodeToGameState.get(existingGameCode), this);          
+
           Message message = this.generateMessage("New client added to existing game code", MessageType.JOIN_SUCCESS);
           message.data().put("gameCode", this.userToGameCode.get(newUser));
           jsonResponse = this.serialize(message);

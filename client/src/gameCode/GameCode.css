@@ -2,6 +2,7 @@
     /* background-color: lightslategray; */
     position: fixed;
     height: 10px;
+    top: 1%;
     left: 1%;
     opacity: 70%;
 }
