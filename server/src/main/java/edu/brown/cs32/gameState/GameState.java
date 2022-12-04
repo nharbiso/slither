@@ -1,6 +1,6 @@
 package edu.brown.cs32.gameState;
 
-import edu.brown.cs32.coordinate.Coordinate;
+import edu.brown.cs32.position.Position;
 import edu.brown.cs32.orb.Orb;
 import edu.brown.cs32.orb.OrbGenerator;
 import edu.brown.cs32.orb.OrbSize;
@@ -31,8 +31,8 @@ public class GameState {
     this.orbs = new OrbGenerator().generateOrbs(this.orbs);
   }
 
-  public boolean removeOrb(Coordinate coordinate) {
-    Orb removeOrb = new Orb(coordinate, OrbSize.SMALL); // OrbSize irrelevant for hash equality comparison
+  public boolean removeOrb(Position position) {
+    Orb removeOrb = new Orb(position, OrbSize.SMALL); // OrbSize irrelevant for hash equality comparison
     if (!this.orbs.contains(removeOrb))
       return false;
     while (this.orbs.contains(removeOrb)) {

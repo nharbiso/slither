@@ -1,6 +1,6 @@
 package edu.brown.cs32.orb;
 
-import edu.brown.cs32.coordinate.Coordinate;
+import edu.brown.cs32.position.Position;
 import java.util.Random;
 import java.util.Set;
 
@@ -18,7 +18,7 @@ public class OrbGenerator {
     Random random = new Random();
     int size = orbs.size();
     for (int i = 0; i < this.MAX_ORB_COUNT - size; i++) {
-      Orb orb = new Orb(new Coordinate(this.round(random.nextFloat(this.MAP_MIN_COORDINATE, this.MAP_MAX_COORDINATE)),
+      Orb orb = new Orb(new Position(this.round(random.nextFloat(this.MAP_MIN_COORDINATE, this.MAP_MAX_COORDINATE)),
                                        this.round(random.nextFloat(this.MAP_MIN_COORDINATE, this.MAP_MAX_COORDINATE))),
                         this.generateOrbSize());
       orbs.add(orb);
