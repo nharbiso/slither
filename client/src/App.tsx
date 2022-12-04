@@ -6,7 +6,7 @@ import Home from "./home/Home";
 function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [scores, setScores] = useState(new Map<string, number>());
-  const [gameCode, setGameCode] = useState("ABCDEF");
+  const [gameCode, setGameCode] = useState("");
 
   return (
     <div className="App">

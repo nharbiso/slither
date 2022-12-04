@@ -30,9 +30,6 @@ public class GameCode {
                 GameCode.this.sendGameCode();
             }
         }, 1, 60, TimeUnit.SECONDS);
-
-        sendGameCode();
-        //sendGameCode(gameCode);
     }
 
     public void setGameCode(String gameCode) {
