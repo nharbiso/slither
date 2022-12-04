@@ -28,6 +28,14 @@ export interface RemoveOrbMessage {
   };
 }
 
+export interface UpdatePositionMessage {
+  type: MessageType.UPDATE_POSITION;
+  data: {
+    add: Position; // the new circle's position
+    remove: Position; // the circle being removed
+  };
+}
+
 export interface UpdateScoreMessage {
   type: MessageType.UPDATE_SCORE;
   data: {
@@ -74,6 +82,21 @@ export function sendRemoveOrbMessage(socket: WebSocket, position: Position) {
     type: MessageType.REMOVE_ORB,
     data: {
       position: position,
+    },
+  };
+  socket.send(JSON.stringify(message));
+}
+
+export function sendUpdatePositionMessage(
+  socket: WebSocket,
+  add: Position,
+  remove: Position
+) {
+  const message: UpdatePositionMessage = {
+    type: MessageType.UPDATE_POSITION,
+    data: {
+      add: add,
+      remove: remove,
     },
   };
   socket.send(JSON.stringify(message));

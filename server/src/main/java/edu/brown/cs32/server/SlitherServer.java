@@ -4,6 +4,7 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import edu.brown.cs32.actionHandlers.NewClientHandler;
 import edu.brown.cs32.actionHandlers.RemoveOrbHandler;
+import edu.brown.cs32.actionHandlers.UpdatePositionHandler;
 import edu.brown.cs32.actionHandlers.UpdateScoreHandler;
 import edu.brown.cs32.actionHandlers.UserDiedHandler;
 import edu.brown.cs32.exceptions.ClientAlreadyExistsException;
@@ -191,6 +192,18 @@ public class SlitherServer extends WebSocketServer {
           jsonResponse = this.serialize(message);
           System.out.println("NC: " + jsonResponse);
           webSocket.send(jsonResponse);
+          break;
+        }
+        case UPDATE_POSITION -> {
+          User user = this.socketToUser.get(webSocket);
+          String gameCode = this.userToGameCode.get(user);
+          if (gameCode == null)
+            throw new UserNoGameCodeException(MessageType.ERROR);
+          GameState gameState = this.gameCodeToGameState.get(gameCode);
+          if (gameState == null)
+            throw new GameCodeNoGameStateException(MessageType.ERROR);
+          
+          new UpdatePositionHandler().handlePositionUpdate(user, deserializedMessage, gameState, webSocket, this.gameStateToSockets.get(gameState), this);
           break;
         }
         case UPDATE_SCORE -> {

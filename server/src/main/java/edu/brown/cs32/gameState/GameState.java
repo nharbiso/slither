@@ -1,22 +1,31 @@
 package edu.brown.cs32.gameState;
 
+import edu.brown.cs32.message.Message;
+import edu.brown.cs32.message.MessageType;
 import edu.brown.cs32.position.Position;
 import edu.brown.cs32.orb.Orb;
 import edu.brown.cs32.orb.OrbGenerator;
 import edu.brown.cs32.orb.OrbSize;
+import edu.brown.cs32.server.SlitherServer;
+import edu.brown.cs32.user.User;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import org.java_websocket.WebSocket;
 
 public class GameState {
 
   private Set<Orb> orbs;
   private Set<Orb> deathOrbs; // only formed when people die
   private final int ORB_GENERATION_TIME_INTERVAL = 5;
+  private Map<User, Set<Position>> userToOthersPositions;
 
   public GameState() {
     this.orbs = new HashSet<Orb>();
+    this.userToOthersPositions = new HashMap<>();
     ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
     exec.scheduleAtFixedRate(new Runnable() {
       public void run() {
@@ -39,6 +48,27 @@ public class GameState {
       this.orbs.remove(removeOrb);
     }
     return true;
+  }
+
+  public void updateOtherUsersWithPosition(User thisUser, Position toAdd, Position toRemove, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
+    for (User user : this.userToOthersPositions.keySet()) {
+      if (user.equals(thisUser))
+        continue;
+      this.userToOthersPositions.get(user).add(toAdd);
+      this.userToOthersPositions.get(user).remove(toRemove);
+    }
+
+    Map<String, Object> data = new HashMap<>();
+    data.put("add", toAdd);
+    data.put("remove", toRemove);
+    Message message = new Message(MessageType.UPDATE_POSITION, data);
+    String jsonResponse = server.serialize(message);
+
+    for (WebSocket socket : gameStateSockets) {
+      if (socket.equals(webSocket))
+        continue;
+      socket.send(jsonResponse);
+    }
   }
 
 }
