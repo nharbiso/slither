@@ -1,7 +1,12 @@
 package edu.brown.cs32.exceptions;
 
-public class GameCodeNoGameStateException extends Exception {
-    public GameCodeNoGameStateException() {
+import edu.brown.cs32.message.MessageType;
 
+public class GameCodeNoGameStateException extends Exception {
+
+    public final MessageType messageType;
+
+    public GameCodeNoGameStateException(MessageType messageType) {
+        this.messageType = messageType;
     }
 }
