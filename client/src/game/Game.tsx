@@ -12,6 +12,7 @@ import {
   leaderboardEntry,
   sendNewClientNoCodeMessage,
   sendNewClientWithCodeMessage,
+  UpdatePositionMessage,
 } from "../message/message";
 import Leaderboard from "../leaderboard/Leaderboard";
 import GameCode from "../gameCode/GameCode";
@@ -30,6 +31,8 @@ export function registerSocket(
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
   setGameCode: React.Dispatch<React.SetStateAction<string>>,
+  gameState: GameState,
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>,
   username: string,
   hasGameCode: boolean,
   gameCode: string = ""
@@ -61,6 +64,23 @@ export function registerSocket(
         setGameStarted(false); // shouldn't be required; just putting it here to be safe
         break;
       }
+      case MessageType.UPDATE_POSITION: {
+        console.log("UPDATE POSITION MESSAGE");
+        const updatePositionMessage: UpdatePositionMessage = message;
+        const toAdd: Position = updatePositionMessage.data.add;
+        const toRemove: Position = updatePositionMessage.data.remove;
+        const newOtherBodies = gameState.otherBodies;
+        newOtherBodies.delete(toRemove);
+        newOtherBodies.add(toAdd);
+        setGameState({
+          snakes: gameState.snakes,
+          otherBodies: newOtherBodies,
+          orbs: gameState.orbs,
+          scores: gameState.scores,
+          gameCode: gameState.gameCode,
+        });
+        break;
+      }
       case MessageType.UPDATE_LEADERBOARD: {
         const leaderboardMessage: leaderboardData = message;
         setScores(extractLeaderboardMap(leaderboardMessage.data.leaderboard));
@@ -79,22 +99,31 @@ export function registerSocket(
 }
 
 interface GameProps {
+  gameState: GameState;
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
   scores: Map<string, number>;
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>;
   gameCode: string;
-  setGameCode: React.Dispatch<React.SetStateAction<string>>
+  setGameCode: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export default function Game({ scores, setScores, gameCode, setGameCode }: GameProps) {
-  const snakeBody: Position[] = [];
-  for (let i = 0; i < 100; i++) {
-    snakeBody.push({ x: 600, y: 100 + 5 * i });
-  }
-  const snake: SnakeData = {
-    snakeBody: new Denque(snakeBody),
-    velocityX: 0,
-    velocityY: SNAKE_VELOCITY,
-  };
+export default function Game({
+  gameState,
+  setGameState,
+  scores,
+  setScores,
+  gameCode,
+  setGameCode,
+}: GameProps) {
+  // const snakeBody: Position[] = [];
+  // for (let i = 0; i < 100; i++) {
+  //   snakeBody.push({ x: 600, y: 100 + 5 * i });
+  // }
+  // const snake: SnakeData = {
+  //   snakeBody: new Denque(snakeBody),
+  //   velocityX: 0,
+  //   velocityY: SNAKE_VELOCITY,
+  // };
 
   // const [scores, setScores] = useState(new Map<string, number>());
 
@@ -106,22 +135,24 @@ export default function Game({ scores, setScores, gameCode, setGameCode }: GameP
   //   registerSocket(setScores);
   // }, []);
 
-  const [snakes, setSnakes] = useState<SnakeData[]>([snake]);
+  const [snakes, setSnakes] = useState<SnakeData[]>([
+    gameState.snakes.get("user1")!,
+  ]);
 
-  const position: Position = {
-    x: 100,
-    y: 500,
-  };
+  // const position: Position = {
+  //   x: 100,
+  //   y: 500,
+  // };
 
-  const orb: OrbData = { position, size: OrbSize.LARGE };
+  // const orb: OrbData = { position, size: OrbSize.LARGE };
 
-  const [gameState, setGameState] = useState<GameState>({
-    snakes: new Map([["user1", snake]]),
-    otherBodies: new Set(),
-    orbs: new Set([orb]),
-    scores: new Map([["user1", 0]]),
-    gameCode: "abc",
-  });
+  // const [gameState, setGameState] = useState<GameState>({
+  //   snakes: new Map([["user1", snake]]),
+  //   otherBodies: new Set(),
+  //   orbs: new Set([orb]),
+  //   scores: new Map([["user1", 0]]),
+  //   gameCode: "abc",
+  // });
 
   return (
     <div>

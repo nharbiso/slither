@@ -2,6 +2,7 @@ import React, { useState, Dispatch, SetStateAction } from "react";
 import "./Home.css";
 
 import { registerSocket } from "../game/Game";
+import GameState from "../game/GameState";
 
 /**
  * Defines an interface which specifies the types of the arguments accepted by
@@ -34,9 +35,17 @@ interface HomeProps {
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>;
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>;
   setGameCode: React.Dispatch<React.SetStateAction<string>>;
+  gameState: GameState;
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
 }
 
-export default function Home({ setGameStarted, setScores, setGameCode }: HomeProps) {
+export default function Home({
+  setGameStarted,
+  setScores,
+  setGameCode,
+  gameState,
+  setGameState,
+}: HomeProps) {
   const [username, setUsername] = useState("");
   const [inputGamecode, setInputGamecode] = useState("");
   const [errorText, setErrorText] = useState("");
@@ -60,7 +69,15 @@ export default function Home({ setGameStarted, setScores, setGameCode }: HomePro
             <button
               className="btn btn-light new-game-button"
               onClick={() => {
-                newGameClick(setGameStarted, setScores, setErrorText, setGameCode, username);
+                newGameClick(
+                  setGameStarted,
+                  setScores,
+                  setErrorText,
+                  setGameCode,
+                  gameState,
+                  setGameState,
+                  username
+                );
               }}
             >
               Create a new game
@@ -86,6 +103,8 @@ export default function Home({ setGameStarted, setScores, setGameCode }: HomePro
                   setScores,
                   setErrorText,
                   setGameCode,
+                  gameState,
+                  setGameState,
                   username,
                   inputGamecode
                 );
@@ -105,6 +124,8 @@ function newGameClick(
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
   setGameCode: React.Dispatch<React.SetStateAction<string>>,
+  gameState: GameState,
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>,
   username: string
 ) {
   if (username.trim().length === 0) {
@@ -113,7 +134,16 @@ function newGameClick(
   }
   setErrorText("");
   try {
-    registerSocket(setScores, setGameStarted, setErrorText, setGameCode, username, false);
+    registerSocket(
+      setScores,
+      setGameStarted,
+      setErrorText,
+      setGameCode,
+      gameState,
+      setGameState,
+      username,
+      false
+    );
   } catch (e) {
     setErrorText("Error: Could not connect to server!");
   }
@@ -124,6 +154,8 @@ function withGameCodeClick(
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
   setGameCode: React.Dispatch<React.SetStateAction<string>>,
+  gameState: GameState,
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>,
   username: string,
   gameCode: string
 ) {
@@ -138,6 +170,8 @@ function withGameCodeClick(
       setGameStarted,
       setErrorText,
       setGameCode,
+      gameState,
+      setGameState,
       username,
       true,
       gameCode

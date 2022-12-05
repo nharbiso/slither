@@ -9,9 +9,11 @@ import {
 } from "../message/message";
 import { useEffect, useState, Dispatch, SetStateAction } from "react";
 import "./snake/SnakeCircle.css";
+import OtherSnake from "./snake/OtherSnake";
 
 const mousePos: Position = { x: 0, y: 0 };
 const offset: Position = { x: 0, y: 0 };
+let lastUpdatedPosition: Position = { x: 0, y: 0 };
 
 export default function GameCanvas({
   gameState,
@@ -66,6 +68,7 @@ export default function GameCanvas({
       {Array.from(gameState.orbs).map((orb: OrbData, ind: number) => (
         <Orb orbInfo={orb} offset={offset} key={ind} />
       ))}
+      <OtherSnake positions={gameState.otherBodies} offset={offset} />
     </div>
   );
 }
@@ -95,7 +98,7 @@ function moveSnake(
     };
 
     snake.snakeBody.unshift({ x: newPosition.x, y: newPosition.y });
-    console.log("x: " + newPosition.x + " - y: " + newPosition.y);
+    // console.log("x: " + newPosition.x + " - y: " + newPosition.y);
 
     if (gameState.otherBodies.has(newPosition)) {
       sendUserDiedMessage(socket);
@@ -105,9 +108,20 @@ function moveSnake(
     //     sendRemoveOrbMessage(socket, newPosition)
     //     //need to somehow access the size of the orb that i collided with and update my score accordingly
     // }
-    
+
     if (removePosition !== undefined) {
-      sendUpdatePositionMessage(socket, newPosition, removePosition);
+      const toAdd: Position = {
+        x: Number(newPosition.x.toFixed(2)),
+        y: Number(newPosition.y.toFixed(2)),
+      };
+      const toRemove: Position = {
+        x: Number(removePosition.x.toFixed(2)),
+        y: Number(removePosition.y.toFixed(2)),
+      };
+      // if (distance(toAdd, lastUpdatedPosition) >= 10) {
+      //   lastUpdatedPosition = toAdd;
+      sendUpdatePositionMessage(socket, toAdd, toRemove);
+      // }
     }
   }
   return snake;
@@ -115,4 +129,8 @@ function moveSnake(
 
 function mod(n: number, m: number): number {
   return ((n % m) + m) % m;
+}
+
+function distance(pos1: Position, pos2: Position): number {
+  return Math.sqrt(Math.pow(pos1.x - pos2.x, 2) + Math.pow(pos1.y - pos2.y, 2));
 }
