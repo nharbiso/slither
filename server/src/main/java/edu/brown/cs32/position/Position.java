@@ -1,3 +1,3 @@
 package edu.brown.cs32.position;
 
-public record Position(float x, float y) {}
+public record Position(double x, double y) {}
