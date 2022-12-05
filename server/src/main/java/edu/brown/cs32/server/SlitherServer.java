@@ -199,18 +199,14 @@ public class SlitherServer extends WebSocketServer {
         }
         case UPDATE_POSITION -> {
           User user = this.socketToUser.get(webSocket);
-          System.out.println("User" + user);
           String gameCode = this.userToGameCode.get(user);
-          System.out.println("gameCode: " + gameCode);
           if (gameCode == null)
             throw new UserNoGameCodeException(MessageType.ERROR);
           GameState gameState = this.gameCodeToGameState.get(gameCode);
           if (gameState == null)
             throw new GameCodeNoGameStateException(MessageType.ERROR);
 
-          System.out.println("Before handlePositionUpdate");
           new UpdatePositionHandler().handlePositionUpdate(user, deserializedMessage, gameState, webSocket, this.gameStateToSockets.get(gameState), this);
-          System.out.println("After handlePositionUpdate");
           break;
         }
         case UPDATE_SCORE -> {
