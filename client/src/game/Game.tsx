@@ -67,6 +67,16 @@ function registerSocket(
 
 
 export default function Game() {
+  // register socket
+  useEffect(() => {
+    if (!toregister) {
+      return;
+    }
+    toregister = false;
+    registerSocket(setScores);
+  }, []);
+
+  // create snakes
   const snakeBody: Position[] = [];
   for (let i = 0; i < 100; i++) {
     snakeBody.push({ x: 600, y: 100 + 5 * i });
@@ -77,37 +87,35 @@ export default function Game() {
     velocityY: SNAKE_VELOCITY,
   };
 
+  const otherSnakeBody: Position[] = [];
+  for (let i = 0; i < 50; i ++) {
+    otherSnakeBody.push({x: 100 + 5 * i, y: 400})
+  }
+  const otherSnake: SnakeData = {
+    snakeBody: new Denque(otherSnakeBody),
+    velocityX: SNAKE_VELOCITY,
+    velocityY: 0,
+  };
+
+  // create leaderboard
   const [scores, setScores] = useState(new Map<string, number>());
 
-  useEffect(() => {
-    if (!toregister) {
-      return;
-    }
-    toregister = false;
-    registerSocket(setScores);
-  }, []);
-
-  const [snakes, setSnakes] = useState<SnakeData[]>([snake]);
+  const [snakes, setSnakes] = useState<SnakeData[]>([snake, otherSnake]);
   
+  // orb generation
   const position: Position = {
         x: 100,
         y: 500
-    };
+  };
+  const orb: OrbData = { position, size: OrbSize.LARGE };
 
-  const otherSnake: Position[] = [];
-  for (let i = 0; i < 50; i ++) {
-    otherSnake.push({x: 100 + 5 * i, y: 400})
-  }
-
-    const orb: OrbData = { position, size: OrbSize.LARGE };
-
-    const [gameState, setGameState] = useState<GameState>({
-        snakes: new Map([["user1", snake]]),
-        otherBodies: new Set(otherSnake),
-        orbs: new Set([orb]),
-        scores: new Map([["user1", 0]]),
-        gameCode: "abc"
-    });
+  const [gameState, setGameState] = useState<GameState>({
+      snakes: new Map([["user1", snake], ["user2", otherSnake]]),
+      otherBodies: new Set(otherSnakeBody),
+      orbs: new Set([orb]),
+      scores: scores,
+      gameCode: "abc"
+  });
     
   return (
     <div>
