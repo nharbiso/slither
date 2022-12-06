@@ -31,6 +31,8 @@ export function registerSocket(
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
   setGameCode: React.Dispatch<React.SetStateAction<string>>,
+  setOrbSet: React.Dispatch<React.SetStateAction<Set<OrbData>>>,
+  orbSet: Set<OrbData>,
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
   username: string,
@@ -70,8 +72,8 @@ export function registerSocket(
         const toAdd: Position = updatePositionMessage.data.add;
         const toRemove: Position = updatePositionMessage.data.remove;
         const newOtherBodies = gameState.otherBodies;
-        newOtherBodies.delete(JSON.stringify(toRemove));
-        newOtherBodies.add(JSON.stringify(toAdd));
+        // newOtherBodies.delete(toRemove);
+        // newOtherBodies.add(toAdd);
         setGameState({
           snakes: gameState.snakes,
           otherBodies: newOtherBodies,
@@ -90,6 +92,10 @@ export function registerSocket(
         setGameCode(message.data.gameCode);
         break;
       }
+      case MessageType.SEND_ORBS: {
+        setOrbSet(message.data.orbSet)
+        break;
+      }
     }
 
     // case MessageType.SET_CODE: {
@@ -105,6 +111,8 @@ interface GameProps {
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>;
   gameCode: string;
   setGameCode: React.Dispatch<React.SetStateAction<string>>;
+//   orbSet: Set<OrbData>,
+//   setOrbSet: React.Dispatch<React.SetStateAction<Set<OrbData>>>;
 }
 
 export default function Game({
@@ -114,6 +122,8 @@ export default function Game({
   setScores,
   gameCode,
   setGameCode,
+//   orbSet,
+//   setOrbSet
 }: GameProps) {
   // const snakeBody: Position[] = [];
   // for (let i = 0; i < 100; i++) {

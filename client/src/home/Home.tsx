@@ -3,6 +3,7 @@ import "./Home.css";
 
 import { registerSocket } from "../game/Game";
 import GameState from "../game/GameState";
+import { OrbData } from "../game/orb/Orb";
 
 /**
  * Defines an interface which specifies the types of the arguments accepted by
@@ -37,6 +38,8 @@ interface HomeProps {
   setGameCode: React.Dispatch<React.SetStateAction<string>>;
   gameState: GameState;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
+  orbSet: Set<OrbData>;
+  setOrbSet: React.Dispatch<React.SetStateAction<Set<OrbData>>>;
 }
 
 export default function Home({
@@ -45,6 +48,8 @@ export default function Home({
   setGameCode,
   gameState,
   setGameState,
+  orbSet,
+  setOrbSet,
 }: HomeProps) {
   const [username, setUsername] = useState("");
   const [inputGamecode, setInputGamecode] = useState("");
@@ -74,6 +79,8 @@ export default function Home({
                   setScores,
                   setErrorText,
                   setGameCode,
+                  setOrbSet,
+                  orbSet,
                   gameState,
                   setGameState,
                   username
@@ -103,6 +110,8 @@ export default function Home({
                   setScores,
                   setErrorText,
                   setGameCode,
+                  setOrbSet,
+                  orbSet,
                   gameState,
                   setGameState,
                   username,
@@ -124,6 +133,8 @@ function newGameClick(
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
   setGameCode: React.Dispatch<React.SetStateAction<string>>,
+  setOrbSet: React.Dispatch<React.SetStateAction<Set<OrbData>>>,
+  orbSet: Set<OrbData>,
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
   username: string
@@ -139,6 +150,8 @@ function newGameClick(
       setGameStarted,
       setErrorText,
       setGameCode,
+      setOrbSet,
+      orbSet,
       gameState,
       setGameState,
       username,
@@ -154,6 +167,8 @@ function withGameCodeClick(
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
   setGameCode: React.Dispatch<React.SetStateAction<string>>,
+  setOrbSet: React.Dispatch<React.SetStateAction<Set<OrbData>>>,
+  orbSet: Set<OrbData>,
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
   username: string,
@@ -170,6 +185,8 @@ function withGameCodeClick(
       setGameStarted,
       setErrorText,
       setGameCode,
+      setOrbSet,
+      orbSet,
       gameState,
       setGameState,
       username,

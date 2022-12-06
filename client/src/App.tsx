@@ -12,9 +12,10 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [scores, setScores] = useState(new Map<string, number>());
   const [gameCode, setGameCode] = useState("");
+  const [orbSet, setOrbSet] = useState(new Set<OrbData>);
 
   const snakeBody: Position[] = [];
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 100; i++) {
     snakeBody.push({ x: 600, y: 100 + 5 * i });
   }
   const snake: SnakeData = {
@@ -55,6 +56,8 @@ function App() {
           setGameCode={setGameCode}
           gameState={gameState}
           setGameState={setGameState}
+          orbSet={gameState.orbs}
+          setOrbSet={setOrbSet}
         />
       )}
       {/* <Game /> */}
