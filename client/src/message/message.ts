@@ -111,9 +111,3 @@ export interface leaderboardEntry {
   score: number;
 }
 
-export interface gameCode {
-  type: MessageType.SET_CODE;
-  data: {
-    gameCode: string;
-  };
-}

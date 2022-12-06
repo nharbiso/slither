@@ -54,10 +54,6 @@ function registerSocket(
         );
         break;
       }
-      case MessageType.SET_CODE: {
-        //setCode(message);
-        break;
-      }
     }
       
       // case MessageType.SET_CODE: {
