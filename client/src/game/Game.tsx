@@ -70,8 +70,8 @@ export function registerSocket(
         const toAdd: Position = updatePositionMessage.data.add;
         const toRemove: Position = updatePositionMessage.data.remove;
         const newOtherBodies = gameState.otherBodies;
-        newOtherBodies.delete(toRemove);
-        newOtherBodies.add(toAdd);
+        newOtherBodies.delete(JSON.stringify(toRemove));
+        newOtherBodies.add(JSON.stringify(toAdd));
         setGameState({
           snakes: gameState.snakes,
           otherBodies: newOtherBodies,

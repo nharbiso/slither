@@ -14,7 +14,7 @@ function App() {
   const [gameCode, setGameCode] = useState("");
 
   const snakeBody: Position[] = [];
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 20; i++) {
     snakeBody.push({ x: 600, y: 100 + 5 * i });
   }
   const snake: SnakeData = {

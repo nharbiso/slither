@@ -6,12 +6,16 @@ export default function OtherSnake({
   positions,
   offset,
 }: {
-  positions: Set<Position>;
+  positions: Set<string>;
   offset: Position;
 }) {
+  const parsedPositions: Set<Position> = new Set();
+  positions.forEach((posString: string) => {
+    parsedPositions.add(JSON.parse(posString));
+  });
   return (
     <div>
-      {Array.from(positions).map((bodyPart: Position) => (
+      {Array.from(parsedPositions).map((bodyPart: Position) => (
         <div
           className="snake"
           style={{ left: bodyPart.x + offset.x, top: bodyPart.y + offset.y }}

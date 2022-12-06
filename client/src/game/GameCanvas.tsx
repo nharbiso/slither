@@ -13,7 +13,8 @@ import OtherSnake from "./snake/OtherSnake";
 
 const mousePos: Position = { x: 0, y: 0 };
 const offset: Position = { x: 0, y: 0 };
-let lastUpdatedPosition: Position = { x: 0, y: 0 };
+// let lastUpdatedPosition: Position = { x: 0, y: 0 };
+let lastUpdatedTime: number = new Date().getTime();
 
 export default function GameCanvas({
   gameState,
@@ -40,7 +41,7 @@ export default function GameCanvas({
         newGameState.snakes.set(user, updatedSnake);
         setGameState(newGameState);
       }
-    }, 15);
+    }, 45);
     window.addEventListener("mousemove", onMouseMove);
 
     return () => {
@@ -100,7 +101,7 @@ function moveSnake(
     snake.snakeBody.unshift({ x: newPosition.x, y: newPosition.y });
     // console.log("x: " + newPosition.x + " - y: " + newPosition.y);
 
-    if (gameState.otherBodies.has(newPosition)) {
+    if (gameState.otherBodies.has(JSON.stringify(newPosition))) {
       sendUserDiedMessage(socket);
     }
     // if (allOrbs.has(newPosition)) { //need to somehow get the set of allOrbs (set of Positions representing every orb)
@@ -120,7 +121,11 @@ function moveSnake(
       };
       // if (distance(toAdd, lastUpdatedPosition) >= 10) {
       //   lastUpdatedPosition = toAdd;
-      sendUpdatePositionMessage(socket, toAdd, toRemove);
+      const currentTime: number = new Date().getTime();
+      if (currentTime - lastUpdatedTime >= 100) {
+        lastUpdatedTime = currentTime;
+        sendUpdatePositionMessage(socket, toAdd, toRemove);
+      }
       // }
     }
   }
