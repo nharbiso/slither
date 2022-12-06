@@ -14,7 +14,7 @@ public class OrbGenerator {
     return Math.round(value * 100) / 100.0f;
   }
 
-  public Set<Orb> generateOrbs(Set<Orb> orbs) {
+  public void generateOrbs(Set<Orb> orbs) {
     Random random = new Random();
     int size = orbs.size();
     for (int i = 0; i < this.MAX_ORB_COUNT - size; i++) {
@@ -23,7 +23,6 @@ public class OrbGenerator {
                         this.generateOrbSize());
       orbs.add(orb);
     }
-    return orbs;
   }
 
   private OrbSize generateOrbSize() {

@@ -54,6 +54,9 @@ function registerSocket(
         );
         break;
       }
+      case MessageType.SEND_ORBS: {
+        break;
+      }
     }
       
       // case MessageType.SET_CODE: {
