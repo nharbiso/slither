@@ -41,7 +41,7 @@ export default function GameCanvas({
         newGameState.snakes.set(user, updatedSnake);
         setGameState(newGameState);
       }
-    }, 45);
+    }, 50);
     window.addEventListener("mousemove", onMouseMove);
 
     return () => {
@@ -121,11 +121,11 @@ function moveSnake(
       };
       // if (distance(toAdd, lastUpdatedPosition) >= 10) {
       //   lastUpdatedPosition = toAdd;
-      const currentTime: number = new Date().getTime();
-      if (currentTime - lastUpdatedTime >= 100) {
-        lastUpdatedTime = currentTime;
-        sendUpdatePositionMessage(socket, toAdd, toRemove);
-      }
+      // const currentTime: number = new Date().getTime();
+      // if (currentTime - lastUpdatedTime >= 100) {
+      //   lastUpdatedTime = currentTime;
+      sendUpdatePositionMessage(socket, toAdd, toRemove);
+      // }
       // }
     }
   }

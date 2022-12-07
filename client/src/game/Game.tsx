@@ -19,7 +19,7 @@ import GameCode from "../gameCode/GameCode";
 
 const AppConfig = {
   PROTOCOL: "ws:",
-  HOST: "//localhost",
+  HOST: "//0.tcp.ngrok.io:14272",
   PORT: ":9000",
 };
 
@@ -37,7 +37,8 @@ export function registerSocket(
   hasGameCode: boolean,
   gameCode: string = ""
 ) {
-  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
+  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
+  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST);
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
@@ -69,16 +70,30 @@ export function registerSocket(
         const updatePositionMessage: UpdatePositionMessage = message;
         const toAdd: Position = updatePositionMessage.data.add;
         const toRemove: Position = updatePositionMessage.data.remove;
-        const newOtherBodies = gameState.otherBodies;
-        newOtherBodies.delete(JSON.stringify(toRemove));
-        newOtherBodies.add(JSON.stringify(toAdd));
-        setGameState({
-          snakes: gameState.snakes,
-          otherBodies: newOtherBodies,
-          orbs: gameState.orbs,
-          scores: gameState.scores,
-          gameCode: gameState.gameCode,
-        });
+        // const newOtherBodies = gameState.otherBodies;
+        const newGameState: GameState = { ...gameState };
+        console.log(gameState.otherBodies);
+        console.log(gameState.otherBodies.entries);
+        console.log(JSON.stringify(toRemove));
+        console.log("gameState otherbodies: " + gameState.otherBodies.size);
+        // newOtherBodies.delete(JSON.stringify(toRemove));
+        newGameState.otherBodies.delete(JSON.stringify(toRemove));
+        console.log(
+          "gameState otherbodies after delete: " + gameState.otherBodies.size
+        );
+        // newOtherBodies.add(JSON.stringify(toAdd));
+        newGameState.otherBodies.add(JSON.stringify(toAdd));
+        console.log(
+          "gameState otherbodies after add: " + gameState.otherBodies.size
+        );
+        // setGameState({
+        //   snakes: gameState.snakes,
+        //   otherBodies: newOtherBodies,
+        //   orbs: gameState.orbs,
+        //   scores: gameState.scores,
+        //   gameCode: gameState.gameCode,
+        // });
+        setGameState(newGameState);
         break;
       }
       case MessageType.UPDATE_LEADERBOARD: {

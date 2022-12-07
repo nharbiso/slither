@@ -29,9 +29,13 @@ function App() {
   };
   const orb: OrbData = { position: orbPosition, size: OrbSize.LARGE };
 
+  const initialOtherBodies: Set<string> = new Set<string>();
+  snakeBody.forEach((bodyPart: Position) => {initialOtherBodies.add(JSON.stringify(bodyPart))});
+
   const [gameState, setGameState] = useState<GameState>({
     snakes: new Map([["user1", snake]]),
-    otherBodies: new Set(),
+    // otherBodies: new Set<string>([]),
+    otherBodies: initialOtherBodies,
     orbs: new Set([orb]),
     scores: new Map([["user1", 0]]),
     gameCode: "abc",
