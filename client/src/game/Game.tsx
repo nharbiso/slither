@@ -19,7 +19,7 @@ import GameCode from "../gameCode/GameCode";
 
 const AppConfig = {
   PROTOCOL: "ws:",
-  HOST: "//0.tcp.ngrok.io:14272",
+  HOST: "localhost",
   PORT: ":9000",
 };
 
@@ -31,14 +31,16 @@ export function registerSocket(
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
   setGameCode: React.Dispatch<React.SetStateAction<string>>,
+  setOrbSet: React.Dispatch<React.SetStateAction<Set<OrbData>>>,
+  orbSet: Set<OrbData>,
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
   username: string,
   hasGameCode: boolean,
   gameCode: string = ""
 ) {
-  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
-  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST);
+  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
+  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST);
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
@@ -103,6 +105,10 @@ export function registerSocket(
       }
       case MessageType.SET_GAME_CODE: {
         setGameCode(message.data.gameCode);
+        break;
+      }
+      case MessageType.SEND_ORBS: {
+        setOrbSet(message.data.orbSet);
         break;
       }
     }

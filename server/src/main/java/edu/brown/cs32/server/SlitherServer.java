@@ -386,7 +386,7 @@ public class SlitherServer extends WebSocketServer {
           this.inactiveConnections.remove(webSocket);
           User newUser = new NewClientHandler().handleNewClientNoCode(deserializedMessage, webSocket, this);
           String gameCode = new GameCodeGenerator().generateGameCode(this.getExistingGameCodes());
-          this.gameCodeToGameState.put(gameCode, new GameState());
+          this.gameCodeToGameState.put(gameCode, new GameState(this));
           this.gameStateToSockets.put(this.gameCodeToGameState.get(gameCode), new HashSet<>());
           Leaderboard leaderboard = new Leaderboard(this.gameCodeToGameState.get(gameCode), this);
           leaderboard.addNewUser(newUser);

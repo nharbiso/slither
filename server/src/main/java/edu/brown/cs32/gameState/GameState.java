@@ -18,12 +18,15 @@ import org.java_websocket.WebSocket;
 
 public class GameState {
 
+  private SlitherServer slitherServer;
   private Set<Orb> orbs;
   private Set<Orb> deathOrbs; // only formed when people die
+  private final OrbGenerator orbGenerator = new OrbGenerator();
   private final int ORB_GENERATION_TIME_INTERVAL = 5;
   private Map<User, Set<Position>> userToOthersPositions;
 
-  public GameState() {
+  public GameState(SlitherServer slitherServer) {
+    this.slitherServer = slitherServer;
     this.orbs = new HashSet<Orb>();
     this.userToOthersPositions = new HashMap<>();
     ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
@@ -37,7 +40,7 @@ public class GameState {
   }
 
   public void generateOrb() {
-    this.orbs = new OrbGenerator().generateOrbs(this.orbs);
+    this.orbGenerator.generateOrbs(this.orbs);
   }
 
   public boolean removeOrb(Position position) {
@@ -48,6 +51,16 @@ public class GameState {
       this.orbs.remove(removeOrb);
     }
     return true;
+  }
+
+  public void sendOrbData() {
+    Map<String, Object> orbData = new HashMap<>();
+    orbData.put("orbSet", this.orbs);
+    String json = this.slitherServer.serialize(new Message(MessageType.SEND_ORBS, orbData));
+
+    System.out.println("orb json");
+    
+    this.slitherServer.sendToAllGameStateConnections(this, json);
   }
 
   public void updateOtherUsersWithPosition(User thisUser, Position toAdd, Position toRemove, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
