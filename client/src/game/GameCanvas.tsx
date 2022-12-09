@@ -68,6 +68,7 @@ function moveSnake(snake: SnakeData, gameState: GameState, socket: WebSocket): S
         }
 
         snake.snakeBody.unshift({x: newPosition.x, y: newPosition.y});
+        console.log('x: ' + newPosition.x + " - y: " + newPosition.y);
 
         if (gameState.otherBodies.has(newPosition)) { //might not be as straightforward as just checking if the position is occupied, need to check if the displayed circles are touching
             //might want to use element.getBoundingClientRect() to check the actual edges of the div but that might not be accurate since we are using circles

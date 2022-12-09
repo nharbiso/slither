@@ -1,8 +1,8 @@
-import Denque from "denque"
-import GameState, { Position } from './GameState'
+import Denque from "denque";
+import GameState, { Position } from "./GameState";
 import OrbSize from "./orb/orbSize";
-import { OrbData } from "./orb/Orb"
-import { SnakeData, SNAKE_VELOCITY } from "./snake/Snake"
+import { OrbData } from "./orb/Orb";
+import { SnakeData, SNAKE_VELOCITY } from "./snake/Snake";
 import React, { useState, useEffect } from "react";
 
 import GameCanvas from "./GameCanvas";
@@ -11,6 +11,7 @@ import {
   leaderboardData,
   leaderboardEntry,
   sendNewClientNoCodeMessage,
+  sendNewClientWithCodeMessage,
 } from "../message/message";
 import Leaderboard from "../leaderboard/Leaderboard";
 import GameCode from "../gameCode/GameCode";
@@ -21,25 +22,29 @@ const AppConfig = {
   PORT: ":9000",
 };
 
-let toregister: boolean = true;
+// let toregister: boolean = true;
 let socket: WebSocket;
 
-function registerSocket(
-  setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>
+export function registerSocket(
+  setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
+  setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
+  setErrorText: React.Dispatch<React.SetStateAction<string>>,
+  setGameCode: React.Dispatch<React.SetStateAction<string>>,
+  username: string,
+  hasGameCode: boolean,
+  gameCode: string = ""
 ) {
-  let socket: WebSocket = new WebSocket(
-    AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT
-  );
+  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
     // TODO: random string username for now; pass user chosen username later); also pass chosen game code later
-    sendNewClientNoCodeMessage(socket, (Math.random() * 1000).toString());
-    // sendNewClientWithCodeMessage(
-    //   socket,
-    //   (Math.random() * 1000).toString(),
-    //   "123456"
-    // );
+    // sendNewClientNoCodeMessage(socket, (Math.random() * 1000).toString());
+    if (hasGameCode) {
+      sendNewClientWithCodeMessage(socket, username, gameCode);
+    } else {
+      sendNewClientNoCodeMessage(socket, username);
+    }
   };
 
   socket.onmessage = (response: MessageEvent) => {
@@ -47,36 +52,42 @@ function registerSocket(
     // ideally, we would want to do different things based on the message's type
     console.log("client: A message was received: " + response.data);
     switch (message.type) {
+      case MessageType.JOIN_SUCCESS: {
+        setGameStarted(true);
+        break;
+      }
+      case MessageType.JOIN_ERROR: {
+        setErrorText("Error: Failed to join the game!");
+        setGameStarted(false); // shouldn't be required; just putting it here to be safe
+        break;
+      }
       case MessageType.UPDATE_LEADERBOARD: {
         const leaderboardMessage: leaderboardData = message;
-        setScores(
-          extractLeaderboardMap(leaderboardMessage.data.leaderboard)
-        );
+        setScores(extractLeaderboardMap(leaderboardMessage.data.leaderboard));
         break;
       }
-      case MessageType.SEND_ORBS: {
+      case MessageType.SET_GAME_CODE: {
+        //setGameCode("b");
+        setGameCode(message.data.gameCode);
         break;
       }
     }
-      
-      // case MessageType.SET_CODE: {
 
-      // }
-    }
+    // case MessageType.SET_CODE: {
+
+    // }
   };
+}
+
+interface GameProps {
+  scores: Map<string, number>;
+  setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>;
+  gameCode: string;
+  setGameCode: React.Dispatch<React.SetStateAction<string>>
+}
 
 
-export default function Game() {
-  // register socket
-  useEffect(() => {
-    if (!toregister) {
-      return;
-    }
-    toregister = false;
-    registerSocket(setScores);
-  }, []);
-
-  // create snakes
+export default function Game({ scores, setScores, gameCode, setGameCode }: GameProps) {
   const snakeBody: Position[] = [];
   for (let i = 0; i < 100; i++) {
     snakeBody.push({ x: 600, y: 100 + 5 * i });
@@ -87,53 +98,55 @@ export default function Game() {
     velocityY: SNAKE_VELOCITY,
   };
 
-  const otherSnakeBody: Position[] = [];
-  for (let i = 0; i < 50; i ++) {
-    otherSnakeBody.push({x: 100 + 5 * i, y: 400})
-  }
-  const otherSnake: SnakeData = {
-    snakeBody: new Denque(otherSnakeBody),
-    velocityX: SNAKE_VELOCITY,
-    velocityY: 0,
-  };
 
-  // create leaderboard
-  const [scores, setScores] = useState(new Map<string, number>());
+  // const [scores, setScores] = useState(new Map<string, number>());
 
-  const [snakes, setSnakes] = useState<SnakeData[]>([snake, otherSnake]);
-  
-  // orb generation
+  // useEffect(() => {
+  //   if (!toregister) {
+  //     return;
+  //   }
+  //   toregister = false;
+  //   registerSocket(setScores);
+  // }, []);
+
+  const [snakes, setSnakes] = useState<SnakeData[]>([snake]);
+
   const position: Position = {
-        x: 100,
-        y: 500
+    x: 100,
+    y: 500,
   };
+
   const orb: OrbData = { position, size: OrbSize.LARGE };
 
   const [gameState, setGameState] = useState<GameState>({
-      snakes: new Map([["user1", snake], ["user2", otherSnake]]),
-      otherBodies: new Set(otherSnakeBody),
-      orbs: new Set([orb]),
-      scores: scores,
-      gameCode: "abc"
+    snakes: new Map([["user1", snake]]),
+    otherBodies: new Set(),
+    orbs: new Set([orb]),
+    scores: new Map([["user1", 0]]),
+    gameCode: "abc",
   });
-    
+
   return (
     <div>
-      <GameCanvas gameState={gameState} setGameState={setGameState} user={"user1"} socket={socket}/>
+      <GameCanvas
+        gameState={gameState}
+        setGameState={setGameState}
+        user={"user1"}
+        socket={socket}
+      />
       <Leaderboard leaderboard={scores} />
-      <GameCode gameCode = "ABCDEF" />
+      <GameCode gameCode={gameCode} />
     </div>
     //player's score
   );
 }
-    
+
 function extractLeaderboardMap(leaderboardData: leaderboardEntry[]) {
   const leaderboard: Map<string, number> = new Map<string, number>();
   leaderboardData.forEach((entry: leaderboardEntry) => {
     leaderboard.set(entry.username, entry.score);
   });
   return leaderboard;
-
 }
 
 //here we want to take in gamestate data and load everything

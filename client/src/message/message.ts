@@ -111,10 +111,3 @@ export interface leaderboardEntry {
   username: string;
   score: number;
 }
-
-export interface orbSet {
-  type: MessageType.SEND_ORBS
-  data: {
-    orbSet: Set<OrbData>;
-  }
-}

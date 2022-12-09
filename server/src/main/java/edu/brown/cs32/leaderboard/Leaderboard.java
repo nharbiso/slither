@@ -34,8 +34,9 @@ public class Leaderboard {
         data.put("leaderboard", newLeaderboard);
         Message message = new Message(MessageType.UPDATE_LEADERBOARD, data);
         Leaderboard.this.sendLeaderboardScores(message);
+        //Leaderboard.this.sendGameCode();
       }
-    }, 1, this.LEADERBOARD_UPDATE_INTERVAL, TimeUnit.SECONDS); // execute every 60 seconds
+    }, 1, this.LEADERBOARD_UPDATE_INTERVAL, TimeUnit.SECONDS); 
   }
 
   private void sendLeaderboardScores(Message message) {
@@ -44,6 +45,14 @@ public class Leaderboard {
     System.out.println(json);
     this.slitherServer.sendToAllGameStateConnections(this.gameState, json);
   }
+
+  // private void sendGameCode() {
+  //   Map<String, Object> map = new HashMap<String, Object>();
+  //   map.put("gameCode", "c");
+  //   Message message = new Message(MessageType.SET_GAME_CODE, map);
+  //   String json = this.slitherServer.serialize(message);
+  //   this.slitherServer.sendToAllGameStateConnections(this.gameState, json);
+  // }
 
   /**
    * Add a provided User to the leaderboard (userScores). The initial score assigned to the new
