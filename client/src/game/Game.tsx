@@ -186,6 +186,7 @@ export default function Game({
   //   velocityY: SNAKE_VELOCITY,
   // };
 
+
   // const [scores, setScores] = useState(new Map<string, number>());
 
   // useEffect(() => {

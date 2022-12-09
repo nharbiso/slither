@@ -8,6 +8,7 @@ import edu.brown.cs32.orb.OrbGenerator;
 import edu.brown.cs32.orb.OrbSize;
 import edu.brown.cs32.server.SlitherServer;
 import edu.brown.cs32.user.User;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -39,6 +40,7 @@ public class GameState {
       }
     }, 0, this.ORB_GENERATION_TIME_INTERVAL, TimeUnit.SECONDS); // execute every 60 seconds
   }
+
 
   public void generateOrb() {
     this.orbGenerator.generateOrbs(this.orbs);
@@ -84,5 +86,4 @@ public class GameState {
       socket.send(jsonResponse);
     }
   }
-
 }
