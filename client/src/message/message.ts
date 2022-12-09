@@ -1,5 +1,6 @@
 import MessageType from "./messageTypes";
 import { Position } from "../game/GameState";
+import { OrbData } from "../game/orb/Orb";
 
 export default interface Message {
   type: MessageType;
@@ -109,11 +110,4 @@ export interface leaderboardData {
 export interface leaderboardEntry {
   username: string;
   score: number;
-}
-
-export interface gameCode {
-  type: MessageType.SET_GAME_CODE;
-  data: {
-    gameCode: string;
-  };
 }

@@ -86,6 +86,7 @@ interface GameProps {
   setGameCode: React.Dispatch<React.SetStateAction<string>>
 }
 
+
 export default function Game({ scores, setScores, gameCode, setGameCode }: GameProps) {
   const snakeBody: Position[] = [];
   for (let i = 0; i < 100; i++) {
@@ -96,6 +97,7 @@ export default function Game({ scores, setScores, gameCode, setGameCode }: GameP
     velocityX: 0,
     velocityY: SNAKE_VELOCITY,
   };
+
 
   // const [scores, setScores] = useState(new Map<string, number>());
 

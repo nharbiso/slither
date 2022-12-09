@@ -5,6 +5,7 @@ import Orb, { OrbData } from './orb/Orb';
 import { sendRemoveOrbMessage, sendUserDiedMessage } from '../message/message';
 import { useEffect, useState, Dispatch, SetStateAction} from "react"
 import "./snake/SnakeCircle.css"
+import OtherSnake from './snake/OtherSnake';
 
 const mousePos: Position = {x: 0, y: 0};
 const offset: Position = {x: 0, y: 0};
@@ -45,6 +46,7 @@ export default function GameCanvas({gameState, setGameState, user, socket}: {gam
     return (<div>
          {Array.from(gameState.snakes.values()).map((snake: SnakeData, ind: number) => <Snake snake={snake} offset={offset} key={ind} />)}
          {Array.from(gameState.orbs).map((orb: OrbData, ind: number) => <Orb orbInfo={orb} offset={offset} key={ind} />)}
+         <OtherSnake positions={gameState.otherBodies} offset={offset}/>
     </div>);
 }
 
@@ -68,8 +70,13 @@ function moveSnake(snake: SnakeData, gameState: GameState, socket: WebSocket): S
         snake.snakeBody.unshift({x: newPosition.x, y: newPosition.y});
         console.log('x: ' + newPosition.x + " - y: " + newPosition.y);
 
-        if (gameState.otherBodies.has(newPosition)) {
+        if (gameState.otherBodies.has(newPosition)) { //might not be as straightforward as just checking if the position is occupied, need to check if the displayed circles are touching
+            //might want to use element.getBoundingClientRect() to check the actual edges of the div but that might not be accurate since we are using circles
             sendUserDiedMessage(socket)
+            console.log("u died") //this doesn't work right now
+            //also need to figure out what kind of return type we want in the case that we do run into another snake, moveSnake returns SnakeData which might not
+            //be suitable for telling GameCanvas that this snake is dead (problem is updating on client side, sendUserDiedMessage will tell the server)
+            //need to make snake disappear and show some kind of message indicating u died
         }
         // if (allOrbs.has(newPosition)) { //need to somehow get the set of allOrbs (set of Positions representing every orb)
         //     //might refactor this later if we can't lookup rb positions in constant time
