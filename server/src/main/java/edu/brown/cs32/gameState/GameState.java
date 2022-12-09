@@ -35,6 +35,7 @@ public class GameState {
         // code to execute repeatedly
         System.out.println("Try to generate orbs");
         GameState.this.generateOrb();
+        GameState.this.sendOrbData();
       }
     }, 0, this.ORB_GENERATION_TIME_INTERVAL, TimeUnit.SECONDS); // execute every 60 seconds
   }

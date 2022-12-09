@@ -16,10 +16,11 @@ import {
 } from "../message/message";
 import Leaderboard from "../leaderboard/Leaderboard";
 import GameCode from "../gameCode/GameCode";
+import { getPositionOfLineAndCharacter } from "typescript";
 
 const AppConfig = {
   PROTOCOL: "ws:",
-  HOST: "localhost",
+  HOST: "//localhost",
   PORT: ":9000",
 };
 
@@ -31,7 +32,6 @@ export function registerSocket(
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
   setGameCode: React.Dispatch<React.SetStateAction<string>>,
-  setOrbSet: React.Dispatch<React.SetStateAction<Set<OrbData>>>,
   orbSet: Set<OrbData>,
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
@@ -104,11 +104,47 @@ export function registerSocket(
         break;
       }
       case MessageType.SET_GAME_CODE: {
+        console.log('gc');
+        console.log(message.data.gameCode);
         setGameCode(message.data.gameCode);
         break;
       }
       case MessageType.SEND_ORBS: {
-        setOrbSet(message.data.orbSet);
+
+        const orbPosition: Position = {
+          x: 100,
+          y: 500,
+        };
+        const orb: OrbData = { position: orbPosition, size: OrbSize.LARGE };
+        orbSet = message.data.orbSet;
+        // setOrbSet(message.data.orbSet);
+        // let gs: GameState = gameState;
+        gameState.orbs = orbSet;
+        setGameState(gameState);
+        
+        
+        console.log('orbSet');
+        console.log(orbSet);
+        // let p: Position = {x: 10, y: 10};
+        // let o: OrbData = {position: p, size: OrbSize.LARGE};
+        // console.log(typeof(o));
+
+        // console.log('reached');
+        // console.log(typeof(message.data.orbSet[0]));
+        // let orb: OrbData = message.data.orbSet[0];
+        // console.log('orb: ');
+        // console.log(orb);
+        // console.log(typeof(orb));
+
+        // let orbs: Set<OrbData> = message.data.orbSet;
+        // console.log('orbs: ');
+        // console.log(orbs);
+        // console.log(typeof(orbs));
+
+        // console.log(message.data.orbSet);
+        // setOrbSet(message.data.orbSet);
+        // console.log('orbset!!!');
+        // console.log(orbSet);
         break;
       }
     }

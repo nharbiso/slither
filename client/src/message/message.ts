@@ -1,5 +1,6 @@
 import MessageType from "./messageTypes";
 import { Position } from "../game/GameState";
+import { OrbData } from "../game/orb/Orb";
 
 export default interface Message {
   type: MessageType;
@@ -139,4 +140,16 @@ export interface gameCode {
   data: {
     gameCode: string;
   };
+}
+
+interface orbType {
+  orbSize: string;
+  position: Position;
+}
+
+export interface orbsData {
+  type: MessageType.SEND_ORBS;
+  data: {
+    orbSet: Set<OrbData>;
+  }
 }

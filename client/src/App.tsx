@@ -12,7 +12,12 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [scores, setScores] = useState(new Map<string, number>());
   const [gameCode, setGameCode] = useState("");
-  const [orbSet, setOrbSet] = useState(new Set<OrbData>);
+
+
+  const orbSet = new Set<OrbData>();
+  //setOrbSet(new Set<OrbData>([orb]));
+  
+  
 
   const snakeBody: Position[] = [];
   for (let i = 0; i < 20; i++) {
@@ -24,11 +29,7 @@ function App() {
     velocityY: SNAKE_VELOCITY,
   };
 
-  const orbPosition: Position = {
-    x: 100,
-    y: 500,
-  };
-  const orb: OrbData = { position: orbPosition, size: OrbSize.LARGE };
+
 
   const initialOtherBodies: Set<string> = new Set<string>();
   snakeBody.forEach((bodyPart: Position) => {initialOtherBodies.add(JSON.stringify(bodyPart))});
@@ -37,7 +38,7 @@ function App() {
     snakes: new Map([["user1", snake]]),
     // otherBodies: new Set<string>([]),
     otherBodies: initialOtherBodies,
-    orbs: new Set([orb]),
+    orbs: orbSet,
     scores: new Map([["user1", 0]]),
     gameCode: "abc",
   });
@@ -61,7 +62,6 @@ function App() {
           gameState={gameState}
           setGameState={setGameState}
           orbSet={orbSet}
-          setOrbSet={setOrbSet}
         />
       )}
       {/* <Game /> */}

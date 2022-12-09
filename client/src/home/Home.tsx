@@ -39,7 +39,6 @@ interface HomeProps {
   gameState: GameState;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
   orbSet: Set<OrbData>;
-  setOrbSet: React.Dispatch<React.SetStateAction<Set<OrbData>>>;
 }
 
 export default function Home({
@@ -49,7 +48,6 @@ export default function Home({
   gameState,
   setGameState,
   orbSet,
-  setOrbSet,
 }: HomeProps) {
   const [username, setUsername] = useState("");
   const [inputGamecode, setInputGamecode] = useState("");
@@ -79,7 +77,6 @@ export default function Home({
                   setScores,
                   setErrorText,
                   setGameCode,
-                  setOrbSet,
                   orbSet,
                   gameState,
                   setGameState,
@@ -110,7 +107,6 @@ export default function Home({
                   setScores,
                   setErrorText,
                   setGameCode,
-                  setOrbSet,
                   orbSet,
                   gameState,
                   setGameState,
@@ -133,7 +129,6 @@ function newGameClick(
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
   setGameCode: React.Dispatch<React.SetStateAction<string>>,
-  setOrbSet: React.Dispatch<React.SetStateAction<Set<OrbData>>>,
   orbSet: Set<OrbData>,
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
@@ -150,7 +145,6 @@ function newGameClick(
       setGameStarted,
       setErrorText,
       setGameCode,
-      setOrbSet,
       orbSet,
       gameState,
       setGameState,
@@ -167,7 +161,6 @@ function withGameCodeClick(
   setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
   setErrorText: React.Dispatch<React.SetStateAction<string>>,
   setGameCode: React.Dispatch<React.SetStateAction<string>>,
-  setOrbSet: React.Dispatch<React.SetStateAction<Set<OrbData>>>,
   orbSet: Set<OrbData>,
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
@@ -185,7 +178,6 @@ function withGameCodeClick(
       setGameStarted,
       setErrorText,
       setGameCode,
-      setOrbSet,
       orbSet,
       gameState,
       setGameState,
