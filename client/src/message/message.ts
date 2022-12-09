@@ -29,6 +29,14 @@ export interface RemoveOrbMessage {
   };
 }
 
+export interface UpdatePositionMessage {
+  type: MessageType.UPDATE_POSITION;
+  data: {
+    add: Position; // the new circle's position
+    remove: Position; // the circle being removed
+  };
+}
+
 export interface UpdateScoreMessage {
   type: MessageType.UPDATE_SCORE;
   data: {
@@ -80,6 +88,21 @@ export function sendRemoveOrbMessage(socket: WebSocket, position: Position) {
   socket.send(JSON.stringify(message));
 }
 
+export function sendUpdatePositionMessage(
+  socket: WebSocket,
+  add: Position,
+  remove: Position
+) {
+  const message: UpdatePositionMessage = {
+    type: MessageType.UPDATE_POSITION,
+    data: {
+      add: add,
+      remove: remove,
+    },
+  };
+  socket.send(JSON.stringify(message));
+}
+
 export function sendUpdateScoreMessage(socket: WebSocket, newScore: number) {
   const message: UpdateScoreMessage = {
     type: MessageType.UPDATE_SCORE,
@@ -110,4 +133,18 @@ export interface leaderboardData {
 export interface leaderboardEntry {
   username: string;
   score: number;
+}
+
+export interface gameCode {
+  type: MessageType.SET_GAME_CODE;
+  data: {
+    gameCode: string;
+  };
+}
+
+export interface orbsData {
+  type: MessageType.SEND_ORBS;
+  data: {
+    orbSet: Set<OrbData>;
+  }
 }

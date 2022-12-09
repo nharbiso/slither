@@ -8,7 +8,8 @@ export interface Position {
 
 export default interface GameState {
     snakes: Map<String, SnakeData>;
-    otherBodies: Set<Position>;
+    // otherBodies: Set<Position>;
+    otherBodies: Set<string>;
     orbs: Set<OrbData>;
 
     scores: Map<String, Number>;

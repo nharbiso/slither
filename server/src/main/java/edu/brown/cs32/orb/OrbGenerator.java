@@ -1,14 +1,15 @@
 package edu.brown.cs32.orb;
 
-import edu.brown.cs32.coordinate.Coordinate;
+import edu.brown.cs32.color.OrbColor;
+import edu.brown.cs32.position.Position;
 import java.util.Random;
 import java.util.Set;
 
 public class OrbGenerator {
 
-  final int MAX_ORB_COUNT = 500;
-  final float MAP_MIN_COORDINATE = 0.0f + 200.0f;
-  final float MAP_MAX_COORDINATE = 1000.0f - 200.0f;
+  final int MAX_ORB_COUNT = 750;
+  final float MAP_MIN_COORDINATE = -1500.0f + 100.0f;
+  final float MAP_MAX_COORDINATE = 1500.0f - 100.0f;
 
   private float round(float value) {
     return Math.round(value * 100) / 100.0f;
@@ -18,9 +19,9 @@ public class OrbGenerator {
     Random random = new Random();
     int size = orbs.size();
     for (int i = 0; i < this.MAX_ORB_COUNT - size; i++) {
-      Orb orb = new Orb(new Coordinate(this.round(random.nextFloat(this.MAP_MIN_COORDINATE, this.MAP_MAX_COORDINATE)),
+      Orb orb = new Orb(new Position(this.round(random.nextFloat(this.MAP_MIN_COORDINATE, this.MAP_MAX_COORDINATE)),
                                        this.round(random.nextFloat(this.MAP_MIN_COORDINATE, this.MAP_MAX_COORDINATE))),
-                        this.generateOrbSize());
+                        this.generateOrbSize(), OrbColor.generate());
       orbs.add(orb);
     }
   }

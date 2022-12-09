@@ -5,7 +5,8 @@ import "./orb.css";
 
 export interface OrbData {
   position: Position;
-  size: OrbSize;
+  orbSize: OrbSize;
+  color: string;
 }
 
 export default function Orb({orbInfo, offset}: {orbInfo: OrbData, offset: Position}) {
@@ -15,8 +16,10 @@ export default function Orb({orbInfo, offset}: {orbInfo: OrbData, offset: Positi
       style={{
         top: `${orbInfo.position.y + offset.y}px`,
         left: `${orbInfo.position.x + offset.x}px`,
-        height: `${orbInfo.size === OrbSize.SMALL ? 7.5 : 11}px`,
-        width: `${orbInfo.size === OrbSize.SMALL ? 7.5 : 11}px`,
+        height: `${orbInfo.orbSize === OrbSize.SMALL ? 7.5 : 15}px`,
+        width: `${orbInfo.orbSize === OrbSize.SMALL ? 7.5 : 15}px`,
+        backgroundColor: `${orbInfo.color}`,
+        boxShadow: `0 0 10px 1px ${orbInfo.color}`,
       }}
     ></div>
   );
