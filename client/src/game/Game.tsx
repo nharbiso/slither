@@ -111,11 +111,11 @@ export function registerSocket(
       }
       case MessageType.SEND_ORBS: {
 
-        const orbPosition: Position = {
-          x: 100,
-          y: 500,
-        };
-        const orb: OrbData = { position: orbPosition, size: OrbSize.LARGE };
+        // const orbPosition: Position = {
+        //   x: 100,
+        //   y: 500,
+        // };
+        // const orb: OrbData = { position: orbPosition, size: OrbSize.LARGE };
         orbSet = message.data.orbSet;
         // setOrbSet(message.data.orbSet);
         // let gs: GameState = gameState;
@@ -125,6 +125,13 @@ export function registerSocket(
         
         console.log('orbSet');
         console.log(orbSet);
+
+
+        console.log('test');
+        console.log(Array.from(orbSet));
+        console.log('0');
+        console.log(Array.from(orbSet)[0]);
+        console.log(Array.from(orbSet)[0].orbSize);
         // let p: Position = {x: 10, y: 10};
         // let o: OrbData = {position: p, size: OrbSize.LARGE};
         // console.log(typeof(o));

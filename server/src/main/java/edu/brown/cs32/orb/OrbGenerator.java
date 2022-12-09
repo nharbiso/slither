@@ -6,9 +6,9 @@ import java.util.Set;
 
 public class OrbGenerator {
 
-  final int MAX_ORB_COUNT = 500;
-  final float MAP_MIN_COORDINATE = 0.0f + 200.0f;
-  final float MAP_MAX_COORDINATE = 1000.0f - 200.0f;
+  final int MAX_ORB_COUNT = 750;
+  final float MAP_MIN_COORDINATE = -2000f + 200.0f;
+  final float MAP_MAX_COORDINATE = 2000.0f - 200.0f;
 
   private float round(float value) {
     return Math.round(value * 100) / 100.0f;
