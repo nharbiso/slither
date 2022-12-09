@@ -31,13 +31,13 @@ function App() {
 
 
 
-  const initialOtherBodies: Set<string> = new Set<string>();
-  snakeBody.forEach((bodyPart: Position) => {initialOtherBodies.add(JSON.stringify(bodyPart))});
+  // const initialOtherBodies: Set<string> = new Set<string>();
+  // snakeBody.forEach((bodyPart: Position) => {initialOtherBodies.add(JSON.stringify(bodyPart))});
 
   const [gameState, setGameState] = useState<GameState>({
     snakes: new Map([["user1", snake]]),
-    // otherBodies: new Set<string>([]),
-    otherBodies: initialOtherBodies,
+    otherBodies: new Set<string>([]),
+    // otherBodies: initialOtherBodies,
     orbs: orbSet,
     scores: new Map([["user1", 0]]),
     gameCode: "abc",

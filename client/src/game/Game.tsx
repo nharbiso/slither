@@ -39,8 +39,8 @@ export function registerSocket(
   hasGameCode: boolean,
   gameCode: string = ""
 ) {
-  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
-  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST);
+  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
+  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST);
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
@@ -104,13 +104,12 @@ export function registerSocket(
         break;
       }
       case MessageType.SET_GAME_CODE: {
-        console.log('gc');
+        console.log("gc");
         console.log(message.data.gameCode);
         setGameCode(message.data.gameCode);
         break;
       }
       case MessageType.SEND_ORBS: {
-
         // const orbPosition: Position = {
         //   x: 100,
         //   y: 500,
@@ -121,15 +120,13 @@ export function registerSocket(
         // let gs: GameState = gameState;
         gameState.orbs = orbSet;
         setGameState(gameState);
-        
-        
-        console.log('orbSet');
+
+        console.log("orbSet");
         console.log(orbSet);
 
-
-        console.log('test');
+        console.log("test");
         console.log(Array.from(orbSet));
-        console.log('0');
+        console.log("0");
         console.log(Array.from(orbSet)[0]);
         console.log(Array.from(orbSet)[0].orbSize);
         // let p: Position = {x: 10, y: 10};
