@@ -45,7 +45,7 @@ public class GameState {
   }
 
   public boolean removeOrb(Position position) {
-    Orb removeOrb = new Orb(position, OrbSize.SMALL); // OrbSize irrelevant for hash equality comparison
+    Orb removeOrb = new Orb(position, OrbSize.SMALL, "red"); // OrbSize irrelevant for hash equality comparison
     if (!this.orbs.contains(removeOrb))
       return false;
     while (this.orbs.contains(removeOrb)) {

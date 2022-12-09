@@ -7,10 +7,12 @@ public class Orb {
 
   private final Position position;
   private final OrbSize orbSize;
+  private final String color;
 
-  public Orb(Position position, OrbSize orbSize) {
+  public Orb(Position position, OrbSize orbSize, String color) {
     this.position = position;
     this.orbSize = orbSize;
+    this.color = color;
   }
 
   @Override

@@ -142,11 +142,6 @@ export interface gameCode {
   };
 }
 
-interface orbType {
-  orbSize: string;
-  position: Position;
-}
-
 export interface orbsData {
   type: MessageType.SEND_ORBS;
   data: {
