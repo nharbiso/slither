@@ -152,6 +152,6 @@ export interface YouDiedMessage {
 export interface OtherUserDiedMessage {
   type: MessageType.OTHER_USED_DIED;
   data: {
-    remove: Position[];
+    removePositions: Position[];
   };
 }

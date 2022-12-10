@@ -47,6 +47,11 @@ public class GameState {
     }, 0, this.ORB_GENERATION_TIME_INTERVAL, TimeUnit.SECONDS); // execute every 60 seconds
   }
 
+  public void addUser(User user) {
+    this.userToOwnPositions.put(user, new HashSet<>());
+    this.userToOthersPositions.put(user, new HashSet<>());
+  }
+
   public void generateOrb() {
     this.orbGenerator.generateOrbs(this.orbs);
   }
@@ -72,6 +77,8 @@ public class GameState {
   }
 
   public void updateOwnPositions(User thisUser, Position toAdd, Position toRemove) {
+    if (!this.userToOwnPositions.containsKey((thisUser)))
+      this.userToOwnPositions.put(thisUser, new HashSet<>());
     this.userToOwnPositions.get(thisUser).add(toAdd);
     this.userToOwnPositions.get(thisUser).remove(toRemove);
   }
@@ -100,6 +107,13 @@ public class GameState {
   private void updateOtherUsersWithRemovedPositions(User thisUser, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
     List<Position> removedPositions = new ArrayList<>();
     removedPositions.addAll(this.userToOwnPositions.get(thisUser));
+    for (Position position : removedPositions) {
+      for (User user : this.userToOthersPositions.keySet()) {
+        if (user.equals(thisUser))
+          continue;
+        this.userToOthersPositions.get(user).remove(position);
+      }
+    }
     Map<String, Object> data = new HashMap<>();
     data.put("removePositions", removedPositions);
     String jsonMessage = server.serialize(new Message(MessageType.OTHER_USER_DIED, data));

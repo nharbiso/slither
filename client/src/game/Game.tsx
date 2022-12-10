@@ -21,7 +21,7 @@ import { getPositionOfLineAndCharacter } from "typescript";
 
 const AppConfig = {
   PROTOCOL: "ws:",
-  HOST: "//localhost",
+  HOST: "//8.tcp.ngrok.io:14721",
   PORT: ":9000",
 };
 
@@ -90,7 +90,7 @@ export function registerSocket(
       }
       case MessageType.OTHER_USED_DIED: {
         const otherUserDiedMessage: OtherUserDiedMessage = message;
-        const removePositions: Position[] = otherUserDiedMessage.data.remove;
+        const removePositions: Position[] = otherUserDiedMessage.data.removePositions;
         console.log("removePositions");
         console.log(removePositions);
         const newGameState: GameState = { ...gameState };

@@ -209,6 +209,7 @@ public class SlitherServer extends WebSocketServer {
           if (!this.gameCodeToGameState.containsKey(this.userToGameCode.get(newUser)))
             throw new GameCodeNoGameStateException(MessageType.JOIN_ERROR);
           this.addSocketToGameState(existingGameCode, webSocket);
+          this.gameCodeToGameState.get(existingGameCode).addUser(newUser);
 
           GameCode.sendGameCode(existingGameCode, this.gameCodeToGameState.get(existingGameCode), this);
 
@@ -224,6 +225,7 @@ public class SlitherServer extends WebSocketServer {
           User newUser = new NewClientHandler().handleNewClientNoCode(deserializedMessage, webSocket, this);
           String gameCode = new GameCodeGenerator().generateGameCode(this.getExistingGameCodes());
           this.gameCodeToGameState.put(gameCode, new GameState(this));
+          this.gameCodeToGameState.get(gameCode).addUser(newUser);
           this.gameStateToSockets.put(this.gameCodeToGameState.get(gameCode), new HashSet<>());
           Leaderboard leaderboard = new Leaderboard(this.gameCodeToGameState.get(gameCode), this);
           leaderboard.addNewUser(newUser);
