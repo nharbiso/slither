@@ -1,6 +1,8 @@
 import GameState, { Position } from "./GameState";
 import Snake, { SnakeData, SNAKE_VELOCITY } from "./snake/Snake";
 import Orb, { OrbData } from "./orb/Orb";
+import Border from "./boundary/Boundary";
+import OtherSnake from "./snake/OtherSnake";
 // import { formControlUnstyledClasses } from '@mui/base';
 import {
   sendRemoveOrbMessage,
@@ -8,9 +10,8 @@ import {
   sendUpdatePositionMessage,
 } from "../message/message";
 import { useEffect, useState, Dispatch, SetStateAction } from "react";
-import "./snake/SnakeCircle.css";
-import OtherSnake from "./snake/OtherSnake";
 
+const canvasSize: Position = { x: 3000, y: 3000 };
 const mousePos: Position = { x: 0, y: 0 };
 const offset: Position = { x: 0, y: 0 };
 // let lastUpdatedPosition: Position = { x: 0, y: 0 };
@@ -70,6 +71,7 @@ export default function GameCanvas({
         <Orb orbInfo={orb} offset={offset} key={ind} />
       ))}
       <OtherSnake positions={gameState.otherBodies} offset={offset} />
+      <Border boundaries={canvasSize} offset={offset} />
     </div>
   );
 }
