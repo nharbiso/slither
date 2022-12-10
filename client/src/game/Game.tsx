@@ -10,6 +10,7 @@ import MessageType from "../message/messageTypes";
 import {
   leaderboardData,
   leaderboardEntry,
+  OtherUserDiedMessage,
   sendNewClientNoCodeMessage,
   sendNewClientWithCodeMessage,
   UpdatePositionMessage,
@@ -72,29 +73,30 @@ export function registerSocket(
         const updatePositionMessage: UpdatePositionMessage = message;
         const toAdd: Position = updatePositionMessage.data.add;
         const toRemove: Position = updatePositionMessage.data.remove;
-        // const newOtherBodies = gameState.otherBodies;
         const newGameState: GameState = { ...gameState };
-        console.log(gameState.otherBodies);
-        console.log(gameState.otherBodies.entries);
-        console.log(JSON.stringify(toRemove));
-        console.log("gameState otherbodies: " + gameState.otherBodies.size);
-        // newOtherBodies.delete(JSON.stringify(toRemove));
+        console.log(
+          "gameState otherbodies size: " + gameState.otherBodies.size
+        );
         newGameState.otherBodies.delete(JSON.stringify(toRemove));
-        console.log(
-          "gameState otherbodies after delete: " + gameState.otherBodies.size
-        );
-        // newOtherBodies.add(JSON.stringify(toAdd));
         newGameState.otherBodies.add(JSON.stringify(toAdd));
-        console.log(
-          "gameState otherbodies after add: " + gameState.otherBodies.size
-        );
-        // setGameState({
-        //   snakes: gameState.snakes,
-        //   otherBodies: newOtherBodies,
-        //   orbs: gameState.orbs,
-        //   scores: gameState.scores,
-        //   gameCode: gameState.gameCode,
-        // });
+        setGameState(newGameState);
+        break;
+      }
+      case MessageType.YOU_DIED: {
+        // currently just reloading to force the home screen to open
+        // see if we want to do anything else here
+        window.location.reload();
+        break;
+      }
+      case MessageType.OTHER_USED_DIED: {
+        const otherUserDiedMessage: OtherUserDiedMessage = message;
+        const removePositions: Position[] = otherUserDiedMessage.data.remove;
+        console.log("removePositions");
+        console.log(removePositions);
+        const newGameState: GameState = { ...gameState };
+        removePositions.forEach((position: Position) => {
+          newGameState.otherBodies.delete(JSON.stringify(position));
+        });
         setGameState(newGameState);
         break;
       }
@@ -185,7 +187,6 @@ export default function Game({
   //   velocityX: 0,
   //   velocityY: SNAKE_VELOCITY,
   // };
-
 
   // const [scores, setScores] = useState(new Map<string, number>());
 
