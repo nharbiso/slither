@@ -44,11 +44,6 @@ export interface UpdateScoreMessage {
   };
 }
 
-export interface UserDiedMessage {
-  type: MessageType.USER_DIED;
-  data: {};
-}
-
 export function sendNewClientNoCodeMessage(
   socket: WebSocket,
   username: string
@@ -113,13 +108,13 @@ export function sendUpdateScoreMessage(socket: WebSocket, newScore: number) {
   socket.send(JSON.stringify(message));
 }
 
-export function sendUserDiedMessage(socket: WebSocket) {
-  const message: UserDiedMessage = {
-    type: MessageType.USER_DIED,
-    data: {},
-  };
-  socket.send(JSON.stringify(message));
-}
+// export function sendUserDiedMessage(socket: WebSocket) {
+//   const message: UserDiedMessage = {
+//     type: MessageType.USER_DIED,
+//     data: {},
+//   };
+//   socket.send(JSON.stringify(message));
+// }
 
 // TYPES FOR MESSAGES RECEIVED FROM THE SERVER
 
@@ -146,5 +141,17 @@ export interface orbsData {
   type: MessageType.SEND_ORBS;
   data: {
     orbSet: Set<OrbData>;
-  }
+  };
+}
+
+export interface YouDiedMessage {
+  type: MessageType.YOU_DIED;
+  data: {};
+}
+
+export interface OtherUserDiedMessage {
+  type: MessageType.OTHER_USED_DIED;
+  data: {
+    removePositions: Position[];
+  };
 }

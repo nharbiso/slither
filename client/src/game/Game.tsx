@@ -13,6 +13,7 @@ import MessageType from "../message/messageTypes";
 import {
   leaderboardData,
   leaderboardEntry,
+  OtherUserDiedMessage,
   sendNewClientNoCodeMessage,
   sendNewClientWithCodeMessage,
   UpdatePositionMessage,
@@ -21,7 +22,7 @@ import { getPositionOfLineAndCharacter } from "typescript";
 
 const AppConfig = {
   PROTOCOL: "ws:",
-  HOST: "//localhost",
+  HOST: "//8.tcp.ngrok.io:14721",
   PORT: ":9000",
 };
 
@@ -73,29 +74,30 @@ export function registerSocket(
         const updatePositionMessage: UpdatePositionMessage = message;
         const toAdd: Position = updatePositionMessage.data.add;
         const toRemove: Position = updatePositionMessage.data.remove;
-        // const newOtherBodies = gameState.otherBodies;
         const newGameState: GameState = { ...gameState };
-        console.log(gameState.otherBodies);
-        console.log(gameState.otherBodies.entries);
-        console.log(JSON.stringify(toRemove));
-        console.log("gameState otherbodies: " + gameState.otherBodies.size);
-        // newOtherBodies.delete(JSON.stringify(toRemove));
+        console.log(
+          "gameState otherbodies size: " + gameState.otherBodies.size
+        );
         newGameState.otherBodies.delete(JSON.stringify(toRemove));
-        console.log(
-          "gameState otherbodies after delete: " + gameState.otherBodies.size
-        );
-        // newOtherBodies.add(JSON.stringify(toAdd));
         newGameState.otherBodies.add(JSON.stringify(toAdd));
-        console.log(
-          "gameState otherbodies after add: " + gameState.otherBodies.size
-        );
-        // setGameState({
-        //   snakes: gameState.snakes,
-        //   otherBodies: newOtherBodies,
-        //   orbs: gameState.orbs,
-        //   scores: gameState.scores,
-        //   gameCode: gameState.gameCode,
-        // });
+        setGameState(newGameState);
+        break;
+      }
+      case MessageType.YOU_DIED: {
+        // currently just reloading to force the home screen to open
+        // see if we want to do anything else here
+        window.location.reload();
+        break;
+      }
+      case MessageType.OTHER_USED_DIED: {
+        const otherUserDiedMessage: OtherUserDiedMessage = message;
+        const removePositions: Position[] = otherUserDiedMessage.data.removePositions;
+        console.log("removePositions");
+        console.log(removePositions);
+        const newGameState: GameState = { ...gameState };
+        removePositions.forEach((position: Position) => {
+          newGameState.otherBodies.delete(JSON.stringify(position));
+        });
         setGameState(newGameState);
         break;
       }
@@ -111,52 +113,13 @@ export function registerSocket(
         break;
       }
       case MessageType.SEND_ORBS: {
-        // const orbPosition: Position = {
-        //   x: 100,
-        //   y: 500,
-        // };
-        // const orb: OrbData = { position: orbPosition, size: OrbSize.LARGE };
         orbSet = message.data.orbSet;
-        // setOrbSet(message.data.orbSet);
-        // let gs: GameState = gameState;
         gameState.orbs = orbSet;
         setGameState(gameState);
 
-        console.log("orbSet");
-        console.log(orbSet);
-
-        console.log("test");
-        console.log(Array.from(orbSet));
-        console.log("0");
-        console.log(Array.from(orbSet)[0]);
-        console.log(Array.from(orbSet)[0].orbSize);
-        // let p: Position = {x: 10, y: 10};
-        // let o: OrbData = {position: p, size: OrbSize.LARGE};
-        // console.log(typeof(o));
-
-        // console.log('reached');
-        // console.log(typeof(message.data.orbSet[0]));
-        // let orb: OrbData = message.data.orbSet[0];
-        // console.log('orb: ');
-        // console.log(orb);
-        // console.log(typeof(orb));
-
-        // let orbs: Set<OrbData> = message.data.orbSet;
-        // console.log('orbs: ');
-        // console.log(orbs);
-        // console.log(typeof(orbs));
-
-        // console.log(message.data.orbSet);
-        // setOrbSet(message.data.orbSet);
-        // console.log('orbset!!!');
-        // console.log(orbSet);
         break;
       }
     }
-
-    // case MessageType.SET_CODE: {
-
-    // }
   };
 }
 
@@ -177,47 +140,6 @@ export default function Game({
   gameCode,
   setGameCode,
 }: GameProps) {
-  // const snakeBody: Position[] = [];
-  // for (let i = 0; i < 100; i++) {
-  //   snakeBody.push({ x: 600, y: 100 + 5 * i });
-  // }
-  // const snake: SnakeData = {
-  //   snakeBody: new Denque(snakeBody),
-  //   velocityX: 0,
-  //   velocityY: SNAKE_VELOCITY,
-  // };
-
-
-  // const [scores, setScores] = useState(new Map<string, number>());
-
-  // useEffect(() => {
-  //   if (!toregister) {
-  //     return;
-  //   }
-  //   toregister = false;
-  //   registerSocket(setScores);
-  // }, []);
-
-  const [snakes, setSnakes] = useState<SnakeData[]>([
-    gameState.snakes.get("user1")!,
-  ]);
-
-  // const position: Position = {
-  //   x: 100,
-  //   y: 500,
-  // };
-
-  // const orb: OrbData = { position, size: OrbSize.LARGE };
-
-  // const [gameState, setGameState] = useState<GameState>({
-  //   snakes: new Map([["user1", snake]]),
-  //   otherBodies: new Set(),
-  //   orbs: new Set([orb]),
-  //   scores: new Map([["user1", 0]]),
-  //   gameCode: "abc",
-  // });
-  const boundaries: Position = { x: 3000, y: 3000 };
-  const WIDTH: number = 5;
 
   return (
     <div>
