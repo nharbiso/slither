@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class Leaderboard {
 
   private final Map<User, Integer> userScores;
-  private final int LEADERBOARD_UPDATE_INTERVAL = 5;
+  private final int LEADERBOARD_UPDATE_INTERVAL = 1;
   private final GameState gameState;
   private final SlitherServer slitherServer;
 
@@ -83,6 +83,10 @@ public class Leaderboard {
       return true;
     }
     return false;
+  }
+
+  public Integer getCurrentScore(User user) {
+    return this.userScores.get(user);
   }
 
   /**

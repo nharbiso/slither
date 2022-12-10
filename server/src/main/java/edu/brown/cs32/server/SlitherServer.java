@@ -190,6 +190,12 @@ public class SlitherServer extends WebSocketServer {
     this.socketToUser.remove(webSocket);
   }
 
+  public void handleUpdateScore(User user, GameState gamestate, Integer orbValue) {
+    Leaderboard leaderboard = this.gameCodeToLeaderboard.get(gamestate.getGameCode());
+    Integer currUserScore = leaderboard.getCurrentScore(user);
+    leaderboard.updateScore(user, currUserScore + orbValue);
+  }
+
   public void handleOnMessage(WebSocket webSocket, Message deserializedMessage) {
     String jsonResponse;
     try {
@@ -223,7 +229,7 @@ public class SlitherServer extends WebSocketServer {
           this.inactiveConnections.remove(webSocket);
           User newUser = new NewClientHandler().handleNewClientNoCode(deserializedMessage, webSocket, this);
           String gameCode = new GameCodeGenerator().generateGameCode(this.getExistingGameCodes());
-          this.gameCodeToGameState.put(gameCode, new GameState(this));
+          this.gameCodeToGameState.put(gameCode, new GameState(this, gameCode));
           this.gameCodeToGameState.get(gameCode).addUser(newUser);
           this.gameStateToSockets.put(this.gameCodeToGameState.get(gameCode), new HashSet<>());
           Leaderboard leaderboard = new Leaderboard(this.gameCodeToGameState.get(gameCode), this);

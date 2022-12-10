@@ -25,6 +25,7 @@ import org.java_websocket.WebSocket;
 public class GameState {
 
   private SlitherServer slitherServer;
+  private String gameCode;
   private Set<Orb> orbs;
   private Set<Orb> deathOrbs; // only formed when people die
   private final OrbGenerator orbGenerator = new OrbGenerator();
@@ -33,8 +34,9 @@ public class GameState {
   private Map<User, Set<Position>> userToOwnPositions;
   private final int SNAKE_CIRCLE_RADIUS = 35;
 
-  public GameState(SlitherServer slitherServer) {
+  public GameState(SlitherServer slitherServer, String gameCode) {
     this.slitherServer = slitherServer;
+    this.gameCode = gameCode;
     this.orbs = new HashSet<Orb>();
     this.userToOthersPositions = new HashMap<>();
     this.userToOwnPositions = new HashMap<>();
@@ -71,10 +73,7 @@ public class GameState {
   public void sendOrbData() {
     Map<String, Object> orbData = new HashMap<>();
     orbData.put("orbSet", this.orbs);
-    String json = this.slitherServer.serialize(new Message(MessageType.SEND_ORBS, orbData));
-
-    System.out.println("orb json");
-    
+    String json = this.slitherServer.serialize(new Message(MessageType.SEND_ORBS, orbData));    
     this.slitherServer.sendToAllGameStateConnections(this, json);
   }
 
@@ -152,16 +151,12 @@ public class GameState {
       Position orbPosition = orb.getPosition();
       if (this.distance(latestHeadPosition, orbPosition) <= this.SNAKE_CIRCLE_RADIUS) {
         this.removeOrb(orbPosition);
-        // Map<String, Object> orbData = new HashMap<>();
-        // orbData.put("x", orbPosition.x());
-        // orbData.put("y", orbPosition.y());
-        //Message removeCollectedOrb = new Message(MessageType.REMOVE_ORB, orbData);
         this.sendOrbData();
-        // String jsonMessage = server.serialize(removeCollectedOrb);
-        // webSocket.send(jsonMessage);
-        System.out.println("REMOVE ORB");
-        
-        //System.out.println("# ORBS: " + this.orbs.size());
+        Integer orbValue = switch(orb.getSize()) {
+          case SMALL -> 1;
+          case LARGE -> 10;
+        };
+        server.handleUpdateScore(thisUser, this, orbValue);
       }
     }
     for (Position otherBodyPosition : otherBodies) {
@@ -176,5 +171,9 @@ public class GameState {
         return;
       }
     }
+  }
+
+  public String getGameCode() {
+    return this.gameCode;
   }
 }

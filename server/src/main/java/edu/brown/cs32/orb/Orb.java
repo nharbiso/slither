@@ -19,6 +19,10 @@ public class Orb {
     return this.position;
   }
 
+  public OrbSize getSize() {
+    return this.orbSize;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
