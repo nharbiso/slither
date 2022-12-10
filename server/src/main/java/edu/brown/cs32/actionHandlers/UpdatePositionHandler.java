@@ -22,7 +22,11 @@ public class UpdatePositionHandler {
       throw new MissingFieldException(message, MessageType.ERROR);
     Position toAdd = new Position(addData.get("x"), addData.get("y"));
     Position toRemove = new Position(removeData.get("x"), removeData.get("y"));
+    gameState.updateOwnPositions(thisUser, toAdd, toRemove);
     gameState.updateOtherUsersWithPosition(thisUser, toAdd, toRemove, webSocket, gameStateSockets, server);
+
+    Thread t = new Thread(() -> gameState.collisionCheck(thisUser, toAdd, webSocket, gameStateSockets, server));
+    t.start();
   }
 
 }

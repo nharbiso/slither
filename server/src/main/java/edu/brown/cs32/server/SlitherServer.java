@@ -181,6 +181,16 @@ public class SlitherServer extends WebSocketServer {
     return new Message(messageType, data);
   }
 
+  public void handleUserDied(User user, WebSocket webSocket, GameState gameState) {
+    String gameCode = this.userToGameCode.get(user);
+    Leaderboard leaderboard = this.gameCodeToLeaderboard.get(gameCode);
+    leaderboard.removeUser(user);
+    this.userToGameCode.remove(user);
+    this.inactiveConnections.add(webSocket);
+    this.gameStateToSockets.get(gameState).remove(webSocket);
+    this.socketToUser.remove(webSocket);
+  }
+
   public void handleOnMessage(WebSocket webSocket, Message deserializedMessage) {
     String jsonResponse;
     try {
@@ -270,32 +280,31 @@ public class SlitherServer extends WebSocketServer {
           webSocket.send(jsonResponse);
           break;
         }
-        case USER_DIED -> {
-          // TODO: Add to deathOrbs set in gamestate when this happens
-          // TODO: Need to move these tasks to a separate function since death collision checking is
-          // now happening on the server-side
-          User user = this.socketToUser.get(webSocket);
-          if (user == null)
-            throw new NoUserException(deserializedMessage.type());
-//          new UserDiedHandler().handleUserDied(user, this.leaderboard);
-          new UserDiedHandler().handleUserDied(user, this.gameCodeToLeaderboard.get(this.userToGameCode.get(user)));
-          this.userToGameCode.remove(user);
-          this.inactiveConnections.add(webSocket);
-
-          String gameCode = this.userToGameCode.get(user);
-          if (gameCode == null)
-            throw new UserNoGameCodeException(MessageType.ERROR);
-
-          GameState gameState = this.gameCodeToGameState.get(gameCode);
-          if (gameState == null)
-            throw new GameCodeNoGameStateException(MessageType.ERROR);
-
-          this.gameStateToSockets.get(gameState).remove(webSocket);
-
-          jsonResponse = this.serialize(this.generateMessage("User removed from leaderboard", MessageType.SUCCESS));
-          webSocket.send(jsonResponse);
-          break;
-        }
+//        case USER_DIED -> {
+//          // TODO: Add to deathOrbs set in gamestate when this happens
+//          // TODO: Need to move these tasks to a separate function since death collision checking is
+//          // now happening on the server-side
+//          User user = this.socketToUser.get(webSocket);
+//          if (user == null)
+//            throw new NoUserException(deserializedMessage.type());
+//          new UserDiedHandler().handleUserDied(user, this.gameCodeToLeaderboard.get(this.userToGameCode.get(user)));
+//          this.userToGameCode.remove(user);
+//          this.inactiveConnections.add(webSocket);
+//
+//          String gameCode = this.userToGameCode.get(user);
+//          if (gameCode == null)
+//            throw new UserNoGameCodeException(MessageType.ERROR);
+//
+//          GameState gameState = this.gameCodeToGameState.get(gameCode);
+//          if (gameState == null)
+//            throw new GameCodeNoGameStateException(MessageType.ERROR);
+//
+//          this.gameStateToSockets.get(gameState).remove(webSocket);
+//
+//          jsonResponse = this.serialize(this.generateMessage("User removed from leaderboard", MessageType.SUCCESS));
+//          webSocket.send(jsonResponse);
+//          break;
+//        }
         case REMOVE_ORB -> {
           User user = this.socketToUser.get(webSocket);
           if (user == null)
