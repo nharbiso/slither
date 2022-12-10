@@ -22,7 +22,7 @@ import { getPositionOfLineAndCharacter } from "typescript";
 
 const AppConfig = {
   PROTOCOL: "ws:",
-  HOST: "//8.tcp.ngrok.io:14721",
+  HOST: "//localhost", //8.tcp.ngrok.io:14721",
   PORT: ":9000",
 };
 

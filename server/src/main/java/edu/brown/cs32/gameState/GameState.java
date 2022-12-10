@@ -131,6 +131,20 @@ public class GameState {
   public void collisionCheck(User thisUser, Position latestHeadPosition, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
     System.out.println("Run collision check");
     Set<Position> otherBodies = this.userToOthersPositions.get(thisUser);
+    if( latestHeadPosition.x() - this.SNAKE_CIRCLE_RADIUS <= -1500 ||
+        latestHeadPosition.x() + this.SNAKE_CIRCLE_RADIUS >= 1500 ||
+        latestHeadPosition.y() - this.SNAKE_CIRCLE_RADIUS <= -1500 ||
+        latestHeadPosition.y() + this.SNAKE_CIRCLE_RADIUS >= 1500
+      ) {
+      Message userDiedMessage = new Message(MessageType.YOU_DIED, new HashMap<>());
+      String jsonMessage = server.serialize(userDiedMessage);
+      webSocket.send(jsonMessage);
+      this.updateOtherUsersWithRemovedPositions(thisUser, webSocket, gameStateSockets, server);
+      this.userToOwnPositions.remove(thisUser);
+      this.userToOthersPositions.remove(thisUser);
+      server.handleUserDied(thisUser, webSocket, this);
+      return;
+    }
     for (Position otherBodyPosition : otherBodies) {
       if (this.distance(latestHeadPosition, otherBodyPosition) <= this.SNAKE_CIRCLE_RADIUS) {
         Message userDiedMessage = new Message(MessageType.YOU_DIED, new HashMap<>());
