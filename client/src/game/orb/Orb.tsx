@@ -1,7 +1,7 @@
 import React from "react";
 import OrbSize from "./orbSize";
 import { Position } from "../GameState";
-import "./Orb.css";
+import "./orb.css";
 
 export interface OrbData {
   position: Position;
