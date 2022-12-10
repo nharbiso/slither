@@ -1,5 +1,7 @@
 package edu.brown.cs32.gameState;
 
+import edu.brown.cs32.actionHandlers.RemoveOrbHandler;
+import edu.brown.cs32.exceptions.MissingFieldException;
 import edu.brown.cs32.leaderboard.Leaderboard;
 import edu.brown.cs32.message.Message;
 import edu.brown.cs32.message.MessageType;
@@ -57,7 +59,7 @@ public class GameState {
   }
 
   public boolean removeOrb(Position position) {
-    Orb removeOrb = new Orb(position, OrbSize.SMALL, "red"); // OrbSize irrelevant for hash equality comparison
+    Orb removeOrb = new Orb(position, OrbSize.SMALL, "red"); // OrbSize/color irrelevant for hash equality comparison
     if (!this.orbs.contains(removeOrb))
       return false;
     while (this.orbs.contains(removeOrb)) {
@@ -129,8 +131,9 @@ public class GameState {
   }
 
   public void collisionCheck(User thisUser, Position latestHeadPosition, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
-    System.out.println("Run collision check");
+    //System.out.println("Run collision check");
     Set<Position> otherBodies = this.userToOthersPositions.get(thisUser);
+    Set<Orb> allOrbs = this.orbs;
     if( latestHeadPosition.x() - this.SNAKE_CIRCLE_RADIUS <= -1500 ||
         latestHeadPosition.x() + this.SNAKE_CIRCLE_RADIUS >= 1500 ||
         latestHeadPosition.y() - this.SNAKE_CIRCLE_RADIUS <= -1500 ||
@@ -144,6 +147,22 @@ public class GameState {
       this.userToOthersPositions.remove(thisUser);
       server.handleUserDied(thisUser, webSocket, this);
       return;
+    }
+    for (Orb orb : allOrbs) {
+      Position orbPosition = orb.getPosition();
+      if (this.distance(latestHeadPosition, orbPosition) <= this.SNAKE_CIRCLE_RADIUS) {
+        this.removeOrb(orbPosition);
+        // Map<String, Object> orbData = new HashMap<>();
+        // orbData.put("x", orbPosition.x());
+        // orbData.put("y", orbPosition.y());
+        //Message removeCollectedOrb = new Message(MessageType.REMOVE_ORB, orbData);
+        this.sendOrbData();
+        // String jsonMessage = server.serialize(removeCollectedOrb);
+        // webSocket.send(jsonMessage);
+        System.out.println("REMOVE ORB");
+        
+        //System.out.println("# ORBS: " + this.orbs.size());
+      }
     }
     for (Position otherBodyPosition : otherBodies) {
       if (this.distance(latestHeadPosition, otherBodyPosition) <= this.SNAKE_CIRCLE_RADIUS) {

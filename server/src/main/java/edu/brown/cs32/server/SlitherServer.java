@@ -6,7 +6,6 @@ import edu.brown.cs32.actionHandlers.NewClientHandler;
 import edu.brown.cs32.actionHandlers.RemoveOrbHandler;
 import edu.brown.cs32.actionHandlers.UpdatePositionHandler;
 import edu.brown.cs32.actionHandlers.UpdateScoreHandler;
-import edu.brown.cs32.actionHandlers.UserDiedHandler;
 import edu.brown.cs32.exceptions.ClientAlreadyExistsException;
 import edu.brown.cs32.exceptions.IncorrectGameCodeException;
 import edu.brown.cs32.exceptions.InvalidOrbCoordinateException;
