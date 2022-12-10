@@ -1,0 +1,5 @@
+.boundary {
+    position: absolute;
+    background-color: red;
+    border-left: 5px solid red;
+}

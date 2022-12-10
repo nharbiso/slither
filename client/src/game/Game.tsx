@@ -1,11 +1,14 @@
-import Denque from "denque";
-import GameState, { Position } from "./GameState";
-import OrbSize from "./orb/orbSize";
-import { OrbData } from "./orb/Orb";
-import { SnakeData, SNAKE_VELOCITY } from "./snake/Snake";
 import React, { useState, useEffect } from "react";
+import Denque from "denque";
 
+import GameState, { Position } from "./GameState";
 import GameCanvas from "./GameCanvas";
+import Leaderboard from "../leaderboard/Leaderboard";
+import GameCode from "../gameCode/GameCode";
+import { OrbData } from "./orb/Orb";
+import OrbSize from "./orb/orbSize";
+import { SnakeData, SNAKE_VELOCITY } from "./snake/Snake";
+
 import MessageType from "../message/messageTypes";
 import {
   leaderboardData,
@@ -15,8 +18,6 @@ import {
   sendNewClientWithCodeMessage,
   UpdatePositionMessage,
 } from "../message/message";
-import Leaderboard from "../leaderboard/Leaderboard";
-import GameCode from "../gameCode/GameCode";
 import { getPositionOfLineAndCharacter } from "typescript";
 
 const AppConfig = {
@@ -40,8 +41,8 @@ export function registerSocket(
   hasGameCode: boolean,
   gameCode: string = ""
 ) {
-  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
-  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST);
+  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
+  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST);
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
