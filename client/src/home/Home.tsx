@@ -39,6 +39,8 @@ interface HomeProps {
   gameState: GameState;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
   orbSet: Set<OrbData>;
+  snakeLength: number;
+  setSnakeLength: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function Home({
@@ -48,6 +50,8 @@ export default function Home({
   gameState,
   setGameState,
   orbSet,
+  snakeLength,
+  setSnakeLength
 }: HomeProps) {
   const [username, setUsername] = useState("");
   const [inputGamecode, setInputGamecode] = useState("");
@@ -80,6 +84,8 @@ export default function Home({
                   orbSet,
                   gameState,
                   setGameState,
+                  snakeLength,
+                  setSnakeLength,
                   username
                 );
               }}
@@ -110,6 +116,8 @@ export default function Home({
                   orbSet,
                   gameState,
                   setGameState,
+                  snakeLength,
+                  setSnakeLength,
                   username,
                   inputGamecode
                 );
@@ -132,6 +140,8 @@ function newGameClick(
   orbSet: Set<OrbData>,
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
+  snakeLength: number,
+  setSnakeLength: React.Dispatch<React.SetStateAction<number>>,
   username: string
 ) {
   if (username.trim().length === 0) {
@@ -148,6 +158,8 @@ function newGameClick(
       orbSet,
       gameState,
       setGameState,
+      snakeLength,
+      setSnakeLength,
       username,
       false
     );
@@ -164,6 +176,8 @@ function withGameCodeClick(
   orbSet: Set<OrbData>,
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
+  snakeLength: number,
+  setSnakeLength: React.Dispatch<React.SetStateAction<number>>,
   username: string,
   gameCode: string
 ) {
@@ -181,6 +195,8 @@ function withGameCodeClick(
       orbSet,
       gameState,
       setGameState,
+      snakeLength,
+      setSnakeLength,
       username,
       true,
       gameCode

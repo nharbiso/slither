@@ -37,6 +37,8 @@ export function registerSocket(
   orbSet: Set<OrbData>,
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
+  snakeLength: number,
+  setSnakeLength: React.Dispatch<React.SetStateAction<number>>,
   username: string,
   hasGameCode: boolean,
   gameCode: string = ""
@@ -116,8 +118,14 @@ export function registerSocket(
         orbSet = message.data.orbSet;
         gameState.orbs = orbSet;
         setGameState(gameState);
-
         break;
+      }
+      case MessageType.UPDATE_SCORE: {
+        snakeLength++;
+        // console.log('RRRREAAACHCEED');
+        // console.log(snakeLength);
+        // setSnakeLength(snakeLength + 1);
+        console.log(snakeLength);
       }
     }
   };

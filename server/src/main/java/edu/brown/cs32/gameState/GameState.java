@@ -157,6 +157,10 @@ public class GameState {
           case LARGE -> 10;
         };
         server.handleUpdateScore(thisUser, this, orbValue);
+
+        Message userScoreIncreasedMessage = new Message(MessageType.UPDATE_SCORE, new HashMap<>());
+        String jsonMessage = server.serialize(userScoreIncreasedMessage);
+        webSocket.send(jsonMessage);
       }
     }
     for (Position otherBodyPosition : otherBodies) {
