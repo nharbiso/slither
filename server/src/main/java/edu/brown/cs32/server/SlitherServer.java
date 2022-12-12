@@ -9,6 +9,7 @@ import edu.brown.cs32.actionHandlers.UpdateScoreHandler;
 import edu.brown.cs32.exceptions.ClientAlreadyExistsException;
 import edu.brown.cs32.exceptions.IncorrectGameCodeException;
 import edu.brown.cs32.exceptions.InvalidOrbCoordinateException;
+import edu.brown.cs32.exceptions.InvalidRemoveCoordinateException;
 import edu.brown.cs32.exceptions.MissingFieldException;
 import edu.brown.cs32.exceptions.MissingGameStateException;
 import edu.brown.cs32.exceptions.NoUserException;
@@ -215,6 +216,8 @@ public class SlitherServer extends WebSocketServer {
             throw new GameCodeNoGameStateException(MessageType.JOIN_ERROR);
           this.addSocketToGameState(existingGameCode, webSocket);
           this.gameCodeToGameState.get(existingGameCode).addUser(newUser);
+          GameState gameState = this.gameCodeToGameState.get(this.userToGameCode.get(newUser));
+          gameState.createNewSnake(newUser, webSocket, this.gameStateToSockets.get(gameState), this);
 
           GameCode.sendGameCode(existingGameCode, this.gameCodeToGameState.get(existingGameCode), this);
 
@@ -244,6 +247,9 @@ public class SlitherServer extends WebSocketServer {
 
           GameCode.sendGameCode(gameCode, this.gameCodeToGameState.get(gameCode), this);
 
+          GameState gameState = this.gameCodeToGameState.get(gameCode);
+          gameState.createNewSnake(newUser, webSocket, this.gameStateToSockets.get(gameState), this);
+
           Message message = this.generateMessage("New client added to new game", MessageType.JOIN_SUCCESS);
           message.data().put("gameCode", gameCode);
           jsonResponse = this.serialize(message);
@@ -265,6 +271,9 @@ public class SlitherServer extends WebSocketServer {
               new UpdatePositionHandler().handlePositionUpdate(user, deserializedMessage, gameState, webSocket, this.gameStateToSockets.get(gameState), this);
             } catch (MissingFieldException e) {
               String res = this.serialize(this.generateMessage("The message sent by the client was missing a required field", e.messageType));
+              webSocket.send(res);
+            } catch (InvalidRemoveCoordinateException e) {
+              String res = this.serialize(this.generateMessage("Incorrect toRemove coordinate provided", e.messageType));
               webSocket.send(res);
             }
           });

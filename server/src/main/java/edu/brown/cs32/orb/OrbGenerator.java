@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class OrbGenerator {
 
-  final int MAX_ORB_COUNT = 750;
+  final int MAX_ORB_COUNT = 200; // 750
   final float MAP_MIN_COORDINATE = -1500.0f + 100.0f;
   final float MAP_MAX_COORDINATE = 1500.0f - 100.0f;
 

@@ -1,6 +1,7 @@
 package edu.brown.cs32.gameState;
 
 import edu.brown.cs32.actionHandlers.RemoveOrbHandler;
+import edu.brown.cs32.exceptions.InvalidRemoveCoordinateException;
 import edu.brown.cs32.exceptions.MissingFieldException;
 import edu.brown.cs32.leaderboard.Leaderboard;
 import edu.brown.cs32.message.Message;
@@ -13,8 +14,10 @@ import edu.brown.cs32.server.SlitherServer;
 import edu.brown.cs32.user.User;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +35,8 @@ public class GameState {
   private final int ORB_GENERATION_TIME_INTERVAL = 5;
   private Map<User, Set<Position>> userToOthersPositions;
   private Map<User, Set<Position>> userToOwnPositions;
+//  private Map<User, List<Position>> userToLastTwoOwnPositions;
+  private Map<User, Deque<Position>> userToSnakeDeque;
   private final int SNAKE_CIRCLE_RADIUS = 35;
 
   public GameState(SlitherServer slitherServer, String gameCode) {
@@ -40,6 +45,8 @@ public class GameState {
     this.orbs = new HashSet<Orb>();
     this.userToOthersPositions = new HashMap<>();
     this.userToOwnPositions = new HashMap<>();
+//    this.userToLastTwoOwnPositions = new HashMap<>();
+    this.userToSnakeDeque = new HashMap<>();
     ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
     exec.scheduleAtFixedRate(new Runnable() {
       public void run() {
@@ -53,7 +60,9 @@ public class GameState {
 
   public void addUser(User user) {
     this.userToOwnPositions.put(user, new HashSet<>());
+//    this.userToLastTwoOwnPositions.put(user, new ArrayList<>());
     this.userToOthersPositions.put(user, new HashSet<>());
+    this.userToSnakeDeque.put(user, new LinkedList<>());
   }
 
   public void generateOrb() {
@@ -77,11 +86,58 @@ public class GameState {
     this.slitherServer.sendToAllGameStateConnections(this, json);
   }
 
-  public void updateOwnPositions(User thisUser, Position toAdd, Position toRemove) {
+  public void updateOwnPositions(User thisUser, Position toAdd, Position toRemove) throws InvalidRemoveCoordinateException {
     if (!this.userToOwnPositions.containsKey((thisUser)))
       this.userToOwnPositions.put(thisUser, new HashSet<>());
     this.userToOwnPositions.get(thisUser).add(toAdd);
     this.userToOwnPositions.get(thisUser).remove(toRemove);
+//    this.updateOwnLastTwoBodyParts(thisUser, toAdd);
+
+    this.userToSnakeDeque.get(thisUser).addFirst(toAdd);
+    if (!this.userToSnakeDeque.get(thisUser).peekLast().equals(toRemove)) {
+      System.out.println("To remove error");
+      System.out.println(this.userToSnakeDeque.get(thisUser));
+      throw new InvalidRemoveCoordinateException(MessageType.ERROR);
+    }
+    this.userToSnakeDeque.get(thisUser).removeLast();
+  }
+
+//  private void updateOwnLastTwoBodyParts(User thisUser, Position toAdd) {
+//    if (this.userToLastTwoOwnPositions.get(thisUser).size() < 2)
+//      this.userToLastTwoOwnPositions.get(thisUser).add(toAdd);
+//    else {
+//      this.userToLastTwoOwnPositions.get(thisUser).remove(0);
+//      this.userToLastTwoOwnPositions.get(thisUser).add(toAdd);
+//    }
+//  }
+
+  private void sendOwnIncreasedLengthBodyParts(WebSocket webSocket, List<Position> newBodyParts, SlitherServer server) {
+    Map<String, Object> data = new HashMap<>();
+    data.put("newBodyParts", newBodyParts);
+    Message message = new Message(MessageType.INCREASE_OWN_LENGTH, data);
+    webSocket.send(server.serialize(message));
+  }
+
+  private void sendOthersIncreasedLengthBodyParts(WebSocket webSocket, List<Position> newBodyParts, Set<WebSocket> gameStateSockets, SlitherServer server) {
+    Map<String, Object> data = new HashMap<>();
+    data.put("newBodyParts", newBodyParts);
+    Message message = new Message(MessageType.INCREASE_OTHER_LENGTH, data);
+    String jsonMessage = server.serialize(message);
+    for (WebSocket socket : gameStateSockets) {
+      if (socket.equals(webSocket))
+        continue;
+      socket.send(jsonMessage);
+    }
+  }
+
+  public void createNewSnake(User thisUser, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
+    List<Position> newSnake = new ArrayList<>();
+    for (int i=0; i < 20; i++) {
+      Position position = new Position(600, 100 + 5 * i);
+      newSnake.add(position);
+      this.userToSnakeDeque.get(thisUser).addLast(position);
+    }
+    this.sendOthersIncreasedLengthBodyParts(webSocket, newSnake, gameStateSockets, server);
   }
 
   public void updateOtherUsersWithPosition(User thisUser, Position toAdd, Position toRemove, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
@@ -129,10 +185,42 @@ public class GameState {
     return Math.sqrt(Math.pow(firstCenter.x() - secondCenter.x(), 2) + Math.pow(firstCenter.y() - secondCenter.y(), 2));
   }
 
+  private List<Position> getLastTwoBodyParts(Deque<Position> bodyParts) {
+    Position lastPosition = bodyParts.removeLast();
+    Position secondLastPosition = bodyParts.peekLast();
+    bodyParts.addLast(lastPosition);
+    List<Position> lastTwoBodyParts = new ArrayList<>();
+    lastTwoBodyParts.add(secondLastPosition);
+    lastTwoBodyParts.add(lastPosition);
+    return lastTwoBodyParts;
+  }
+
+  private Position getNewBodyPartPosition(User thisUser) {
+//    List<Position> userLastTwoBodyParts = this.userToLastTwoOwnPositions.get(thisUser);
+    Deque<Position> userBodyParts = this.userToSnakeDeque.get(thisUser);
+    Position newPosition;
+    if (userBodyParts.size() == 0)
+      newPosition = new Position(600.0, 100.0);
+    else if (userBodyParts.size() == 1)
+      newPosition = new Position(Math.round(userBodyParts.peekFirst().x() * 100) / 100.0, Math.round((userBodyParts.peekFirst().y() + 5) * 100) / 100.0);
+    else {
+      List<Position> userLastTwoBodyParts = this.getLastTwoBodyParts(userBodyParts);
+      double xDifference = userLastTwoBodyParts.get(0).x() - userLastTwoBodyParts.get(1).x();
+      double yDifference = userLastTwoBodyParts.get(0).y() - userLastTwoBodyParts.get(1).y();
+      double x = userLastTwoBodyParts.get(1).x() - xDifference;
+      double y = userLastTwoBodyParts.get(1).y() - yDifference;
+      newPosition = new Position(Math.round(x * 100) / 100.0, Math.round(y * 100) / 100.0);
+    }
+//    this.updateOwnLastTwoBodyParts(thisUser, newPosition);
+    userBodyParts.addLast(newPosition);
+    return newPosition;
+  }
+
   public void collisionCheck(User thisUser, Position latestHeadPosition, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
-    //System.out.println("Run collision check");
+    System.out.println("Run collision check");
     Set<Position> otherBodies = this.userToOthersPositions.get(thisUser);
-    Set<Orb> allOrbs = this.orbs;
+//    Set<Orb> allOrbs = this.orbs;
+    Set<Orb> allOrbs = new HashSet<>(this.orbs);
     if( latestHeadPosition.x() - this.SNAKE_CIRCLE_RADIUS <= -1500 ||
         latestHeadPosition.x() + this.SNAKE_CIRCLE_RADIUS >= 1500 ||
         latestHeadPosition.y() - this.SNAKE_CIRCLE_RADIUS <= -1500 ||
@@ -144,9 +232,12 @@ public class GameState {
       this.updateOtherUsersWithRemovedPositions(thisUser, webSocket, gameStateSockets, server);
       this.userToOwnPositions.remove(thisUser);
       this.userToOthersPositions.remove(thisUser);
+      this.userToSnakeDeque.remove(thisUser);
       server.handleUserDied(thisUser, webSocket, this);
       return;
     }
+
+    List<Position> newBodyParts = new ArrayList<>();
     for (Orb orb : allOrbs) {
       Position orbPosition = orb.getPosition();
       if (this.distance(latestHeadPosition, orbPosition) <= this.SNAKE_CIRCLE_RADIUS) {
@@ -158,11 +249,16 @@ public class GameState {
         };
         server.handleUpdateScore(thisUser, this, orbValue);
 
-        Message userScoreIncreasedMessage = new Message(MessageType.UPDATE_SCORE, new HashMap<>());
-        String jsonMessage = server.serialize(userScoreIncreasedMessage);
-        webSocket.send(jsonMessage);
+        for (int i=0; i < orbValue; i++)
+          newBodyParts.add(this.getNewBodyPartPosition(thisUser));
       }
     }
+
+    if (newBodyParts.size() > 0) {
+      this.sendOwnIncreasedLengthBodyParts(webSocket, newBodyParts, server);
+      this.sendOthersIncreasedLengthBodyParts(webSocket, newBodyParts, gameStateSockets, server);
+    }
+
     for (Position otherBodyPosition : otherBodies) {
       if (this.distance(latestHeadPosition, otherBodyPosition) <= this.SNAKE_CIRCLE_RADIUS) {
         Message userDiedMessage = new Message(MessageType.YOU_DIED, new HashMap<>());
@@ -171,6 +267,7 @@ public class GameState {
         this.updateOtherUsersWithRemovedPositions(thisUser, webSocket, gameStateSockets, server);
         this.userToOwnPositions.remove(thisUser);
         this.userToOthersPositions.remove(thisUser);
+        this.userToSnakeDeque.remove(thisUser);
         server.handleUserDied(thisUser, webSocket, this);
         return;
       }
