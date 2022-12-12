@@ -11,6 +11,8 @@ import { SnakeData, SNAKE_VELOCITY } from "./snake/Snake";
 
 import MessageType from "../message/messageTypes";
 import {
+  IncreaseOtherLengthMessage,
+  IncreaseOwnLengthMessage,
   leaderboardData,
   leaderboardEntry,
   OtherUserDiedMessage,
@@ -22,7 +24,7 @@ import { getPositionOfLineAndCharacter } from "typescript";
 
 const AppConfig = {
   PROTOCOL: "ws:",
-  HOST: "//localhost", //8.tcp.ngrok.io:14721",
+  HOST: "//localhost",
   PORT: ":9000",
 };
 
@@ -37,8 +39,8 @@ export function registerSocket(
   orbSet: Set<OrbData>,
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
-  snakeLength: number,
-  setSnakeLength: React.Dispatch<React.SetStateAction<number>>,
+  // snakeLength: number,
+  // setSnakeLength: React.Dispatch<React.SetStateAction<number>>,
   username: string,
   hasGameCode: boolean,
   gameCode: string = ""
@@ -60,7 +62,6 @@ export function registerSocket(
   socket.onmessage = (response: MessageEvent) => {
     let message = JSON.parse(response.data);
     // ideally, we would want to do different things based on the message's type
-    console.log("client: A message was received: " + response.data);
     switch (message.type) {
       case MessageType.JOIN_SUCCESS: {
         setGameStarted(true);
@@ -93,7 +94,8 @@ export function registerSocket(
       }
       case MessageType.OTHER_USED_DIED: {
         const otherUserDiedMessage: OtherUserDiedMessage = message;
-        const removePositions: Position[] = otherUserDiedMessage.data.removePositions;
+        const removePositions: Position[] =
+          otherUserDiedMessage.data.removePositions;
         console.log("removePositions");
         console.log(removePositions);
         const newGameState: GameState = { ...gameState };
@@ -120,13 +122,36 @@ export function registerSocket(
         setGameState(gameState);
         break;
       }
-      case MessageType.UPDATE_SCORE: {
-        snakeLength++;
-        // console.log('RRRREAAACHCEED');
-        // console.log(snakeLength);
-        // setSnakeLength(snakeLength + 1);
-        console.log(snakeLength);
+      case MessageType.INCREASE_OWN_LENGTH: {
+        console.log("increase own length message");
+        const increaseLengthMessage: IncreaseOwnLengthMessage = message;
+        const newBodyParts: Position[] =
+          increaseLengthMessage.data.newBodyParts;
+        const newGameState: GameState = { ...gameState };
+        newBodyParts.forEach((bodyPart: Position) => {
+          newGameState.snakes.get("user1")?.snakeBody.push(bodyPart);
+        });
+        console.log("before");
+        console.log(gameState.snakes.get("user1")?.snakeBody.length);
+        setGameState(newGameState);
+        console.log("after");
+        console.log(gameState.snakes.get("user1")?.snakeBody.length);
+        break;
       }
+      case MessageType.INCREASE_OTHER_LENGTH: {
+        const increaseLengthMessage: IncreaseOtherLengthMessage = message;
+        const newBodyParts: Position[] =
+          increaseLengthMessage.data.newBodyParts;
+        const newGameState: GameState = { ...gameState };
+        newBodyParts.forEach((bodyPart: Position) => {
+          newGameState.otherBodies.add(JSON.stringify(bodyPart));
+        });
+        setGameState(newGameState);
+        break;
+      }
+      // case MessageType.UPDATE_SCORE: {
+      //   break;
+      // }
     }
   };
 }
@@ -148,7 +173,6 @@ export default function Game({
   gameCode,
   setGameCode,
 }: GameProps) {
-
   return (
     <div>
       <GameCanvas

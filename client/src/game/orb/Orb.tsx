@@ -1,7 +1,7 @@
 import React from "react";
 import OrbSize from "./orbSize";
 import { Position } from "../GameState";
-import "./Orb.css";
+import "./orb.css";
 
 export interface OrbData {
   position: Position;
@@ -9,7 +9,13 @@ export interface OrbData {
   color: string;
 }
 
-export default function Orb({orbInfo, offset}: {orbInfo: OrbData, offset: Position}) {
+export default function Orb({
+  orbInfo,
+  offset,
+}: {
+  orbInfo: OrbData;
+  offset: Position;
+}) {
   return (
     <div
       className="circle"

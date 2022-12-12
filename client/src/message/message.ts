@@ -155,3 +155,17 @@ export interface OtherUserDiedMessage {
     removePositions: Position[];
   };
 }
+
+export interface IncreaseOwnLengthMessage {
+  type: MessageType.INCREASE_OWN_LENGTH;
+  data: {
+    newBodyParts: Position[];
+  };
+}
+
+export interface IncreaseOtherLengthMessage {
+  type: MessageType.INCREASE_OTHER_LENGTH;
+  data: {
+    newBodyParts: Position[];
+  };
+}
