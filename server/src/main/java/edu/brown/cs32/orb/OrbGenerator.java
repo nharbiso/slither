@@ -1,6 +1,5 @@
 package edu.brown.cs32.orb;
 
-import edu.brown.cs32.color.OrbColor;
 import edu.brown.cs32.position.Position;
 import java.util.Random;
 import java.util.Set;

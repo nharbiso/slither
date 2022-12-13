@@ -96,7 +96,7 @@ public class GameState {
     this.userToSnakeDeque.get(thisUser).addFirst(toAdd);
     if (!this.userToSnakeDeque.get(thisUser).peekLast().equals(toRemove)) {
       System.out.println("To remove error");
-      System.out.println(this.userToSnakeDeque.get(thisUser));
+//      System.out.println(this.userToSnakeDeque.get(thisUser));
       throw new InvalidRemoveCoordinateException(MessageType.ERROR);
     }
     this.userToSnakeDeque.get(thisUser).removeLast();
@@ -212,7 +212,7 @@ public class GameState {
       newPosition = new Position(Math.round(x * 100) / 100.0, Math.round(y * 100) / 100.0);
     }
 //    this.updateOwnLastTwoBodyParts(thisUser, newPosition);
-    userBodyParts.addLast(newPosition);
+//    userBodyParts.addLast(newPosition);
     return newPosition;
   }
 
@@ -238,19 +238,25 @@ public class GameState {
     }
 
     List<Position> newBodyParts = new ArrayList<>();
+    System.out.println("Positions before:");
+    System.out.println(this.userToSnakeDeque.get(thisUser));
     for (Orb orb : allOrbs) {
       Position orbPosition = orb.getPosition();
       if (this.distance(latestHeadPosition, orbPosition) <= this.SNAKE_CIRCLE_RADIUS) {
+        System.out.println("Ate an orb");
+        System.out.println(this.userToSnakeDeque.get(thisUser));
         this.removeOrb(orbPosition);
         this.sendOrbData();
         Integer orbValue = switch(orb.getSize()) {
           case SMALL -> 1;
-          case LARGE -> 10;
+          case LARGE -> 5;
         };
         server.handleUpdateScore(thisUser, this, orbValue);
 
-        for (int i=0; i < orbValue; i++)
-          newBodyParts.add(this.getNewBodyPartPosition(thisUser));
+        for (int i=0; i < orbValue; i++) {
+          Position newPosition = this.getNewBodyPartPosition(thisUser);
+          newBodyParts.add(newPosition);
+        }
       }
     }
 

@@ -26,8 +26,9 @@ public class UpdatePositionHandler {
     gameState.updateOwnPositions(thisUser, toAdd, toRemove);
     gameState.updateOtherUsersWithPosition(thisUser, toAdd, toRemove, webSocket, gameStateSockets, server);
 
-    Thread t = new Thread(() -> gameState.collisionCheck(thisUser, toAdd, webSocket, gameStateSockets, server));
-    t.start();
+//    Thread t = new Thread(() -> gameState.collisionCheck(thisUser, toAdd, webSocket, gameStateSockets, server));
+    gameState.collisionCheck(thisUser, toAdd, webSocket, gameStateSockets, server);
+//    t.start();
   }
 
 }
