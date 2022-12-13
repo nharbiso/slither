@@ -154,6 +154,8 @@ export function registerSocket(
       // }
     }
   };
+
+  socket.onerror = () => setErrorText("Error: No server running!");
 }
 
 interface GameProps {
