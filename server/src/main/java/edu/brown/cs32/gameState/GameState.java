@@ -234,6 +234,24 @@ public class GameState {
       this.generateDeathOrbs(deadSnakePositions);
       return;
     }
+    
+    for (Position otherBodyPosition : otherBodies) {
+      if (this.distance(latestHeadPosition, otherBodyPosition) <= this.SNAKE_CIRCLE_RADIUS) {
+        Message userDiedMessage = new Message(MessageType.YOU_DIED, new HashMap<>());
+        String jsonMessage = server.serialize(userDiedMessage);
+        webSocket.send(jsonMessage);
+
+        List<Position> deadSnakePositions = new ArrayList<>();
+        deadSnakePositions.addAll(this.userToSnakeDeque.get(thisUser));
+        this.updateOtherUsersWithRemovedPositions(thisUser, webSocket, gameStateSockets, server);
+        this.userToOwnPositions.remove(thisUser);
+        this.userToOthersPositions.remove(thisUser);
+        this.userToSnakeDeque.remove(thisUser);
+        server.handleUserDied(thisUser, webSocket, this);
+        this.generateDeathOrbs(deadSnakePositions);
+        return;
+      }
+    }
 
     List<Position> newBodyParts = new ArrayList<>();
     boolean orbCollided = false;
@@ -262,24 +280,6 @@ public class GameState {
     if (newBodyParts.size() > 0) {
       this.sendOwnIncreasedLengthBodyParts(webSocket, newBodyParts, server);
       this.sendOthersIncreasedLengthBodyParts(webSocket, newBodyParts, gameStateSockets, server);
-    }
-
-    for (Position otherBodyPosition : otherBodies) {
-      if (this.distance(latestHeadPosition, otherBodyPosition) <= this.SNAKE_CIRCLE_RADIUS) {
-        Message userDiedMessage = new Message(MessageType.YOU_DIED, new HashMap<>());
-        String jsonMessage = server.serialize(userDiedMessage);
-        webSocket.send(jsonMessage);
-
-        List<Position> deadSnakePositions = new ArrayList<>();
-        deadSnakePositions.addAll(this.userToSnakeDeque.get(thisUser));
-        this.updateOtherUsersWithRemovedPositions(thisUser, webSocket, gameStateSockets, server);
-        this.userToOwnPositions.remove(thisUser);
-        this.userToOthersPositions.remove(thisUser);
-        this.userToSnakeDeque.remove(thisUser);
-        server.handleUserDied(thisUser, webSocket, this);
-        this.generateDeathOrbs(deadSnakePositions);
-        return;
-      }
     }
   }
 
