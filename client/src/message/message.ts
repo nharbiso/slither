@@ -108,14 +108,6 @@ export function sendUpdateScoreMessage(socket: WebSocket, newScore: number) {
   socket.send(JSON.stringify(message));
 }
 
-// export function sendUserDiedMessage(socket: WebSocket) {
-//   const message: UserDiedMessage = {
-//     type: MessageType.USER_DIED,
-//     data: {},
-//   };
-//   socket.send(JSON.stringify(message));
-// }
-
 // TYPES FOR MESSAGES RECEIVED FROM THE SERVER
 
 export interface leaderboardData {
