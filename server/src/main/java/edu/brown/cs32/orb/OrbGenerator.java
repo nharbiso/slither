@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class OrbGenerator {
 
-  final int MAX_ORB_COUNT = 200; // 750
+  final int MAX_ORB_COUNT = 150; // 750
   final float MAP_MIN_COORDINATE = -1500.0f + 100.0f;
   final float MAP_MAX_COORDINATE = 1500.0f - 100.0f;
 
@@ -14,10 +14,10 @@ public class OrbGenerator {
     return Math.round(value * 100) / 100.0f;
   }
 
-  public void generateOrbs(Set<Orb> orbs) {
+  public void generateOrbs(Set<Orb> orbs, int numDeathOrbs) {
     Random random = new Random();
     int size = orbs.size();
-    for (int i = 0; i < this.MAX_ORB_COUNT - size; i++) {
+    for (int i = 0; i < this.MAX_ORB_COUNT - size + numDeathOrbs; i++) {
       Orb orb = new Orb(new Position(this.round(random.nextFloat(this.MAP_MIN_COORDINATE, this.MAP_MAX_COORDINATE)),
                                        this.round(random.nextFloat(this.MAP_MIN_COORDINATE, this.MAP_MAX_COORDINATE))),
                         this.generateOrbSize(), OrbColor.generate());
