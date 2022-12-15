@@ -1,6 +1,4 @@
-import React from "react";
 import { Position } from "../GameState";
-import "./SnakeCircle.css";
 
 export default function OtherSnake({
   positions,

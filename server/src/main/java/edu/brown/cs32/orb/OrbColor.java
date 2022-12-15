@@ -1,6 +1,7 @@
-package edu.brown.cs32.color;
+package edu.brown.cs32.orb;
 
 import java.util.Random;
+
 public abstract class OrbColor {
 
     

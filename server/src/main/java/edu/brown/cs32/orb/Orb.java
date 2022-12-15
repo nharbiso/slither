@@ -15,6 +15,14 @@ public class Orb {
     this.color = color;
   }
 
+  public Position getPosition() {
+    return this.position;
+  }
+
+  public OrbSize getSize() {
+    return this.orbSize;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
