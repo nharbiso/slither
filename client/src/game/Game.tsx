@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import Denque from "denque";
 
 import GameState, { Position } from "./GameState";
@@ -6,8 +6,6 @@ import GameCanvas from "./GameCanvas";
 import Leaderboard from "../leaderboard/Leaderboard";
 import GameCode from "../gameCode/GameCode";
 import { OrbData } from "./orb/Orb";
-import OrbSize from "./orb/orbSize";
-import { SnakeData, SNAKE_VELOCITY } from "./snake/Snake";
 
 import MessageType from "../message/messageTypes";
 import {
@@ -28,19 +26,16 @@ const AppConfig = {
   PORT: ":9000",
 };
 
-// let toregister: boolean = true;
 let socket: WebSocket;
 
 export function registerSocket(
-  setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
-  setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
-  setErrorText: React.Dispatch<React.SetStateAction<string>>,
-  setGameCode: React.Dispatch<React.SetStateAction<string>>,
+  setScores: Dispatch<SetStateAction<Map<string, number>>>,
+  setGameStarted: Dispatch<SetStateAction<boolean>>,
+  setErrorText: Dispatch<SetStateAction<string>>,
+  setGameCode: Dispatch<SetStateAction<string>>,
   orbSet: Set<OrbData>,
   gameState: GameState,
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>,
-  // snakeLength: number,
-  // setSnakeLength: React.Dispatch<React.SetStateAction<number>>,
+  setGameState: Dispatch<SetStateAction<GameState>>,
   username: string,
   hasGameCode: boolean,
   gameCode: string = ""
@@ -50,8 +45,6 @@ export function registerSocket(
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
-    // TODO: random string username for now; pass user chosen username later); also pass chosen game code later
-    // sendNewClientNoCodeMessage(socket, (Math.random() * 1000).toString());
     if (hasGameCode) {
       sendNewClientWithCodeMessage(socket, username, gameCode);
     } else {
@@ -61,7 +54,6 @@ export function registerSocket(
 
   socket.onmessage = (response: MessageEvent) => {
     let message = JSON.parse(response.data);
-    // ideally, we would want to do different things based on the message's type
     switch (message.type) {
       case MessageType.JOIN_SUCCESS: {
         setGameStarted(true);
@@ -149,9 +141,6 @@ export function registerSocket(
         setGameState(newGameState);
         break;
       }
-      // case MessageType.UPDATE_SCORE: {
-      //   break;
-      // }
     }
   };
 
@@ -160,11 +149,11 @@ export function registerSocket(
 
 interface GameProps {
   gameState: GameState;
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
+  setGameState: Dispatch<SetStateAction<GameState>>;
   scores: Map<string, number>;
-  setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>;
+  setScores: Dispatch<SetStateAction<Map<string, number>>>;
   gameCode: string;
-  setGameCode: React.Dispatch<React.SetStateAction<string>>;
+  setGameCode: Dispatch<SetStateAction<string>>;
 }
 
 export default function Game({
