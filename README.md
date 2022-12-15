@@ -48,7 +48,7 @@ Within this section will be the summary, explanations, and justifications for th
 
 ## User Guide
 
-To utilize the project, first run the server in the backend. This can be done by running the `SlitherServer` class through the `server` directory. Then, navigate to the frontend, specifically the `client` directory, and type `npm start` in the terminal. *Note: If `npm` has not been installed before, type `npm i` in the frontend directory ***before*** `npm start`.* This should bring up the main menu of the game in your respective browser.
+To utilize the project, first run the server in the backend. This can be done by running the `SlitherServer` class through the `server` directory. Then, navigate to the frontend, specifically the `client` directory, and type `npm start` in the terminal. *Note: If the client-side packages/libraries have not been installed before, type `npm i` in the frontend directory ***before*** `npm start`.* This should bring up the main menu of the game in your respective browser.
 
 ## Accessibility Guide
 
