@@ -4,6 +4,7 @@ import "./Home.css";
 import { registerSocket } from "../game/Game";
 import GameState from "../game/GameState";
 import { OrbData } from "../game/orb/Orb";
+import HowToPlay from "./HowToPlay";
 
 /**
  * Defines an interface which specifies the types of the arguments accepted by
@@ -33,14 +34,12 @@ function ControlledInput({
 }
 
 interface HomeProps {
-  setGameStarted: React.Dispatch<React.SetStateAction<boolean>>;
-  setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>;
-  setGameCode: React.Dispatch<React.SetStateAction<string>>;
+  setGameStarted: Dispatch<SetStateAction<boolean>>;
+  setScores: Dispatch<SetStateAction<Map<string, number>>>;
+  setGameCode: Dispatch<SetStateAction<string>>;
   gameState: GameState;
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
+  setGameState: Dispatch<SetStateAction<GameState>>;
   orbSet: Set<OrbData>;
-  // snakeLength: number;
-  // setSnakeLength: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function Home({
@@ -50,81 +49,89 @@ export default function Home({
   gameState,
   setGameState,
   orbSet,
-  // snakeLength,
-  // setSnakeLength
 }: HomeProps) {
   const [username, setUsername] = useState("");
   const [inputGamecode, setInputGamecode] = useState("");
   const [errorText, setErrorText] = useState("");
+  const [displayHowToPlay, setDisplayHowToPlay] = useState(false);
 
   return (
-    <div className="HomeContainer">
-      <h1 className="main-title">
-        Slither<span className="title-plus">+</span>
-      </h1>
-      <h2 className="username-prompt">Enter your username:</h2>
-      <ControlledInput
-        value={username}
-        setValue={setUsername}
-        placeholder="Type your username here:"
-        className="username-input"
-      />
-      <p className="error-text">{errorText}</p>
-      <div className="container">
-        <div className="row">
-          <div className="col-lg-5 col-md-5 col-sm-12">
-            <button
-              className="btn btn-light new-game-button"
-              onClick={() => {
-                newGameClick(
-                  setGameStarted,
-                  setScores,
-                  setErrorText,
-                  setGameCode,
-                  orbSet,
-                  gameState,
-                  setGameState,
-                  // snakeLength,
-                  // setSnakeLength,
-                  username
-                );
-              }}
-            >
-              Create a new game
-            </button>
-          </div>
-          <div className="col-lg-2 col-md-2 col-sm-12">
-            <div className="or-text">OR</div>
-          </div>
-          <div className="col-lg-5 col-md-5 col-sm-12">
-            <h4>Join with a game code</h4>
-            <ControlledInput
-              value={inputGamecode}
-              setValue={setInputGamecode}
-              placeholder="Enter gamecode here:"
-              className="gamecode-input"
-            />
-            <br />
-            <button
-              className="btn btn-outline-light"
-              onClick={() => {
-                withGameCodeClick(
-                  setGameStarted,
-                  setScores,
-                  setErrorText,
-                  setGameCode,
-                  orbSet,
-                  gameState,
-                  setGameState,
-                  // snakeLength,
-                  // setSnakeLength,
-                  username,
-                  inputGamecode
-                );
-              }}
-            >
-              Join with a game code
-            </button>
+    <div className="main-container">
+      <div className="how-to-play-display">
+        {displayHowToPlay ? (
+          <HowToPlay setDisplayHowToPlay={setDisplayHowToPlay} />
+        ) : null}
+      </div>
+      <div className="HomeContainer">
+        <button
+          className="btn btn-light how-to-play-button"
+          onClick={() => setDisplayHowToPlay(true)}
+        >
+          How to play?
+        </button>
+        <h1 className="main-title">
+          Slither<span className="title-plus">+</span>
+        </h1>
+        <h2 className="username-prompt">Enter your username:</h2>
+        <ControlledInput
+          value={username}
+          setValue={setUsername}
+          placeholder="Type your username here:"
+          className="username-input"
+        />
+        <p className="error-text">{errorText}</p>
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-5 col-md-5 col-sm-12">
+              <button
+                className="btn btn-light new-game-button"
+                onClick={() => {
+                  newGameClick(
+                    setGameStarted,
+                    setScores,
+                    setErrorText,
+                    setGameCode,
+                    orbSet,
+                    gameState,
+                    setGameState,
+                    username
+                  );
+                }}
+              >
+                Create a new game
+              </button>
+            </div>
+            <div className="col-lg-2 col-md-2 col-sm-12">
+              <div className="or-text">OR</div>
+            </div>
+            <div className="col-lg-5 col-md-5 col-sm-12">
+              <h4 className="join-with-gamecode-text">Join with a game code</h4>
+              <ControlledInput
+                value={inputGamecode}
+                setValue={setInputGamecode}
+                placeholder="Enter gamecode here:"
+                className="gamecode-input"
+              />
+              <br />
+              <button
+                className="btn btn-outline-light"
+                onClick={() => {
+                  withGameCodeClick(
+                    setGameStarted,
+                    setScores,
+                    setErrorText,
+                    setGameCode,
+                    orbSet,
+                    gameState,
+                    setGameState,
+                    username,
+                    inputGamecode
+                  );
+                }}
+              >
+                Join with a game code
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -133,15 +140,13 @@ export default function Home({
 }
 
 function newGameClick(
-  setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
-  setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
-  setErrorText: React.Dispatch<React.SetStateAction<string>>,
-  setGameCode: React.Dispatch<React.SetStateAction<string>>,
+  setGameStarted: Dispatch<SetStateAction<boolean>>,
+  setScores: Dispatch<SetStateAction<Map<string, number>>>,
+  setErrorText: Dispatch<SetStateAction<string>>,
+  setGameCode: Dispatch<SetStateAction<string>>,
   orbSet: Set<OrbData>,
   gameState: GameState,
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>,
-  // snakeLength: number,
-  // setSnakeLength: React.Dispatch<React.SetStateAction<number>>,
+  setGameState: Dispatch<SetStateAction<GameState>>,
   username: string
 ) {
   if (username.trim().length === 0) {
@@ -158,8 +163,6 @@ function newGameClick(
       orbSet,
       gameState,
       setGameState,
-      // snakeLength,
-      // setSnakeLength,
       username,
       false
     );
@@ -169,15 +172,13 @@ function newGameClick(
 }
 
 function withGameCodeClick(
-  setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
-  setScores: React.Dispatch<React.SetStateAction<Map<string, number>>>,
-  setErrorText: React.Dispatch<React.SetStateAction<string>>,
-  setGameCode: React.Dispatch<React.SetStateAction<string>>,
+  setGameStarted: Dispatch<SetStateAction<boolean>>,
+  setScores: Dispatch<SetStateAction<Map<string, number>>>,
+  setErrorText: Dispatch<SetStateAction<string>>,
+  setGameCode: Dispatch<SetStateAction<string>>,
   orbSet: Set<OrbData>,
   gameState: GameState,
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>,
-  // snakeLength: number,
-  // setSnakeLength: React.Dispatch<React.SetStateAction<number>>,
+  setGameState: Dispatch<SetStateAction<GameState>>,
   username: string,
   gameCode: string
 ) {
@@ -195,8 +196,6 @@ function withGameCodeClick(
       orbSet,
       gameState,
       setGameState,
-      // snakeLength,
-      // setSnakeLength,
       username,
       true,
       gameCode

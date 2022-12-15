@@ -1,3 +1,14 @@
+.main-container {
+  position: relative;
+}
+
+.how-to-play-display {
+  position: absolute;
+  top: 20vh;
+  left: 22vw;
+  z-index: 9;
+}
+
 .HomeContainer {
   background-color: black;
   color: white;
@@ -7,6 +18,12 @@
   text-align: center;
   font-family: monospace;
   padding: 10% 20% 5%;
+}
+
+.how-to-play-button {
+  position: absolute;
+  top: 3%;
+  right: 2%;
 }
 
 .main-title {
@@ -51,6 +68,10 @@
   margin-top: 20%;
 }
 
+.join-with-gamecode-text {
+  font-size: 1.1rem;
+}
+
 .gamecode-input {
   border-radius: 5%;
   height: 2rem;
@@ -60,5 +81,5 @@
   font-weight: bold;
   text-align: center;
   margin-bottom: 5%;
-  width: 50%;
+  width: 70%;
 }
