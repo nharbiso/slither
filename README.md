@@ -24,7 +24,7 @@
 
 At a basic level, this full-stack project is made up of a backend (Java) server combined with a frontend (TypeScript/React) client, which in coalition allow for full functionality of the Slither+ game.
 
-***Repository Link***: https://github.com/cs0320-f2022/term-project-kkashyap-mpan11-nharbiso-plestz/tree/master
+***Repository Link***: [https://github.com/cs0320-f2022/term-project-kkashyap-mpan11-nharbiso-plestz](https://github.com/cs0320-f2022/term-project-kkashyap-mpan11-nharbiso-plestz)
 
 Total Estimated Completion Time: 300 Hours
 
