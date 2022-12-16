@@ -30,7 +30,7 @@ Total Estimated Completion Time: 300 Hours
 
 ## Team Members & Contributions
 
-This project had four contributors: Karan Kashyap (**kkashyap**), Mason Pan (**mpan11**), Nathan Harbison (**nharbiso**), and Paul Lestz (**plestz**). This is excluding the stencil code that is the foundation of this project, which was provided by the Fall 2022 CSCI0320 course staff.
+This project had four contributors: Karan Kashyap (**kkashyap**), Mason Pan (**mpan11**), Nathan Harbison (**nharbiso**), and Paul Lestz (**plestz**).
 
 # Structure, Design and Implementation Walkthrough
 
