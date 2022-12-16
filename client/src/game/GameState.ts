@@ -6,6 +6,10 @@ export interface Position {
     y: number;
 }
 
+/**
+ * gamestate interface has your snake position, all the other snake positions (as a JSON),
+ * the orb positions, the scores, and the lobby's gamecode
+ */
 export default interface GameState {
     snakes: Map<String, SnakeData>;
     // otherBodies: Set<Position>;

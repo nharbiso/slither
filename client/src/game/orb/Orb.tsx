@@ -9,6 +9,12 @@ export interface OrbData {
   color: string;
 }
 
+/**
+ * Renders an orb using the given position, relative to the player's snake 
+ * (using offset)
+ * @param param0 
+ * @returns 
+ */
 export default function Orb({
   orbInfo,
   offset,

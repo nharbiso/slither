@@ -1,6 +1,12 @@
 import { Position } from '../GameState';
 import "./Boundary.css"
 
+/**
+ * This is a boundary for the snake map, renders 4 borders of the map based on 
+ * a given boundary
+ * @param param0 
+ * @returns 
+ */
 export default function Boundary({boundaries, offset}: {boundaries: Position, offset: Position}) {
     return (
     <div>

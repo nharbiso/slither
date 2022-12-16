@@ -42,6 +42,12 @@ interface HomeProps {
   orbSet: Set<OrbData>;
 }
 
+/**
+ * The homepage renders the how-to-play button to show instructions, an input box to
+ * put your name into, a button to create a new game, or an input box and button to input an existing gamecode
+ * @param param0 
+ * @returns 
+ */
 export default function Home({
   setGameStarted,
   setScores,
@@ -139,7 +145,7 @@ export default function Home({
   );
 }
 
-function newGameClick(
+function newGameClick( //when we want to start a new game
   setGameStarted: Dispatch<SetStateAction<boolean>>,
   setScores: Dispatch<SetStateAction<Map<string, number>>>,
   setErrorText: Dispatch<SetStateAction<string>>,
@@ -149,7 +155,7 @@ function newGameClick(
   setGameState: Dispatch<SetStateAction<GameState>>,
   username: string
 ) {
-  if (username.trim().length === 0) {
+  if (username.trim().length === 0) { //check that the name is not empty
     setErrorText("Your username should be non-empty!");
     return;
   }
@@ -166,12 +172,12 @@ function newGameClick(
       username,
       false
     );
-  } catch (e) {
+  } catch (e) { //check server status
     setErrorText("Error: Could not connect to server!");
   }
 }
 
-function withGameCodeClick(
+function withGameCodeClick( //when we want to join an existing game
   setGameStarted: Dispatch<SetStateAction<boolean>>,
   setScores: Dispatch<SetStateAction<Map<string, number>>>,
   setErrorText: Dispatch<SetStateAction<string>>,
@@ -182,7 +188,7 @@ function withGameCodeClick(
   username: string,
   gameCode: string
 ) {
-  if (username.trim().length === 0) {
+  if (username.trim().length === 0) { //check that name is not empty
     setErrorText("Your username should be non-empty!");
     return;
   }
@@ -200,7 +206,7 @@ function withGameCodeClick(
       true,
       gameCode
     );
-  } catch (e) {
+  } catch (e) { //check server status
     setErrorText("Error: Could not connect to server!");
   }
 }

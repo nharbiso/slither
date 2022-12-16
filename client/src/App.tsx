@@ -14,6 +14,7 @@ function App() {
 
   const orbSet = new Set<OrbData>();
   
+  //initial snake
   const snakeBody: Position[] = [];
   for (let i = 0; i < 20; i++) {
     snakeBody.push({ x: 600, y: 100 + 5 * i });

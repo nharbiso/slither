@@ -16,6 +16,12 @@ const offset: Position = { x: 0, y: 0 };
 // let lastUpdatedPosition: Position = { x: 0, y: 0 };
 let lastUpdatedTime: number = new Date().getTime();
 
+/**
+ * GameCanvas renders your snake in the middle of the screen, all the other
+ * snakes in the game, all the existing orbs, and the border of the map.
+ * @param param0 
+ * @returns 
+ */
 export default function GameCanvas({
   gameState,
   setGameState,
@@ -28,25 +34,26 @@ export default function GameCanvas({
   socket: WebSocket;
 }) {
   const onMouseMove = (e: MouseEvent) => {
-    mousePos.x = e.pageX;
+    mousePos.x = e.pageX; //locate mouse position
     mousePos.y = e.pageY;
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const interval = setInterval(() => { //on an interval, we want to make updates, we set it to 50
       const mySnake: SnakeData | undefined = gameState.snakes.get(user);
       if (mySnake !== undefined) {
         const newGameState: GameState = { ...gameState };
-        const updatedSnake: SnakeData = moveSnake(mySnake, gameState, socket);
+        const updatedSnake: SnakeData = moveSnake(mySnake, gameState, socket); 
+        //constantly update your own snake using moveSnake
         newGameState.snakes.set(user, updatedSnake);
         setGameState(newGameState);
       }
     }, 50);
-    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mousemove", onMouseMove); //check mouse movement
 
     return () => {
       clearInterval(interval);
-      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mousemove", onMouseMove); //need to remove mouse event listener on interval
     };
   }, []);
 
@@ -54,6 +61,7 @@ export default function GameCanvas({
   if (mySnake !== undefined) {
     const front: Position | undefined = mySnake.snakeBody.peekFront();
     if (front !== undefined) {
+      //calculate offset to center snake and place other objects relative to snake
       offset.x = window.innerWidth / 2 - front.x;
       offset.y = window.innerHeight / 2 - front.y;
     }
@@ -61,29 +69,36 @@ export default function GameCanvas({
 
   return (
     <div>
-      {Array.from(gameState.snakes.values()).map(
+      {Array.from(gameState.snakes.values()).map( //your snake
         (snake: SnakeData, ind: number) => (
           <Snake snake={snake} offset={offset} key={ind} />
         )
       )}
-      {Array.from(gameState.orbs).map((orb: OrbData, ind: number) => (
+      {Array.from(gameState.orbs).map((orb: OrbData, ind: number) => ( //orbs
         <Orb orbInfo={orb} offset={offset} key={ind} />
       ))}
-      <OtherSnake positions={gameState.otherBodies} offset={offset} />
-      <Border boundaries={canvasSize} offset={offset} />
+      <OtherSnake positions={gameState.otherBodies} offset={offset} /> //other snakes 
+      <Border boundaries={canvasSize} offset={offset} /> //map border
     </div>
   );
 }
 
+/**
+ * function to move the snake based on mouse position
+ * @param snake Positions that make up a snake
+ * @param gameState Current gamestate
+ * @param socket Socket to send updated position to backend through
+ * @returns 
+ */
 function moveSnake(
   snake: SnakeData,
   gameState: GameState,
   socket: WebSocket
 ): SnakeData {
-  const removePosition: Position | undefined = snake.snakeBody.pop();
+  const removePosition: Position | undefined = snake.snakeBody.pop(); //remove from the end
   const front: Position | undefined = snake.snakeBody.peekFront();
   if (front !== undefined) {
-    const accel_angle: number = Math.atan2(
+    const accel_angle: number = Math.atan2( //find the angle of acceleration based on your current position and the mouse position
       mousePos.y - offset.y - front.y,
       mousePos.x - offset.x - front.x
     );
@@ -91,25 +106,15 @@ function moveSnake(
     const angle_diff = mod(accel_angle - vel_angle, 2 * Math.PI);
     vel_angle += angle_diff < Math.PI ? 0.1 : -0.1;
 
-    snake.velocityX = SNAKE_VELOCITY * Math.cos(vel_angle);
+    snake.velocityX = SNAKE_VELOCITY * Math.cos(vel_angle); //calculate a velocity at which to move the snake
     snake.velocityY = SNAKE_VELOCITY * Math.sin(vel_angle);
 
     const newPosition: Position = {
-      x: front.x + snake.velocityX,
+      x: front.x + snake.velocityX, //update position based on velocity
       y: front.y + snake.velocityY,
     };
 
-    snake.snakeBody.unshift({ x: newPosition.x, y: newPosition.y });
-    // console.log("x: " + newPosition.x + " - y: " + newPosition.y);
-
-    // if (gameState.otherBodies.has(JSON.stringify(newPosition))) {
-    //   sendUserDiedMessage(socket);
-    // }
-    // if (allOrbs.has(newPosition)) { //need to somehow get the set of allOrbs (set of Positions representing every orb)
-    //     //might refactor this later if we can't lookup rb positions in constant time
-    //     sendRemoveOrbMessage(socket, newPosition)
-    //     //need to somehow access the size of the orb that i collided with and update my score accordingly
-    // }
+    snake.snakeBody.unshift({ x: newPosition.x, y: newPosition.y }); //add new position to the front
 
     if (removePosition !== undefined) {
       const toAdd: Position = {
@@ -120,28 +125,7 @@ function moveSnake(
         x: Number(removePosition.x.toFixed(2)),
         y: Number(removePosition.y.toFixed(2)),
       };
-      // if (distance(toAdd, lastUpdatedPosition) >= 10) {
-      //   lastUpdatedPosition = toAdd;
-      // const currentTime: number = new Date().getTime();
-      // if (currentTime - lastUpdatedTime >= 100) {
-      //   lastUpdatedTime = currentTime;
-      sendUpdatePositionMessage(socket, toAdd, toRemove);
-      // }
-      // }
-
-      //if (gameState.otherBodies.has(newPosition)) { //might not be as straightforward as just checking if the position is occupied, need to check if the displayed circles are touching
-      //might want to use element.getBoundingClientRect() to check the actual edges of the div but that might not be accurate since we are using circles
-      //  sendUserDiedMessage(socket)
-      //console.log("u died") //this doesn't work right now
-      //also need to figure out what kind of return type we want in the case that we do run into another snake, moveSnake returns SnakeData which might not
-      //be suitable for telling GameCanvas that this snake is dead (problem is updating on client side, sendUserDiedMessage will tell the server)
-      //need to make snake disappear and show some kind of message indicating u died
-      //}
-      // if (allOrbs.has(newPosition)) { //need to somehow get the set of allOrbs (set of Positions representing every orb)
-      //     //might refactor this later if we can't lookup rb positions in constant time
-      //     sendRemoveOrbMessage(socket, newPosition)
-      //     //need to somehow access the size of the orb that i collided with and update my score accordingly
-      // }
+      sendUpdatePositionMessage(socket, toAdd, toRemove); //send message to server with add and remove positions
     }
   }
   return snake;
