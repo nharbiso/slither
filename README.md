@@ -30,7 +30,7 @@ Total Estimated Completion Time: 300 Hours
 
 ## Team Members & Contributions
 
-This project had four contributors: Karan Kashyap (**kkashyap**), Mason Pan (**mpan11**), Nathan Harbison (**nharbiso**), and Paul Lestz (**plestz**).
+This project had four contributors: Karan Kashyap (**`kkashyap`**), Mason Pan (**`mpan11`**), Nathan Harbison (**`nharbiso`**), and Paul Lestz (**`plestz`**).
 
 # Structure, Design and Implementation Walkthrough
 
