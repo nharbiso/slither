@@ -27,7 +27,6 @@ import edu.brown.cs32.user.User;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -40,12 +39,19 @@ public class SlitherServer extends WebSocketServer {
 
   private final Set<WebSocket> allConnections; // stores all connections
   private final Set<WebSocket> inactiveConnections; // stores connections for clients whose users are not actively playing
-  private final Map<User, String> userToGameCode;
-  private final Map<String, Leaderboard> gameCodeToLeaderboard;
-  private final Map<WebSocket, User> socketToUser;
-  private final Map<String, GameState> gameCodeToGameState;
-  private final Map<GameState, Set<WebSocket>> gameStateToSockets;
+  private final Map<User, String> userToGameCode; // maps users to the game code for the game they are in
+  private final Map<String, Leaderboard> gameCodeToLeaderboard; // maps game codes to the leaderboard for the game
+  private final Map<WebSocket, User> socketToUser; // maps websockets to the user associated with that connections
+  private final Map<String, GameState> gameCodeToGameState; // maps game codes to game states (for the same game)
+  private final Map<GameState, Set<WebSocket>> gameStateToSockets; // maps game states to all the websockets for users in that game
 
+  /**
+   * Constructor for the SlitherServer class. Calls the code in the WebSocketServer constructor
+   * to begin listening for connections on the specified port, and instantiates all of the
+   * instance variables of the class.
+   *
+   * @param port - an int: the port on which we want the server to listen for websocket connections.
+   */
   public SlitherServer(int port) {
     super(new InetSocketAddress(port));
     this.allConnections = new HashSet<>();
@@ -57,26 +63,23 @@ public class SlitherServer extends WebSocketServer {
     this.gameStateToSockets = new HashMap<>();
   }
 
-  public Set<WebSocket> getAllConnections() {
-    return new HashSet<>(this.allConnections);
-  }
-
-  public Set<WebSocket> getInactiveConnections() {
-    return new HashSet<>(this.inactiveConnections);
-  }
-
-  public Map<String, GameState> getGameCodeToGameState() { return new HashMap<>(this.gameCodeToGameState); }
-
+  /**
+   * Generates and returns a set of all of the currently valid game codes (game codes for all of the
+   * ongoing games).
+   *
+   * @return a set of strings, containing all of the currently valid game codes.
+   */
   public Set<String> getExistingGameCodes() { return this.gameCodeToLeaderboard.keySet(); }
 
-  private void sendToAllActiveConnections(String messageJson) {
-    for (WebSocket webSocket : this.allConnections) {
-      if (this.inactiveConnections.contains(webSocket))
-        continue;
-      webSocket.send(messageJson);
-    }
-  }
-
+  /**
+   * Sends a json String message (messageJson) to all of the clients (via their websockets) within
+   * the provided gameState (i.e. all of the clients playing together in some game).
+   *
+   * @param gameState - a GameState object: the GameState whose associated clients need to be sent
+   *                  the message.
+   * @param messageJson a String: the json message to be sent to all of the clients (via their
+   *                    respective websocket connections) associated with the provided GameState.
+   */
   public void sendToAllGameStateConnections(GameState gameState, String messageJson) {
     Set<WebSocket> gameSockets = this.gameStateToSockets.get(gameState);
     for (WebSocket webSocket : gameSockets) {
@@ -84,6 +87,15 @@ public class SlitherServer extends WebSocketServer {
     }
   }
 
+  /**
+   * Adds a mapping from a provided User to a provided game code.
+   *
+   * @param gameCode - a String: The game code that the user needs to be mapped to.
+   * @param user - a User: The user that needs to be mapped to the provided game code.
+   * @return a boolean: false if the user was already present in the userToGameCode map (in which
+   * case this method was called erraneously since the user already exists); else, the desired
+   * mapping is added into userToGameCode and true is returned.
+   */
   public boolean addGameCodeToUser(String gameCode, User user) {
     if (this.userToGameCode.containsKey(user))
       return false;
@@ -91,6 +103,16 @@ public class SlitherServer extends WebSocketServer {
     return true;
   }
 
+  /**
+   * Adds a mapping from a provided WebSocket to a provided User.
+   *
+   * @param webSocket - a WebSocket: The WebSocket that needs to be mapped to the provided user.
+   * @param user - a User: The User that the provided WebSocket needs to be mapped to.
+   * @return a boolean: false if the websocket was already present in the socketToUser map (in which
+   * case this method was called erraneously since the websocket already exists, and must already
+   * be associated with some user); else, the desired mapping is added into socketToUser and true
+   * is returned.
+   */
   public boolean addWebsocketUser(WebSocket webSocket, User user) {
     if (this.socketToUser.containsKey(webSocket))
       return false;
@@ -98,6 +120,22 @@ public class SlitherServer extends WebSocketServer {
     return true;
   }
 
+  /**
+   * Adds a provided WebSocket to the Set of WebSockets associated with (mapped to by) the relevant
+   * GameState.
+   * If the GameState associated with the provided game code does not exist, then a
+   * MissingGameStateException is thrown.
+   *
+   * @param gameCode - a String: The gameCode associated with the relevant game. This is used to
+   *                 access the GameState associated with the relevant game.
+   * @param webSocket - a WebSocket: The WebSocket that needs to be added to the Set of WebSockets
+   *                  mapped to by the relevant GameState.
+   * @return a boolean: false if the provided WebSocket is already present in the set mapped to by
+   * the relevant GameState (in which case this method was called erraneously since the socket has
+   * already been added); else, the WebSocket is added to the desired set, and true is returned.
+   * @throws MissingGameStateException - this exception is thrown if no GameState associated with
+   * the provided game code can be found (the game code provided is incorrect).
+   */
   public boolean addSocketToGameState(String gameCode, WebSocket webSocket) throws MissingGameStateException {
     GameState gameState = this.gameCodeToGameState.get(gameCode);
     if (gameState == null || this.gameStateToSockets.get(gameState) == null)
@@ -108,17 +146,27 @@ public class SlitherServer extends WebSocketServer {
     return true;
   }
 
+  /**
+   * Defines the code to be run when a new WebSocket connection is opened by the client (on the
+   * specified port). The provided WebSocket is added to the Set of all sockets, and a json message
+   * is sent to the client (associated with the newly opened connection) stating that a new
+   * socket has been opened successfully.
+   *
+   * @param webSocket - a WebSocket: The WebSocket connection object associated with the client
+   *                  who opened the new connection.
+   * @param clientHandshake - a ClientHandshake: The ClientHandshake object associated with the new
+   *                        opened connection (unused in this method).
+   */
   @Override
   public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
     System.out.println("server: onOpen called");
     this.allConnections.add(webSocket);
     this.inactiveConnections.add(webSocket);
     System.out.println("server: New client joined - Connection from " + webSocket.getRemoteSocketAddress().getAddress().getHostAddress());
-    System.out.println("server: new activeConnections: " + this.allConnections);
     String jsonResponse = this.serialize(this.generateMessage("New socket opened", MessageType.SUCCESS));
     webSocket.send(jsonResponse);
   }
-
+  
   @Override
   public void onClose(WebSocket webSocket, int code, String reason, boolean remote) {
     System.out.println("server: onClose called");
@@ -296,31 +344,6 @@ public class SlitherServer extends WebSocketServer {
           webSocket.send(jsonResponse);
           break;
         }
-//        case USER_DIED -> {
-//          // TODO: Add to deathOrbs set in gamestate when this happens
-//          // TODO: Need to move these tasks to a separate function since death collision checking is
-//          // now happening on the server-side
-//          User user = this.socketToUser.get(webSocket);
-//          if (user == null)
-//            throw new NoUserException(deserializedMessage.type());
-//          new UserDiedHandler().handleUserDied(user, this.gameCodeToLeaderboard.get(this.userToGameCode.get(user)));
-//          this.userToGameCode.remove(user);
-//          this.inactiveConnections.add(webSocket);
-//
-//          String gameCode = this.userToGameCode.get(user);
-//          if (gameCode == null)
-//            throw new UserNoGameCodeException(MessageType.ERROR);
-//
-//          GameState gameState = this.gameCodeToGameState.get(gameCode);
-//          if (gameState == null)
-//            throw new GameCodeNoGameStateException(MessageType.ERROR);
-//
-//          this.gameStateToSockets.get(gameState).remove(webSocket);
-//
-//          jsonResponse = this.serialize(this.generateMessage("User removed from leaderboard", MessageType.SUCCESS));
-//          webSocket.send(jsonResponse);
-//          break;
-//        }
         case REMOVE_ORB -> {
           User user = this.socketToUser.get(webSocket);
           if (user == null)
