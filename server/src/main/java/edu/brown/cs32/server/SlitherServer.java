@@ -122,8 +122,6 @@ public class SlitherServer extends WebSocketServer {
   @Override
   public void onClose(WebSocket webSocket, int code, String reason, boolean remote) {
     System.out.println("server: onClose called");
-    this.allConnections.remove(webSocket);
-    this.inactiveConnections.remove(webSocket);
     User user = this.socketToUser.get(webSocket);
     if (user == null)
       return;
@@ -133,7 +131,8 @@ public class SlitherServer extends WebSocketServer {
     GameState gameState = this.gameCodeToGameState.get(gameCode);
     if (gameState == null)
       return;
-    this.gameStateToSockets.get(gameState).remove(webSocket);
+    gameState.updateOtherUsersWithRemovedPositions(user, webSocket, this.gameStateToSockets.get(gameState), this);
+    this.handleUserDied(user, webSocket, gameState);
   }
 
   @Override
@@ -182,13 +181,39 @@ public class SlitherServer extends WebSocketServer {
   }
 
   public void handleUserDied(User user, WebSocket webSocket, GameState gameState) {
+    System.out.println("handleUserDied");
+//    String gameCode = this.userToGameCode.get(user);
+//    Leaderboard leaderboard = this.gameCodeToLeaderboard.get(gameCode);
+//    leaderboard.removeUser(user);
+//    this.userToGameCode.remove(user);
+//    this.inactiveConnections.add(webSocket);
+//    this.gameStateToSockets.get(gameState).remove(webSocket);
+//    this.socketToUser.remove(webSocket);
+
+    this.allConnections.remove(webSocket);
+    this.inactiveConnections.remove(webSocket);
+    if (user == null)
+      return;
+    this.socketToUser.remove(webSocket);
     String gameCode = this.userToGameCode.get(user);
+    if (gameCode == null)
+      return;
+    this.userToGameCode.remove(user);
     Leaderboard leaderboard = this.gameCodeToLeaderboard.get(gameCode);
     leaderboard.removeUser(user);
-    this.userToGameCode.remove(user);
-    this.inactiveConnections.add(webSocket);
-    this.gameStateToSockets.get(gameState).remove(webSocket);
-    this.socketToUser.remove(webSocket);
+
+    System.out.println(this.gameStateToSockets.get(gameState).size());
+
+    if (this.gameStateToSockets.get(gameState).size() == 1) {
+      this.gameStateToSockets.get(gameState).remove(webSocket);
+      this.gameStateToSockets.remove(gameState);
+      gameState = null; // so that it gets garbage collected eventually
+      leaderboard = null; // if there is nobody in that game, then we delete that leaderboard
+      this.gameCodeToGameState.remove(gameCode);
+      this.gameCodeToLeaderboard.remove(gameCode);
+    } else {
+      this.gameStateToSockets.get(gameState).remove(webSocket);
+    }
   }
 
   public void handleUpdateScore(User user, GameState gamestate, Integer orbValue) {
@@ -296,31 +321,6 @@ public class SlitherServer extends WebSocketServer {
           webSocket.send(jsonResponse);
           break;
         }
-//        case USER_DIED -> {
-//          // TODO: Add to deathOrbs set in gamestate when this happens
-//          // TODO: Need to move these tasks to a separate function since death collision checking is
-//          // now happening on the server-side
-//          User user = this.socketToUser.get(webSocket);
-//          if (user == null)
-//            throw new NoUserException(deserializedMessage.type());
-//          new UserDiedHandler().handleUserDied(user, this.gameCodeToLeaderboard.get(this.userToGameCode.get(user)));
-//          this.userToGameCode.remove(user);
-//          this.inactiveConnections.add(webSocket);
-//
-//          String gameCode = this.userToGameCode.get(user);
-//          if (gameCode == null)
-//            throw new UserNoGameCodeException(MessageType.ERROR);
-//
-//          GameState gameState = this.gameCodeToGameState.get(gameCode);
-//          if (gameState == null)
-//            throw new GameCodeNoGameStateException(MessageType.ERROR);
-//
-//          this.gameStateToSockets.get(gameState).remove(webSocket);
-//
-//          jsonResponse = this.serialize(this.generateMessage("User removed from leaderboard", MessageType.SUCCESS));
-//          webSocket.send(jsonResponse);
-//          break;
-//        }
         case REMOVE_ORB -> {
           User user = this.socketToUser.get(webSocket);
           if (user == null)

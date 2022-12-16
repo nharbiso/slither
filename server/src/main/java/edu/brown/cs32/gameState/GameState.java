@@ -146,7 +146,7 @@ public class GameState {
     }
   }
 
-  private void updateOtherUsersWithRemovedPositions(User thisUser, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
+  public void updateOtherUsersWithRemovedPositions(User thisUser, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
     List<Position> removedPositions = new ArrayList<>();
     removedPositions.addAll(this.userToOwnPositions.get(thisUser));
     for (Position position : removedPositions) {
