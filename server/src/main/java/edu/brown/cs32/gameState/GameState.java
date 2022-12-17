@@ -113,6 +113,14 @@ public class GameState {
     this.slitherServer.sendToAllGameStateConnections(this, json);
   }
 
+  /**
+   * Updates the specified user's position based on its current position
+   * @param thisUser : the user whose position is to change
+   * @param toAdd : the position to add to the front of this user's snake
+   * @param toRemove : the position to remove from the back of this user's snake
+   * @throws InvalidRemoveCoordinateException if the coordinate attempting to be removed
+   * is not the last in the Deque
+   */
   public void updateOwnPositions(User thisUser, Position toAdd, Position toRemove) throws InvalidRemoveCoordinateException {
     if (!this.userToOwnPositions.containsKey((thisUser)))
       this.userToOwnPositions.put(thisUser, new HashSet<>());
@@ -128,6 +136,13 @@ public class GameState {
     this.userToSnakeDeque.get(thisUser).removeLast();
   }
 
+  /**
+   * Sends a message to the corresponding client (via webSocket) that this
+   * user's snake length has been increased
+   * @param webSocket : the webSocket through which to send the increased length message
+   * @param newBodyParts : the list of Positions that correspond to the increase in length
+   * @param server : the server through which to serialize the message to be sent via webSocket
+   */
   private void sendOwnIncreasedLengthBodyParts(WebSocket webSocket, List<Position> newBodyParts, SlitherServer server) {
     Map<String, Object> data = new HashMap<>();
     data.put("newBodyParts", newBodyParts);
@@ -135,6 +150,14 @@ public class GameState {
     webSocket.send(server.serialize(message));
   }
 
+  /**
+   * Sends a message to all other corresponding clients (to this GameState) (via webSocket) that this
+   * user's snake length has been increased
+   * @param webSocket : the webSocket through which to send the increased length message
+   * @param newBodyParts : the list of Positions that correspond to the increase in length
+   * @param gameStateSockets : the list of other clients' sockets to receieve the update in this client's snake length
+   * @param server : the server through which to serialize the message to be sent via webSocket
+   */
   private void sendOthersIncreasedLengthBodyParts(WebSocket webSocket, List<Position> newBodyParts, Set<WebSocket> gameStateSockets, SlitherServer server) {
     Map<String, Object> data = new HashMap<>();
     data.put("newBodyParts", newBodyParts);
@@ -147,6 +170,13 @@ public class GameState {
     }
   }
 
+  /**
+   * Creates a new snake for this user at a preset position and sends this data to all other users sharing this GameState
+   * @param thisUser : the user for which this new snake is being generated
+   * @param webSocket : the current user's socket through which to send data to the client
+   * @param gameStateSockets : the list of other clients' sockets to receive the creation update of this client's snake
+   * @param server : the server through which to serialize the message to be sent via webSocket
+   */
   public void createNewSnake(User thisUser, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
     List<Position> newSnake = new ArrayList<>();
     for (int i=0; i < 20; i++) {
@@ -157,6 +187,15 @@ public class GameState {
     this.sendOthersIncreasedLengthBodyParts(webSocket, newSnake, gameStateSockets, server);
   }
 
+  /**
+   * Updates the specified user's position based on its current position
+   * @param thisUser : the user whose position is to change
+   * @param toAdd : the position to add to the front of this user's snake
+   * @param toRemove : the position to remove from the back of this user's snake
+   * @param webSocket : 
+   * @param gameStateSockets :
+   * @param server : 
+   */
   public void updateOtherUsersWithPosition(User thisUser, Position toAdd, Position toRemove, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
     for (User user : this.userToOthersPositions.keySet()) {
       if (user.equals(thisUser))
