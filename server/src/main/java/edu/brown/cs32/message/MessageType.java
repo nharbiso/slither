@@ -1,6 +1,9 @@
 package edu.brown.cs32.message;
 
-// NOTE: THIS WILL NEED TO BE UPDATED AS WE IMPLEMENT MORE FEATURES
+/**
+ * MessageType enum to represent all message communication types (including
+ * those between the server and client)
+ */
 public enum MessageType {
   NEW_CLIENT_NO_CODE,
   NEW_CLIENT_WITH_CODE,
