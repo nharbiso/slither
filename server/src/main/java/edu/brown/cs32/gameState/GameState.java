@@ -237,10 +237,25 @@ public class GameState {
     }
   }
 
+  /**
+   * Computes and returns the Euclidean distance between two Positions (two coordinates on the
+   * game map).
+   *
+   * @param firstCenter - a Position: the first position (coordinate) on the game map.
+   * @param secondCenter - a Position: the second position (coordinate) on the game map.
+   * @return a double: the Euclidean distance between firstCenter and secondCenter.
+   */
   private double distance(Position firstCenter, Position secondCenter) {
     return Math.sqrt(Math.pow(firstCenter.x() - secondCenter.x(), 2) + Math.pow(firstCenter.y() - secondCenter.y(), 2));
   }
 
+  /**
+   * Takes a double-ended queue containing the positions of the body parts of some snake and returns
+   * a List of positions containing the last two body parts of the snake (without modifying the
+   * original double-ended queue).
+   * @param bodyParts
+   * @return
+   */
   private List<Position> getLastTwoBodyParts(Deque<Position> bodyParts) {
     Position lastPosition = bodyParts.removeLast();
     Position secondLastPosition = bodyParts.peekLast();
@@ -251,8 +266,15 @@ public class GameState {
     return lastTwoBodyParts;
   }
 
+  /**
+   * Computes the coordinates (the Position) at which a new body part should be created for a user
+   * (when they eat an orb) so that growth in the length of the snake looks natural and continuous.
+   *
+   * @param thisUser - a User: the user whose snake's new body part position needs to be computed.
+   * @return a Position: the position at which the new body part for the user's snake will be
+   * created.
+   */
   private Position getNewBodyPartPosition(User thisUser) {
-//    List<Position> userLastTwoBodyParts = this.userToLastTwoOwnPositions.get(thisUser);
     Deque<Position> userBodyParts = this.userToSnakeDeque.get(thisUser);
     Position newPosition;
     if (userBodyParts.size() == 0)
@@ -267,11 +289,17 @@ public class GameState {
       double y = userLastTwoBodyParts.get(1).y() - yDifference;
       newPosition = new Position(Math.round(x * 100) / 100.0, Math.round(y * 100) / 100.0);
     }
-//    this.updateOwnLastTwoBodyParts(thisUser, newPosition);
-//    userBodyParts.addLast(newPosition);
     return newPosition;
   }
 
+  /**
+   * Generates death orbs for a snake when it dies: a large orb is created for every fourth snake
+   * body part, and all the clients in the same game are updated with the new orbs so that they can
+   * be rendered.
+   *
+   * @param positions - a List of Positions: the positions of the body parts of the snake that has
+   *                  died and needs to be converted ("dissolved") into death orbs.
+   */
   private void generateDeathOrbs(List<Position> positions) {
     for (int i=0; i < positions.size(); i++) {
       if (i % 4 != 0)
@@ -282,10 +310,27 @@ public class GameState {
     this.sendOrbData();
   }
 
+  /**
+   * Runs a collision check when the position of a snake is updated to see if the snake has eaten an
+   * orb, collided with another snake, or collided with the game boundary. If any of these have
+   * occurred then the relevant computations, state updates, and client updates are performed.
+   *
+   * @param thisUser - a User: the user for whom we are conducting the collision check (the position
+   *                 of the snake of this user has just been updated).
+   * @param latestHeadPosition - a Position: the position (coordinate) to which the head of the
+   *                           user's snake has just moved.
+   * @param webSocket - a WebSocket: the WebSocket connection object associated with this user
+   * @param gameStateSockets - a Set of WebSockets: the set of all the WebSockets for players
+   *                         within the same game as this user.
+   * @param server - a SlitherServer object: an instance of the server that is currently running.
+   */
   public void collisionCheck(User thisUser, Position latestHeadPosition, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
     System.out.println("Run collision check");
     Set<Position> otherBodies = this.userToOthersPositions.get(thisUser);
     Set<Orb> allOrbs = new HashSet<>(this.orbs);
+
+    // check if the user's snake has collided with (gone beyond) the game map boundary -- kill
+    // the snake if this happens
     if( latestHeadPosition.x() - this.SNAKE_CIRCLE_RADIUS <= -1500 ||
         latestHeadPosition.x() + this.SNAKE_CIRCLE_RADIUS >= 1500 ||
         latestHeadPosition.y() - this.SNAKE_CIRCLE_RADIUS <= -1500 ||
@@ -305,7 +350,9 @@ public class GameState {
       this.generateDeathOrbs(deadSnakePositions);
       return;
     }
-    
+
+    // check if the user's snake has collided with any other snakes in the same game -- kill the
+    // user's snake if this happens
     for (Position otherBodyPosition : otherBodies) {
       if (this.distance(latestHeadPosition, otherBodyPosition) <= this.SNAKE_CIRCLE_RADIUS) {
         Message userDiedMessage = new Message(MessageType.YOU_DIED, new HashMap<>());
@@ -324,14 +371,14 @@ public class GameState {
       }
     }
 
+    // Check if the user's snake has eaten any orbs -- remove the eaten orbs and increase the length
+    // of the snake when this happens
     List<Position> newBodyParts = new ArrayList<>();
     boolean orbCollided = false;
     for (Orb orb : allOrbs) {
       Position orbPosition = orb.getPosition();
       if (this.distance(latestHeadPosition, orbPosition) <= this.SNAKE_CIRCLE_RADIUS) {
-        System.out.println("Orb collided");
         this.removeOrb(orbPosition);
-//        this.sendOrbData();
         orbCollided = true;
         Integer orbValue = switch(orb.getSize()) {
           case SMALL -> 1;
@@ -349,7 +396,9 @@ public class GameState {
       this.sendOrbData();
 
     if (newBodyParts.size() > 0) {
+      // increase the length of the user's own snake with their client
       this.sendOwnIncreasedLengthBodyParts(webSocket, newBodyParts, server);
+      // increase the length of the user's snake for every other client in the same game
       this.sendOthersIncreasedLengthBodyParts(webSocket, newBodyParts, gameStateSockets, server);
     }
   }
