@@ -22,13 +22,6 @@ export interface NewClientOldCodeMessage {
   };
 }
 
-// export interface RemoveOrbMessage {
-//   type: MessageType.REMOVE_ORB;
-//   data: {
-//     position: Position;
-//   };
-// }
-
 export interface UpdatePositionMessage {
   type: MessageType.UPDATE_POSITION;
   data: {
@@ -36,13 +29,6 @@ export interface UpdatePositionMessage {
     remove: Position; // the circle being removed
   };
 }
-
-// export interface UpdateScoreMessage {
-//   type: MessageType.UPDATE_SCORE;
-//   data: {
-//     newScore: number;
-//   };
-// }
 
 export function sendNewClientNoCodeMessage(
   socket: WebSocket,
@@ -73,16 +59,6 @@ export function sendNewClientWithCodeMessage(
   socket.send(JSON.stringify(message));
 }
 
-// export function sendRemoveOrbMessage(socket: WebSocket, position: Position) {
-//   const message: RemoveOrbMessage = {
-//     type: MessageType.REMOVE_ORB,
-//     data: {
-//       position: position,
-//     },
-//   };
-//   socket.send(JSON.stringify(message));
-// }
-
 export function sendUpdatePositionMessage(
   socket: WebSocket,
   add: Position,
@@ -97,16 +73,6 @@ export function sendUpdatePositionMessage(
   };
   socket.send(JSON.stringify(message));
 }
-
-// export function sendUpdateScoreMessage(socket: WebSocket, newScore: number) {
-//   const message: UpdateScoreMessage = {
-//     type: MessageType.UPDATE_SCORE,
-//     data: {
-//       newScore: newScore,
-//     },
-//   };
-//   socket.send(JSON.stringify(message));
-// }
 
 // TYPES FOR MESSAGES RECEIVED FROM THE SERVER
 
