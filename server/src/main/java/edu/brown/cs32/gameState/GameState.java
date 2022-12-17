@@ -28,16 +28,16 @@ import org.java_websocket.WebSocket;
  */
 public class GameState {
 
-  private SlitherServer slitherServer;
-  private String gameCode;
-  private Set<Orb> orbs;
+  private final SlitherServer slitherServer; // an instance of the SlitherServer (currently running server)
+  private final String gameCode; // the game code corresponding to this GameState
+  private final Set<Orb> orbs; // the set of all the orbs currently present in the game
   private int numDeathOrbs; // total count of the number of orbs formed as a result of players dying
-  private final OrbGenerator orbGenerator = new OrbGenerator();
-  private final int ORB_GENERATION_TIME_INTERVAL = 5;
-  private Map<User, Set<Position>> userToOthersPositions;
-  private Map<User, Set<Position>> userToOwnPositions;
-  private Map<User, Deque<Position>> userToSnakeDeque;
-  private final int SNAKE_CIRCLE_RADIUS = 35;
+  private final OrbGenerator orbGenerator = new OrbGenerator(); //  an OrbGenerator for this game
+  private final int ORB_GENERATION_TIME_INTERVAL = 5; // time interval at which new orbs are generated
+  private final Map<User, Set<Position>> userToOthersPositions; // maps each user to the positions of every other snake's body parts
+  private final Map<User, Set<Position>> userToOwnPositions; // maps each user to their own snake's body parts
+  private final Map<User, Deque<Position>> userToSnakeDeque; // maps each user to a double ended queue with their body parts (in order)
+  private final int SNAKE_CIRCLE_RADIUS = 35; // radius of each body part of the snakes
 
   /**
    * GameState constructor to initialize all necessary variables, including
@@ -217,6 +217,19 @@ public class GameState {
     }
   }
 
+  /**
+   * This function is called when a user's snake dies. It updates all the other clients in the
+   * same game with the information on the latest positions at which the user's snake's body parts
+   * were, and instructs the client to remove those body parts so that they are no longer rendered.
+   *
+   * @param thisUser - a User: the User whose snake body parts need to be removed from all other
+   *                 clients in the same game
+   * @param webSocket - a WebSocket: The WebSocket connections corresponding to thisUser
+   * @param gameStateSockets - a Set of WebSockets: The set of all the websockets corresponding to
+   *                         this GameState (i.e. the websockets of all the clients in the same
+   *                         game).
+   * @param server - a SlitherServer: an instance of the currently running server.
+   */
   private void updateOtherUsersWithRemovedPositions(User thisUser, WebSocket webSocket, Set<WebSocket> gameStateSockets, SlitherServer server) {
     List<Position> removedPositions = new ArrayList<>();
     removedPositions.addAll(this.userToOwnPositions.get(thisUser));
