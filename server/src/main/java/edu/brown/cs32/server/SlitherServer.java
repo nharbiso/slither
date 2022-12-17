@@ -3,7 +3,6 @@ package edu.brown.cs32.server;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import edu.brown.cs32.actionHandlers.NewClientHandler;
-//import edu.brown.cs32.actionHandlers.RemoveOrbHandler;
 import edu.brown.cs32.actionHandlers.UpdatePositionHandler;
 import edu.brown.cs32.exceptions.ClientAlreadyExistsException;
 import edu.brown.cs32.exceptions.IncorrectGameCodeException;
@@ -32,6 +31,12 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
+/**
+ * This class is used to define the server for the Slither+ game. It creates an interface through
+ * which the server listens for websocket connections on the port 9000, and can then receive
+ * message through those connections and perform the required game updates on the server-side and
+ * for all the clients, based on the type and data of the received message.
+ */
 public class SlitherServer extends WebSocketServer {
 
   private final Set<WebSocket> allConnections; // stores all connections
