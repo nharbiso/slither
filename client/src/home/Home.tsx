@@ -71,6 +71,7 @@ export default function Home({
       <div className="HomeContainer">
         <button
           className="btn btn-light how-to-play-button"
+          aria-label = "How To Play Button"
           onClick={() => setDisplayHowToPlay(true)}
         >
           How to play?
@@ -84,6 +85,7 @@ export default function Home({
           setValue={setUsername}
           placeholder="Type your username here:"
           className="username-input"
+          aria-label="Username input box"
         />
         <p className="error-text">{errorText}</p>
         <div className="container">
@@ -91,6 +93,7 @@ export default function Home({
             <div className="col-lg-5 col-md-5 col-sm-12">
               <button
                 className="btn btn-light new-game-button"
+                aria-label="New Game Button"
                 onClick={() => {
                   newGameClick(
                     setGameStarted,
@@ -117,10 +120,12 @@ export default function Home({
                 setValue={setInputGamecode}
                 placeholder="Enter gamecode here:"
                 className="gamecode-input"
+                aria-label="Gamecode input box"
               />
               <br />
               <button
                 className="btn btn-outline-light"
+                aria-label="Join game button"
                 onClick={() => {
                   withGameCodeClick(
                     setGameStarted,
