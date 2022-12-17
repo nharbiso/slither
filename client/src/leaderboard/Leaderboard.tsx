@@ -1,6 +1,11 @@
 import React from "react";
 import "./Leaderboard.css";
 
+/**
+ * Displays the leaderboard in the top right
+ * @param param0 
+ * @returns 
+ */
 export default function Leaderboard({
   leaderboard,
 }: {

@@ -81,9 +81,9 @@ export default function GameCanvas({
           <Orb orbInfo={orb} offset={offset} key={ind} />
         )
       )}
-      <OtherSnake positions={gameState.otherBodies} offset={offset} /> //other
+      <OtherSnake positions={gameState.otherBodies} offset={offset} />
       snakes
-      <Border boundaries={canvasSize} offset={offset} /> //map border
+      <Border boundaries={canvasSize} offset={offset} />
     </div>
   );
 }
