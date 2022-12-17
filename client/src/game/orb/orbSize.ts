@@ -1,6 +1,6 @@
 enum OrbSize {
   SMALL = "SMALL",
-  LARGE = "LARGE"
+  LARGE = "LARGE",
 }
 
 export default OrbSize;

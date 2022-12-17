@@ -1,12 +1,18 @@
-#codeDisplay {
-    /* background-color: lightslategray; */
-    position: fixed;
-    height: 10px;
-    top: 1%;
-    left: 1%;
-    opacity: 70%;
+.codeDisplay {
+  /* background-color: lightslategray; */
+  position: fixed;
+  height: 10px;
+  top: 1%;
+  left: 1%;
+  opacity: 70%;
 }
 
-#codeText {
-    color: red
+.code-tagline {
+  color: white;
+  margin-bottom: 0;
+}
+
+.codeText {
+  color: yellow;
+  font-size: 1.2rem;
 }
