@@ -71,15 +71,15 @@ export default function Home({
       <div className="HomeContainer">
         <button
           className="btn btn-light how-to-play-button"
-          aria-label = "How To Play Button"
+          aria-label = "How To Play button"
           onClick={() => setDisplayHowToPlay(true)}
         >
           How to play?
         </button>
         <h1 className="main-title">
-          Slither<span className="title-plus">+</span>
+          Slither<span className="title-plus" aria-label="Title: Slither+">+</span>
         </h1>
-        <h2 className="username-prompt">Enter your username:</h2>
+        <h2 className="username-prompt" aria-label="Prompt: Enter your username">Enter your username:</h2>
         <ControlledInput
           value={username}
           setValue={setUsername}
@@ -114,7 +114,7 @@ export default function Home({
               <div className="or-text">OR</div>
             </div>
             <div className="col-lg-5 col-md-5 col-sm-12">
-              <h4 className="join-with-gamecode-text">Join with a game code</h4>
+              <h4 className="join-with-gamecode-text" aria-label="Prompt: Join with a game code">Join with a game code</h4>
               <ControlledInput
                 value={inputGamecode}
                 setValue={setInputGamecode}
