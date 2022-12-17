@@ -19,7 +19,7 @@ Total Estimated Completion Time: 300 Hours
 This project had four contributors: Karan Kashyap (**`kkashyap`**), Mason Pan (**`mpan11`**), Nathan Harbison (**`nharbiso`**), and Paul Lestz (**`plestz`**).
 
 ### Contribution details
-* Karan: server and client-side networking (with websockets); server-side gameState manipulation: leaderboard updates, collision checking, position updates, length increasing, collision checking, and snake growth; concurrently updating all clients to show most recent accurate state of the game; home screen; server-side documentation
+* Karan: server and client-side networking (with websockets); server-side gameState manipulation: leaderboard updates, collision checking, position updates, length increasing, collision checking, and snake growth; concurrently updating all clients with the latest game state; home screen; server-side documentation
 * Mason: moving the snake with the mouse; panning rendered map portion to display snake at the center; client-side documentation and testing
 * Nathan: moving the snake with the mouse; panning rendered map portion to display snake at the center; server-side boundary collision checking 
 * Paul: server-side orb generation and collision checking; client-side orb rendering; client-side game code display; backend testing and documentation; README
