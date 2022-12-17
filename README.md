@@ -1,25 +1,14 @@
 
 # Slither+
 
-**README for term-project-kkashyap-mpan11-nharbiso-plestz**. Within this document, the following is contained:
-
-1. Project Overview
-
-2. Project Details: Structure, Design, and Implementation Walkthrough
-
-3. Errors & Bugs
-
-4. Test Suite Summary
-
-5. 'How To Get Started' Guide
-
 # Project Overview
 
-This project is a modified recreation of the hit video game [slither.io](http://slither.io/). Among notable features contained in this version that the original game lacks is the ability to play with friends in custom game lobbies via unique *game codes*.
+This project is a modified recreation of the hit video game [slither.io](http://slither.io/). Among notable features contained in this version that the original game lacks is the ability to play with friends in custom game lobbies via unique *game codes*. <br>
+With the help of websockets, a multithreaded server, and a dynamic client, this multiplayer game was successfully implemented with minimal lag.
 
 ## CSCI0320 Term Project: *Slither+*
 
-At a basic level, this full-stack project is made up of a backend (Java) server combined with a frontend (TypeScript/React) client, which in coalition allow for full functionality of the Slither+ game.
+This full-stack project is composed of a backend (Java) server combined with a frontend (TypeScript/React) client, which in coalition allow for full functionality of the Slither+ game. It uses websockets as the communication protocol between the server and all the clients.
 
 ***Repository Link***: [https://github.com/cs0320-f2022/term-project-kkashyap-mpan11-nharbiso-plestz](https://github.com/cs0320-f2022/term-project-kkashyap-mpan11-nharbiso-plestz)
 
@@ -29,9 +18,16 @@ Total Estimated Completion Time: 300 Hours
 
 This project had four contributors: Karan Kashyap (**`kkashyap`**), Mason Pan (**`mpan11`**), Nathan Harbison (**`nharbiso`**), and Paul Lestz (**`plestz`**).
 
+### Contribution details
+* Karan: server and client-side networking (with websockets); server-side gameState manipulation: leaderboard updates, collision checking, position updates, length increasing, collision checking, and snake growth; concurrently updating all clients to show most recent accurate state of the game; home screen
+* Mason: moving the snake with the mouse; panning rendered map portion to display snake at the center; client-side documentation and testing
+* Nathan: moving the snake with the mouse; panning rendered map portion to display snake at the center; server-side boundary collision checking 
+* Paul: server-side orb generation and collision checking; client-side orb rendering; client-side game code display; backend testing and documentation; README
+
+
 # Project Details: Structure, Design and Implementation
 
-Within this section will be the summary, explanations, and justifications for the design and implementation of the React and Java files (*designed and edited by us for this project exclusively*) within this project.
+Within this section will be the summary, explanations, and justifications for the design and implementation of the React and Java files within this project.
 
 ## Backend (Server)
 
