@@ -10,23 +10,38 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Testing class for GameCodeGenerator.java in 'gamecode' directory
+ */
 public class GameCodeGeneratorTest {
     
     GameCodeGenerator gameCodeGenerator;
     Set<String> currGameCodes;
 
+    /**
+     * Setup method to instantiate GameCodeGenerator and a Set<String> of
+     * the current game codes (as empty to start)
+     */
     @BeforeEach
     public void setup() {
         this.gameCodeGenerator = new GameCodeGenerator();
         this.currGameCodes = new HashSet<>();
     }
 
+    /**
+     * Tests that new game codes generated are of length 6 (when provided
+     * an empty set of existing game codes)
+     */
     @Test
     public void testGenerateGameCodeEmpty() {
         String newCode = this.gameCodeGenerator.generateGameCode(this.currGameCodes);
         assertEquals(newCode.length(), 6);
     }
 
+    /**
+     * Tests that new game codes generated are of length 6 (when provided
+     * a non-empty set of existing game codes)
+     */
     @Test
     public void testGenerateGameCodeNonEmpty() {
         this.currGameCodes.add("ABCDEF");
@@ -34,6 +49,9 @@ public class GameCodeGeneratorTest {
         assertEquals(newCode.length(), 6);
     }
 
+    /**
+     * Tests that all 6 characters within a game code are uppercase letters
+     */
     @Test
     public void testAllUppercaseLetters() {
         String newCode = this.gameCodeGenerator.generateGameCode(this.currGameCodes);
@@ -51,6 +69,10 @@ public class GameCodeGeneratorTest {
         assertTrue(isAllUppercase);
     }
 
+    /**
+     * Fuzz test to ensure that generated game codes do not overlap with
+     * existing game codes
+     */
     @Test
     public void testNoOverlappingCodes() {
         this.currGameCodes.add("ABCDEF");
