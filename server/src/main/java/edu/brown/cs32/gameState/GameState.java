@@ -23,6 +23,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.java_websocket.WebSocket;
 
+/**
+ * GameState class to contain all game data corresponding to this state
+ */
 public class GameState {
 
   private SlitherServer slitherServer;
@@ -36,6 +39,17 @@ public class GameState {
   private Map<User, Deque<Position>> userToSnakeDeque;
   private final int SNAKE_CIRCLE_RADIUS = 35;
 
+  /**
+   * GameState constructor to initialize all necessary variables, including
+   * a corresponding server and game code unique to this state
+   * 
+   * Note: Uses a ScheduledThreadPoolExecutor to generate orbs up to the
+   * maximum orb count every 5 seconds
+   * 
+   * @param slitherServer : the server to be used in correlation with this
+   * GameState to synchronize all assigned users
+   * @param gameCode : the unique game code to be assigned to this state
+   */
   public GameState(SlitherServer slitherServer, String gameCode) {
     this.slitherServer = slitherServer;
     this.gameCode = gameCode;
@@ -51,19 +65,33 @@ public class GameState {
         GameState.this.generateOrb();
         GameState.this.sendOrbData();
       }
-    }, 0, this.ORB_GENERATION_TIME_INTERVAL, TimeUnit.SECONDS); // execute every 60 seconds
+    }, 0, this.ORB_GENERATION_TIME_INTERVAL, TimeUnit.SECONDS);
   }
 
+  /**
+   * Adds a user to this game state
+   * @param user : the user to be added to this GameState
+   */
   public void addUser(User user) {
     this.userToOwnPositions.put(user, new HashSet<>());
     this.userToOthersPositions.put(user, new HashSet<>());
     this.userToSnakeDeque.put(user, new LinkedList<>());
   }
 
+  /**
+   * Fills this GameState's set of orbs up to the maximum orb count (plus death orbs)
+   */
   public void generateOrb() {
     this.orbGenerator.generateOrbs(this.orbs, this.numDeathOrbs);
   }
 
+  /**
+   * Removes an orb within this GameState's set of orbs if that orb has
+   * a position matching that of the input
+   * @param position : the position of the orb to be removed
+   * @return a boolean indicating whether an orb with a matching position was
+   * found (and therefore removed)
+   */
   public boolean removeOrb(Position position) {
     Orb removeOrb = new Orb(position, OrbSize.SMALL, "red"); // OrbSize/color irrelevant for hash equality comparison
     if (!this.orbs.contains(removeOrb))
@@ -74,6 +102,10 @@ public class GameState {
     return true;
   }
 
+  /**
+   * Sends the updated orb data (including newly-generated orbs) to all clients
+   * connected to this GameState
+   */
   public void sendOrbData() {
     Map<String, Object> orbData = new HashMap<>();
     orbData.put("orbSet", this.orbs);
@@ -283,6 +315,10 @@ public class GameState {
     }
   }
 
+  /**
+   * Provides this GameState's unique game code
+   * @return this GameState's unique game code (type: String)
+   */
   public String getGameCode() {
     return this.gameCode;
   }
