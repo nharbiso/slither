@@ -22,7 +22,7 @@ import { getPositionOfLineAndCharacter } from "typescript";
 
 const AppConfig = {
   PROTOCOL: "ws:",
-  HOST: "//localhost",
+  HOST: "//0.tcp.ngrok.io:14200",
   PORT: ":9000",
 };
 
@@ -40,8 +40,8 @@ export function registerSocket(
   hasGameCode: boolean,
   gameCode: string = ""
 ) {
-  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT); //this one is used when you are using your own localhost
-  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST); //this one is used for ngrok
+  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT); //this one is used when you are using your own localhost
+  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST); //this one is used for ngrok
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
@@ -64,7 +64,8 @@ export function registerSocket(
         setGameStarted(false); // shouldn't be required; just putting it here to be safe
         break;
       }
-      case MessageType.UPDATE_POSITION: { //update position message
+      case MessageType.UPDATE_POSITION: {
+        //update position message
         console.log("UPDATE POSITION MESSAGE");
         const updatePositionMessage: UpdatePositionMessage = message;
         const toAdd: Position = updatePositionMessage.data.add;
@@ -159,9 +160,9 @@ interface GameProps {
 /**
  * Game consists of the GameCanvas, Leaderboard, and GameCode. GameCanvas has
  * most of the actual game, leaderboard displays the top scores, and gamecode
- * displays the current lobby's gamecode. 
- * @param param0 
- * @returns 
+ * displays the current lobby's gamecode.
+ * @param param0
+ * @returns
  */
 export default function Game({
   gameState,
