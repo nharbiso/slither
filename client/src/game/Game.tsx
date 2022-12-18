@@ -34,7 +34,7 @@ interface GameProps {
 }
 
 /**
- * Returns an HTML element that renders the Slither+ game, which includes the 
+ * Returns an HTML element that renders the Slither+ game, which includes the
  * game canvas, which renders map, snakes, and orbs, as well as the leaderboard
  * with each user's score and the game code of the current lobby.
  * @param gameState A metadata representation of the current state of the game
@@ -43,7 +43,12 @@ interface GameProps {
  * @param gameCode The game code of the game current being played
  * @returns the rendered representation of the client's current Slither+ game
  */
-export default function Game({gameState, setGameState, scores, gameCode}: GameProps) {
+export default function Game({
+  gameState,
+  setGameState,
+  scores,
+  gameCode,
+}: GameProps) {
   return (
     <div>
       <GameCanvas
@@ -64,7 +69,7 @@ export default function Game({gameState, setGameState, scores, gameCode}: GamePr
 /** Metadata for forming the URL to connect with the server websocket */
 const AppConfig = {
   PROTOCOL: "ws:",
-  HOST: "//localhost",
+  HOST: "//4.tcp.ngrok.io:16397",
   PORT: ":9000",
 };
 
@@ -77,11 +82,11 @@ let socket: WebSocket;
  * @param setGameStarted A function that sets whether or not the client has started playing the game
  * @param setErrorText A function that sets any error message to be rendered on the home page
  * @param setGameCode A function that sets the current lobby's game code
- * @param orbSet A list of all orbs stored in metadata form 
+ * @param orbSet A list of all orbs stored in metadata form
  * @param gameState A metadata representation of the current state of the game
  * @param setGameState A function that sets the current state of the game
  * @param username The username of the client
- * @param hasGameCode A boolean representing whether or not the client is 
+ * @param hasGameCode A boolean representing whether or not the client is
  * joining an existing game with a game code
  * @param gameCode The game code entered by the client, if applicable
  */
@@ -97,12 +102,11 @@ export function registerSocket(
   hasGameCode: boolean,
   gameCode: string = ""
 ) {
-
   // running game on localhost
-  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
-  
+  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
+
   // running game on ngrok
-  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST);
+  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST);
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
@@ -112,12 +116,11 @@ export function registerSocket(
       sendNewClientNoCodeMessage(socket, username);
     }
   };
-  
+
   // different functionality based on received message type from server
   socket.onmessage = (response: MessageEvent) => {
     let message = JSON.parse(response.data);
     switch (message.type) {
-
       // successfully joined a game
       case MessageType.JOIN_SUCCESS: {
         setGameStarted(true);

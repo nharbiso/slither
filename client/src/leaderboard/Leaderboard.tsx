@@ -1,18 +1,22 @@
 import React from "react";
+import { leaderboardEntry } from "../message/message";
 import "./Leaderboard.css";
 
 /**
  * Displays the leaderboard in the top right
- * @param param0 
- * @returns 
+ * @param param0
+ * @returns
  */
 export default function Leaderboard({
   leaderboard,
 }: {
   leaderboard: Map<string, number>;
 }) {
-  const leaderboardEntries: [string, number][] = Array.from(
+  let leaderboardEntries: [string, number][] = Array.from(
     leaderboard.entries()
+  );
+  leaderboardEntries = leaderboardEntries.sort(
+    (a: [string, number], b: [string, number]) => (a[1] > b[1] ? -1 : 1)
   );
   return (
     <div className="leaderboard">

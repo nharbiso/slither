@@ -10,7 +10,7 @@ import { SnakeData, SNAKE_VELOCITY } from "./game/snake/Snake";
 import Home from "./home/Home";
 
 /**
- * Creates and returns the overarching HTML element representing the Slither+ 
+ * Creates and returns the overarching HTML element representing the Slither+
  * app at any given moment, appropriately either the home or in-game screen
  * @returns the overarching HTML SLither+ app element
  */
@@ -20,10 +20,10 @@ export default function App(): JSX.Element {
   const [gameCode, setGameCode] = useState("");
 
   const orbSet = new Set<OrbData>();
-  
+
   // initial snake
   const snakeBody: Position[] = [];
-  for(let i = 0; i < 20; i++) {
+  for (let i = 0; i < 20; i++) {
     snakeBody.push({ x: 600, y: 100 + 5 * i });
   }
   const snake: SnakeData = {
