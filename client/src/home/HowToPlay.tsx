@@ -1,9 +1,15 @@
-import React, { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
+
 import "./HowToPlay.css";
 
-export default function HowToPlay({
-  setDisplayHowToPlay,
-}: {
+/**
+ * Creates and returns an HTML element specifying how-to-play instructions
+ * for Slither+
+ * @param setDisplayHowToPlay a function specifying whether this element
+ * is currently being displayed on the home page
+ * @returns an element with how-to-play instructions rendered
+ */
+export default function HowToPlay({ setDisplayHowToPlay }: {
   setDisplayHowToPlay: Dispatch<SetStateAction<boolean>>;
 }) {
   return (
