@@ -22,7 +22,7 @@ This project had four contributors: Karan Kashyap (**`kkashyap`**), Mason Pan (*
 ### Contribution details
 * Karan: server and client-side networking (with websockets); server-side gameState manipulation: leaderboard updates, collision checking, position updates, length increasing, collision checking, and snake growth; concurrently updating all clients with the latest game state; home screen; server-side documentation
 * Mason: moving the snake with the mouse; panning rendered map portion to display snake at the center; other snake rendering; client-side documentation and testing
-* Nathan: moving the snake with the mouse; panning rendered map portion to display snake at the center; server-side boundary collision checking 
+* Nathan: moving the snake with the mouse; panning rendered map portion to display snake at the center; server-side boundary collision checking; client-side documentation and testing
 * Paul: server-side orb generation and collision checking; client-side orb rendering; client-side game code display; backend testing and documentation; README
 
 
@@ -37,14 +37,14 @@ The heart of the backend is the `SlitherServer`, which is responsible for synchr
 Another critical portion of the backend is the `GameState`, one instance of which is assigned to each game (and thus shared by all users within a single game). The `GameState` controls routine orb re-generation, snake location updating across clients, and collision checking (with other snakes, orbs, and the map boundary). 
 
 Other key components to the backend include those in the:
-- `leaderboard` directory, which control the updating and structure of the leaderboard
-- `gamecode` directory, which manages the creation of new, unique game codes
-- `orb` directory, which controls the structure (location, size, color) of each individual orb, as well as routine orb generation
-- `message` directory, which contains all potential messages to be sent and received between the client
-- `position` directory, which contains a `Position` record outlining the format of a position (x/y coordinates)
-- `user` directory, which contains the structure of a user in a `User` class (with a unique UUID and username)
-- `exceptions` directory, which has custom exception classes for all potential exceptions to be thrown
-- `actionHandlers` directory, which has custom handlers for the updating of snake positions and the additions of new clients to new and existing games
+- `leaderboard` package, which control the updating and structure of the leaderboard
+- `gamecode` package, which manages the creation of new, unique game codes
+- `orb` package, which controls the structure (location, size, color) of each individual orb, as well as routine orb generation
+- `message` package, which contains all potential messages to be sent and received between the client
+- `position` package, which contains a `Position` record outlining the format of a position (x/y coordinates)
+- `user` package, which contains the structure of a user in a `User` class (with a unique UUID and username)
+- `exceptions` package, which has custom exception classes for all potential exceptions to be thrown
+- `actionHandlers` package, which has custom handlers for the updating of snake positions and the additions of new clients to new and existing games
 
 ## Frontend (Client)
 
