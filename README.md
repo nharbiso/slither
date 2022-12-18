@@ -20,7 +20,7 @@ This project had four contributors: Karan Kashyap (**`kkashyap`**), Mason Pan (*
 
 ### Contribution details
 * Karan: server and client-side networking (with websockets); server-side gameState manipulation: leaderboard updates, collision checking, position updates, length increasing, collision checking, and snake growth; concurrently updating all clients with the latest game state; home screen; server-side documentation
-* Mason: moving the snake with the mouse; panning rendered map portion to display snake at the center; client-side documentation and testing
+* Mason: moving the snake with the mouse; panning rendered map portion to display snake at the center; other snake rendering; client-side documentation and testing
 * Nathan: moving the snake with the mouse; panning rendered map portion to display snake at the center; server-side boundary collision checking 
 * Paul: server-side orb generation and collision checking; client-side orb rendering; client-side game code display; backend testing and documentation; README
 
@@ -35,7 +35,19 @@ Within this section will be the summary, explanations, and justifications for th
 
 ## Frontend (Client)
 
-### WIP
+The front-end facing portion of the game is split into two main pieces: `Home` and `Game`.
+
+`Home` is responsible for rendering the initial landing screen that will load for the user. It contains a how-to-play button that will display the rules and objectives of the game. It also has an input box for entering a username, and a choice to create a new game or enter a gamecode to join an existing game.
+
+`Game` is broken down into a few more pieces: `GameCanvas`, `Leaderboard`, and `Gamecode`.
+
+`Leaderboard` and `Gamecode` are relatively simple, and are responsible for rendering a leaderboard and the current lobby code, respectively, on the screen. The leaderboard is updated based on the GameState it receives from the server. `Gamestate` is an interface describing the data that will be received from the server. It will contain information about each snake and their name, the positions of all other snakes, the set of all orbs that currently exist, the current scores, and the current lobby's `Gamecode`. 
+
+`GameCanvas` is a bit more complex, and is responsible for the actual frontend functionality of the game. Using an offset, it renders your snake in the middle of the screen, the set of all orbs that are contained in the current game-state data, all other snakes in the game, and the map border. While the map border, rendered in `Boundary`, is static, all the other information is given by the `Gamestate`. This rendering is done on an interval, and refreshes at a set rate. `GameCanvas` is also responsible for the movement of the snake, which is implemented in the `moveSnake` function. This function moves your snake towards your mouse pointer at a constant rate, allowing it to follow your mouse. To show the snake moving, we utilized a double-ended queue. Once `movesnake` calculates a new position for the snake to move to, it adds that to the beginning of the queue and removes the last position, essentially shifting the snake towards the mouse. This allows for a smooth rendering of the snake as it moves.
+
+Each `Snake` is a set of positions. For each position, we render a circle around that position. This rendering is the same for both your snake and every other snake, which is done in `OtherSnake`. Each `Orb` is rendered in a similar way: we take each orb and map its position to a circle, which is then rendered on the screen. 
+
+Finally, `Game` has a set of defined messages which can be sent to the server based on the actions taken by the client. Some notable examples of these messages are `UPDATE_POSITION` and `INCREASE_OWN_LENGTH`. These messages communicate with the server about things that are happening on the client-side so that they can be communicated with all the other clients. This way, every client is receiving the same gamestate, and will have the correct game information rendered on their screen for them to play with.
 
 ## Accessibility Limitations & Features
 

@@ -82,7 +82,6 @@ export default function GameCanvas({
         )
       )}
       <OtherSnake positions={gameState.otherBodies} offset={offset} />
-      snakes
       <Border boundaries={canvasSize} offset={offset} />
     </div>
   );
