@@ -99,6 +99,8 @@ Despite this, some features that would have been tested with more time include:
 - TBD (client)
 - TBD (client)
 
+A more detailed description of our plan for further (more comprehensive) testing can be found in this [Testing Plan](https://docs.google.com/document/d/1j6iOY1BceXv0l3akHTfcH9yEss6rN0mA4f7uF5ofPTQ/edit?usp=sharing).
+
 # How To Get Started
 
 ## User Guide
