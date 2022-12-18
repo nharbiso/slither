@@ -1,5 +1,5 @@
-import { extractLeaderboardMap } from "./Game";
-import { leaderboardEntry } from "../message/message";
+import { extractLeaderboardMap } from "./App";
+import { leaderboardEntry } from "./message/message";
 
 test("extractLeaderboardMap function tests", () => {
   let leaderboard: Map<string, number> = new Map<string, number>();
