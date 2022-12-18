@@ -22,8 +22,8 @@ This project had four contributors: Karan Kashyap (**`kkashyap`**), Mason Pan (*
 ### Contribution details
 * Karan: server and client-side networking (with websockets); server-side gameState manipulation: leaderboard updates, collision checking, position updates, length increasing, collision checking, and snake growth; concurrently updating all clients with the latest game state; home screen; server-side documentation
 * Mason: moving the snake with the mouse; panning rendered map portion to display snake at the center; other snake rendering; client-side documentation and testing
-* Nathan: moving the snake with the mouse; panning rendered map portion to display snake at the center; server-side boundary collision checking; client-side documentation and testing
-* Paul: server-side orb generation and collision checking; client-side orb rendering; client-side game code display; backend testing and documentation; README
+* Nathan: moving the snake with the mouse; panning rendered map portion to display snake at the center; other snake rendering; server-side boundary collision checking; client-side documentation and testing
+* Paul: server-side orb generation and collision checking; client-side orb rendering; client-side game code display; server-side documentation and testing; README
 
 
 # Project Details: Structure, Design and Implementation
@@ -122,9 +122,9 @@ Tests helper function `extractLeaderboardMap` on a normal and empty set of leade
 
 ## Notes on Further Testing
 
-The tests included in the current version of this project do not demonstrate a full and expansive suite of all possibility items to be tested. This is due primarily due to the time constraint on this project. A tradeoff had to be made between testing features and developing features, with the latter being the typical choice.
+The tests included in the current version of this project do not demonstrate a full and expansive suite of all items that ought to be tested. This is primarily due to the time constraint on this project. A tradeoff had to be made between testing features and developing features, with the latter being the typical choice.
 
-Despite this, some features that would have been tested with more time include:
+Some features that would have been tested with more time include:
 - SlitherServer & WebSocket functionality (server)
 - GameState functionality (server)
 - Leaderboard Functionality (server)
@@ -142,6 +142,16 @@ A more detailed description of our plan for further (more comprehensive) testing
 To utilize the project (i.e. play the game properly), first run the server in the backend. This can be done by running the `SlitherServer` class through the `server` directory. Then, navigate to the frontend, specifically the `client` directory, and type `npm start` in the terminal. *Note: If the client-side packages/libraries have not been installed before, type `npm i` in the frontend directory ***before*** `npm start`.* 
 
 This should bring up the main menu of the game in your respective browser. From here, enter a username and either create a game or join an existing one with a game code.
+
+Currently, since the webapp has not been deployed, playing with multiple users is being facilitated through ngrok. You would have to install ngrok and create a free account to get your authtoken. Then, when you wish to play with friends, in your terminal, you would have to run:
+```
+ngrok tcp 9000 --authtoken <your-authtoken-here>
+```
+_Note: This has to keep running while you are playing with multiple players since it will enable other users to connect to your localhost._
+
+Now, you can take the routing link provided by ngrok and share it with your friends, and they can all paste that into the `host` field of the `AppConfig` object in `App.tsx`. You can then run your server and all the other players simply have to run the client (the frontend code) and the server you are running will get the data from all the clients, enabling everyone to play together!
+
+_Note: Only one player (the one who runs the server) needs to donwload and start ngrok; everyone else simply needs to paste the routing link as described above and run the client-side code (with `npm start`)._
 
 ## Accessibility Guide
 
