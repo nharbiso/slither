@@ -13,7 +13,7 @@ export default function HowToPlay({ setDisplayHowToPlay }: {
   setDisplayHowToPlay: Dispatch<SetStateAction<boolean>>;
 }) {
   return (
-    <div className="how-to-play-container">
+    <div className="how-to-play-container" aria-label="How To Play Box">
       <button className="cross" onClick={() => setDisplayHowToPlay(false)}>
         X
       </button>

@@ -157,7 +157,7 @@ export default function Home({
     <div className="main-container">
       <div className="how-to-play-display">
         {displayHowToPlay ? (
-          <HowToPlay setDisplayHowToPlay={setDisplayHowToPlay} />
+          <HowToPlay setDisplayHowToPlay={setDisplayHowToPlay}/>
         ) : null}
       </div>
       <div className="HomeContainer">
