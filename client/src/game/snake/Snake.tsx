@@ -2,20 +2,27 @@ import Denque from 'denque';
 import "./Snake.css"
 import { Position } from '../GameState';
 
+/** A metadata representation of a snake */
 export interface SnakeData {
-    snakeBody: Denque<Position>; //snake is a double ended queue so we can remove from the end and add to the front
+    /** 
+     * A collection of positions, specifying the locations of the 
+     * circles making up the snake's body
+     */
+    snakeBody: Denque<Position>;
+    /** The velocity of the snake in the horizontal direction */
     velocityX: number;
+    /** The velocity of the snake in the vertical direction */
     velocityY: number;
 }
 
 export const SNAKE_VELOCITY = 8;
 
 /**
- * A snake is a collection of positions. For each position, we render a circle
- * around that position (with an offset so that it remains in the middle of the
- * screen). 
- * @param param0 
- * @returns 
+ * Renders the given snake, represented by its metadata, on screen at the 
+ * given position offset; a snake is rendered as a consecutive collection of circles
+ * @param snake a metadata representation of a snake
+ * @param offset the offset at which the snake is to be rendered
+ * @returns a rendered snake
  */
 export default function Snake({snake, offset}: {snake: SnakeData, offset: Position}) {
     return (

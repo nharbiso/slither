@@ -24,7 +24,7 @@ export default function App(): JSX.Element {
   // initial snake
   const snakeBody: Position[] = [];
   for(let i = 0; i < 20; i++) {
-    snakeBody.push({ x: 0, y: 5 * i });
+    snakeBody.push({ x: 600, y: 100 + 5 * i });
   }
   const snake: SnakeData = {
     snakeBody: new Denque(snakeBody),
