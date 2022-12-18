@@ -2,7 +2,7 @@ import React, { useState, Dispatch, SetStateAction } from "react";
 
 import "./Home.css";
 
-import { registerSocket } from "../game/Game";
+import { registerSocket } from "../App";
 import GameState from "../game/GameState";
 import { OrbData } from "../game/orb/Orb";
 import HowToPlay from "./HowToPlay";
