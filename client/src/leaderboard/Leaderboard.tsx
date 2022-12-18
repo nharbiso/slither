@@ -4,8 +4,8 @@ import "./Leaderboard.css";
 
 /**
  * Displays the leaderboard in the top right
- * @param param0
- * @returns
+ * @param param0 leaderboard information 
+ * @returns renders leaderboard in the top right
  */
 export default function Leaderboard({
   leaderboard,

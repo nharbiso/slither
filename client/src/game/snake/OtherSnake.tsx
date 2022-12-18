@@ -3,8 +3,8 @@ import { Position } from "../GameState";
 /**
  * Renders all other snakes given a set of positions (given as JSON). CSS is the
  * same as Snake.tsx. Renders a circle for every single position to form snakes.
- * @param param0 
- * @returns 
+ * @param param0 positions of all the other snakes and offset from player
+ * @returns all the other snkaes
  */
 export default function OtherSnake({
   positions,

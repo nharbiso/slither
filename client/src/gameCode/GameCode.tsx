@@ -2,8 +2,8 @@ import "./GameCode.css";
 
 /**
  * Renders the gamecode in the top left
- * @param param0
- * @returns
+ * @param param0 gamecode as a string
+ * @returns the gamecode in the top left
  */
 export default function GameCode({ gameCode }: { gameCode: string }) {
   return (

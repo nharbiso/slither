@@ -4,8 +4,8 @@ import "./Boundary.css"
 /**
  * This is a boundary for the snake map, renders 4 borders of the map based on 
  * a given boundary
- * @param param0 
- * @returns 
+ * @param param0 boundaries that we want to set and offset from player
+ * @returns JSX element rendering the boundary
  */
 export default function Boundary({boundaries, offset}: {boundaries: Position, offset: Position}) {
     return (

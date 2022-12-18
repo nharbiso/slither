@@ -11,8 +11,8 @@ export interface OrbData {
 /**
  * Renders an orb using the given position, relative to the player's snake
  * (using offset)
- * @param param0
- * @returns
+ * @param param0 position and size of the orb and offset from player
+ * @returns JSX element rendering an orb on teh screen
  */
 export default function Orb({orbInfo, offset}: {orbInfo: OrbData, offset: Position}) {
   return (
