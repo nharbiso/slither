@@ -1,14 +1,14 @@
 import "./GameCode.css";
 
 /**
- * Renders the gamecode in the top left
- * @param param0 gamecode as a string
- * @returns the gamecode in the top left
+ * Renders the current lobby's game code, in the top left.
+ * @param gameCode the lobby's game code
+ * @returns an HTML element rendering the lobby's game code
  */
-export default function GameCode({ gameCode }: { gameCode: string }) {
+export default function GameCode({ gameCode }: { gameCode: string }): JSX.Element {
   return (
     <div className="codeDisplay">
-        <p className="code-tagline">Your game code:</p>
+      <p className="code-tagline">Your game code:</p>
       <p className="codeText">{gameCode}</p>
     </div>
   );

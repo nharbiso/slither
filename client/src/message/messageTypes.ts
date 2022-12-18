@@ -1,3 +1,7 @@
+/**
+ * A enum for the possible messages sent and received to the Slither+
+ * server via a websocket.
+ */
 enum MessageType {
   NEW_CLIENT_NO_CODE = "NEW_CLIENT_NO_CODE",
   NEW_CLIENT_WITH_CODE = "NEW_CLIENT_WITH_CODE",

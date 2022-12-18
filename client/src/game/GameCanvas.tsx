@@ -32,10 +32,8 @@ interface GameCanvasProps {
   gameState: GameState;
   /** A function that sets the current state of the game */
   setGameState: Dispatch<SetStateAction<GameState>>;
-  /** The username of the client */
-  user: string,
   /** The client's websocket for communication with the Slither+ server */
-  socket: WebSocket
+  socket: WebSocket;
 }
 
 /**
@@ -48,21 +46,18 @@ interface GameCanvasProps {
  * @param websocket The client's websocket for communication with the Slither+ server
  * @returns a rendered representation of the current game map for the client
  */
-export default function GameCanvas({gameState, setGameState, user, socket}: GameCanvasProps): JSX.Element {
+export default function GameCanvas({gameState, setGameState, socket}: GameCanvasProps): JSX.Element {
   const onMouseMove = (e: MouseEvent) => {
     mousePos.x = e.pageX;
     mousePos.y = e.pageY;
   };
 
   const updatePositions = () => {
-    const mySnake: SnakeData | undefined = gameState.snakes.get(user);
-    if (mySnake !== undefined) {
-      const newGameState: GameState = { ...gameState };
-      const updatedSnake: SnakeData = moveSnake(mySnake, socket);
-      // constantly update your own snake using moveSnake
-      newGameState.snakes.set(user, updatedSnake);
-      setGameState(newGameState);
-    }
+    const newGameState: GameState = { ...gameState };
+    const updatedSnake: SnakeData = moveSnake(gameState.snake, socket);
+    // constantly update your own snake using moveSnake
+    newGameState.snake = updatedSnake;
+    setGameState(newGameState);
   };
 
   useEffect(() => {
@@ -79,23 +74,16 @@ export default function GameCanvas({gameState, setGameState, user, socket}: Game
   }, []);
 
 
-  const mySnake: SnakeData | undefined = gameState.snakes.get(user);
-  if (mySnake !== undefined) {
-    const front: Position | undefined = mySnake.snakeBody.peekFront();
-    if (front !== undefined) {
-      // calculate offset to center snake on screen and place other objects relative to snake
-      offset.x = window.innerWidth / 2 - front.x;
-      offset.y = window.innerHeight / 2 - front.y;
-    }
+  // calculate offset to center snake on screen and place other objects relative to snake
+  const front: Position | undefined = gameState.snake.snakeBody.peekFront();
+  if (front !== undefined) {
+    offset.x = window.innerWidth / 2 - front.x;
+    offset.y = window.innerHeight / 2 - front.y;
   }
 
   return (
     <div>
-      {Array.from(gameState.snakes.values()).map(
-        (snake: SnakeData, ind: number) => (
-          <Snake snake={snake} offset={offset} key={ind} />
-        )
-      )}
+      <Snake snake={gameState.snake} offset={offset} />
       {Array.from(gameState.orbs).map(
         (orb: OrbData, ind: number) => (
           <Orb orbInfo={orb} offset={offset} key={ind} />

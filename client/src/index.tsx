@@ -5,6 +5,7 @@ import './index.css';
 
 import App from './App';
 
+/** The root element in index.html at which the React element is placed. */
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );

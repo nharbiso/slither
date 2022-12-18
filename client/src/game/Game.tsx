@@ -54,7 +54,6 @@ export default function Game({
       <GameCanvas
         gameState={gameState}
         setGameState={setGameState}
-        user={"user1"}
         socket={socket}
       />
       <Leaderboard leaderboard={scores} />
@@ -204,7 +203,7 @@ export function registerSocket(
           increaseLengthMessage.data.newBodyParts;
         const newGameState: GameState = { ...gameState };
         newBodyParts.forEach((bodyPart: Position) => {
-          newGameState.snakes.get("user1")?.snakeBody.push(bodyPart);
+          newGameState.snake.snakeBody.push(bodyPart);
         });
         setGameState(newGameState);
         break;

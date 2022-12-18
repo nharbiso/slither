@@ -2,12 +2,14 @@ import { Position } from '../GameState';
 import "./Boundary.css"
 
 /**
- * This is a boundary for the snake map, renders 4 borders of the map based on 
- * a given boundary
- * @param param0 boundaries that we want to set and offset from player
- * @returns JSX element rendering the boundary
+ * Renders the boundary for the map, with 4 borders placed according to the 
+ * given limits with the map centered at (0, 0), and offsetted on screen by 
+ * the given amount.
+ * @param boundaries the size of the map
+ * @param offset the offset at which to renders the boundaries
+ * @returns an HTML element rendering the map's boundary
  */
-export default function Boundary({boundaries, offset}: {boundaries: Position, offset: Position}) {
+export default function Boundary({boundaries, offset}: {boundaries: Position, offset: Position}): JSX.Element {
     return (
     <div>
         <div className="boundary" id="top-boundary" style={{

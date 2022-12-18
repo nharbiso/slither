@@ -15,6 +15,7 @@ export interface SnakeData {
     velocityY: number;
 }
 
+/** The constant velocity at which a snake moves */
 export const SNAKE_VELOCITY = 8;
 
 /**
@@ -22,9 +23,9 @@ export const SNAKE_VELOCITY = 8;
  * given position offset; a snake is rendered as a consecutive collection of circles
  * @param snake a metadata representation of a snake
  * @param offset the offset at which the snake is to be rendered
- * @returns a rendered snake
+ * @returns a HTML element rendering the given snake
  */
-export default function Snake({snake, offset}: {snake: SnakeData, offset: Position}) {
+export default function Snake({snake, offset}: {snake: SnakeData, offset: Position}): JSX.Element {
     return (
     <div>
         {snake.snakeBody.toArray().map((bodyPart: Position, ind: number) => 
@@ -35,5 +36,5 @@ export default function Snake({snake, offset}: {snake: SnakeData, offset: Positi
             />
         )}
     </div>        
-    )
+    );
 }

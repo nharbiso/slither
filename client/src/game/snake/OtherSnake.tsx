@@ -1,18 +1,13 @@
 import { Position } from "../GameState";
 
 /**
- * Renders all other snakes given a set of positions (given as JSON). CSS is the
- * same as Snake.tsx. Renders a circle for every single position to form snakes.
- * @param param0 positions of all the other snakes and offset from player
- * @returns all the other snkaes
+ * Renders all other snakes, given a set of each segment's positions (serialized
+ * as JSON) - renders a circle for every single position to render them.
+ * @param positions the serialized positions of all the other snakes
+ * @param offset the offset at which the snake it to be rendered
+ * @returns a rendering of all other snake positions on screen
  */
-export default function OtherSnake({
-  positions,
-  offset,
-}: {
-  positions: Set<string>;
-  offset: Position;
-}) {
+export default function OtherSnake({positions, offset}: {positions: Set<string>, offset: Position}): JSX.Element {
   const parsedPositions: Set<Position> = new Set();
   positions.forEach((posString: string) => {
     parsedPositions.add(JSON.parse(posString));
@@ -28,5 +23,3 @@ export default function OtherSnake({
     </div>
   );
 }
-//this is probably a temporary render for other snake positions, just working with
-//the current gamestate data to see if i can render other snakes and see if collision is detected properly
