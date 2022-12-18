@@ -22,7 +22,7 @@ import { getPositionOfLineAndCharacter } from "typescript";
 
 const AppConfig = {
   PROTOCOL: "ws:",
-  HOST: "//localhost",
+  HOST: "//0.tcp.ngrok.io:14200",
   PORT: ":9000",
 };
 
@@ -40,8 +40,8 @@ export function registerSocket(
   hasGameCode: boolean,
   gameCode: string = ""
 ) {
-  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT); //this one is used when you are using your own localhost
-  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST); //this one is used for ngrok
+  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT); //this one is used when you are using your own localhost
+  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST); //this one is used for ngrok
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
