@@ -33,10 +33,10 @@ export default function App(): JSX.Element {
   };
 
   const [gameState, setGameState] = useState<GameState>({
-    snakes: new Map([["user1", snake]]),
+    snake: snake,
     otherBodies: new Set<string>([]),
     orbs: orbSet,
-    scores: new Map([["user1", 0]]),
+    scores: new Map(),
     gameCode: "abc",
   });
 
