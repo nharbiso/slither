@@ -8,25 +8,45 @@ import OtherSnake from "./snake/OtherSnake";
 
 import { sendUpdatePositionMessage } from "../message/message";
 
+/** 
+ * The size of the map. The map is rendered centered on the origin, so
+ * the map ranges from -x/2 to x/2 horiziontally, and -y/2 to y/2 vertically
+ */
 const canvasSize: Position = { x: 3000, y: 3000 };
+/** The current position of the client's mouse on the screen */
 const mousePos: Position = { x: 0, y: 0 };
+/** 
+ * The offset from the coordinates of the client's snake's head to the
+ * middle of the window
+ */
 const offset: Position = { x: 0, y: 0 };
 // let lastUpdatedPosition: Position = { x: 0, y: 0 };
 // let lastUpdatedTime: number = new Date().getTime();
 
-
+/**
+ * An interface representing data passed to the HTML element responsible for
+ * rendering the Slither+ game map
+ */
 interface GameCanvasProps {
+  /** A metadata representation of the current state of the game */
   gameState: GameState;
+  /** A function that sets the current state of the game */
   setGameState: Dispatch<SetStateAction<GameState>>;
+  /** The username of the client */
   user: string,
+  /** The client's websocket for communication with the Slither+ server */
   socket: WebSocket
 }
 
 /**
- * GameCanvas renders your snake in the middle of the screen, all the other
- * snakes in the game, all the existing orbs, and the border of the map.
- * @param param0
- * @returns
+ * Returns an HTML element that renders the Slither+ game map, which includes
+ * your snake, whose head is always at the screen's center, all other snakes in
+ * the game, all existing orbs, and the map border.
+ * @param gameState A metadata representation of the current state of the game
+ * @param setGameState A function that sets the current state of the game
+ * @param user The username of the client
+ * @param websocket The client's websocket for communication with the Slither+ server
+ * @returns a rendered representation of the current game map for the client
  */
 export default function GameCanvas({gameState, setGameState, user, socket}: GameCanvasProps): JSX.Element {
   const onMouseMove = (e: MouseEvent) => {
@@ -38,7 +58,7 @@ export default function GameCanvas({gameState, setGameState, user, socket}: Game
     const mySnake: SnakeData | undefined = gameState.snakes.get(user);
     if (mySnake !== undefined) {
       const newGameState: GameState = { ...gameState };
-      const updatedSnake: SnakeData = moveSnake(mySnake, gameState, socket);
+      const updatedSnake: SnakeData = moveSnake(mySnake, socket);
       // constantly update your own snake using moveSnake
       newGameState.snakes.set(user, updatedSnake);
       setGameState(newGameState);
@@ -58,11 +78,12 @@ export default function GameCanvas({gameState, setGameState, user, socket}: Game
     };
   }, []);
 
+
   const mySnake: SnakeData | undefined = gameState.snakes.get(user);
   if (mySnake !== undefined) {
     const front: Position | undefined = mySnake.snakeBody.peekFront();
     if (front !== undefined) {
-      // calculate offset to center snake and place other objects relative to snake
+      // calculate offset to center snake on screen and place other objects relative to snake
       offset.x = window.innerWidth / 2 - front.x;
       offset.y = window.innerHeight / 2 - front.y;
     }
@@ -87,34 +108,39 @@ export default function GameCanvas({gameState, setGameState, user, socket}: Game
 }
 
 /**
- * function to move the snake based on mouse position
- * @param snake Positions that make up a snake
- * @param gameState Current gamestate
- * @param socket Socket to send updated position to backend through
- * @returns
+ * Changes the given snake's velocity to follow the mouse's position,
+ * and sends the new position to the Slither+ server
+ * @param snake A metadata representation of the client's snake
+ * @param socket The client's websocket for communication with the Slither+ server
+ * @returns the newly updated metadata for the client's snake
  */
-function moveSnake(snake: SnakeData,gameState: GameState, socket: WebSocket): SnakeData {
-  const removePosition: Position | undefined = snake.snakeBody.pop(); //remove from the end
+function moveSnake(snake: SnakeData, socket: WebSocket): SnakeData {
+  // remove last position from the end (to simulate movement)
+  const removePosition: Position | undefined = snake.snakeBody.pop();
   const front: Position | undefined = snake.snakeBody.peekFront();
   if (front !== undefined) {
     const accel_angle: number = Math.atan2(
-      //find the angle of acceleration based on your current position and the mouse position
+      // find the angle of acceleration based on your current position and the mouse position
       mousePos.y - offset.y - front.y,
       mousePos.x - offset.x - front.x
     );
     let vel_angle: number = Math.atan2(snake.velocityY, snake.velocityX);
     const angle_diff = mod(accel_angle - vel_angle, 2 * Math.PI);
+    // changes the angle of velocity to move towards the mouse position
     vel_angle += angle_diff < Math.PI ? 0.1 : -0.1;
 
-    snake.velocityX = SNAKE_VELOCITY * Math.cos(vel_angle); //calculate a velocity at which to move the snake
+    // calculate new velocity
+    snake.velocityX = SNAKE_VELOCITY * Math.cos(vel_angle);
     snake.velocityY = SNAKE_VELOCITY * Math.sin(vel_angle);
 
+    // find new position of head based on velocity
     const newPosition: Position = {
-      x: front.x + snake.velocityX, //update position based on velocity
+      x: front.x + snake.velocityX,
       y: front.y + snake.velocityY,
     };
-
-    snake.snakeBody.unshift({ x: newPosition.x, y: newPosition.y }); // add new position to the front
+    
+    // add new position to the front (to simulate movement)
+    snake.snakeBody.unshift({ x: newPosition.x, y: newPosition.y });
 
     if (removePosition !== undefined) {
       const toAdd: Position = {
@@ -125,7 +151,8 @@ function moveSnake(snake: SnakeData,gameState: GameState, socket: WebSocket): Sn
         x: Number(removePosition.x.toFixed(2)),
         y: Number(removePosition.y.toFixed(2)),
       };
-      sendUpdatePositionMessage(socket, toAdd, toRemove); //send message to server with add and remove positions
+      // send message to server with add and remove positions
+      sendUpdatePositionMessage(socket, toAdd, toRemove);
     }
   }
   return snake;

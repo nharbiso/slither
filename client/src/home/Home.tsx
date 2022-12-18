@@ -65,7 +65,7 @@ function ControlledInput({
 interface HomeProps {
   /** A function that sets whether or not the client has started playing the game */
   setGameStarted: Dispatch<SetStateAction<boolean>>;
-  /** A function that sets the current leaderboard set of scores for the game */
+  /** A function that sets the current leaderboard (set of scores) for the game */
   setScores: Dispatch<SetStateAction<Map<string, number>>>;
   /** A function that sets the game code for the lobby the client is playing in */
   setGameCode: Dispatch<SetStateAction<string>>;
@@ -84,7 +84,7 @@ interface HomeProps {
  * custom, already live game, with a button to join said game
  * 
  * @param setGameStarted A function that sets whether or not the client has started playing the game
- * @param setScores A function that sets the current leaderboard set of scores for the game
+ * @param setScores A function that sets the current leaderboard (set of scores) for the game
  * @param setGameCode A function that sets the game code for the lobby the client is playing in
  * @param gameState A metadata representation of the current state of the game
  * @param setGameState A function that sets the current state of the game
