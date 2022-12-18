@@ -62,7 +62,7 @@ function extractLeaderboardMap(leaderboardData: leaderboardEntry[]) {
 
 const AppConfig = {
   PROTOCOL: "ws:",
-  HOST: "//localhost",
+  HOST: "//0.tcp.ngrok.io:14200",
   PORT: ":9000",
 };
 
@@ -80,6 +80,7 @@ export function registerSocket(
   hasGameCode: boolean,
   gameCode: string = ""
 ) {
+
   // running game on localhost
   socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
   
