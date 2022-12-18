@@ -95,7 +95,17 @@ Contains tests to confirm that all methods function properly in the `GameCodeGen
 
 Contained within this section are notes on each of the frontend files that have been tested thus far.
 
---TESTS IN DEVELOPMENT--
+### Home.test.tsx
+
+Tests that the components of the homepage (How to Play button, How to Play instructions, title, name input box, create game button, gamecode input box, join game button) are all on the screen.
+
+### GameCanvas.test.tsx
+
+Tests helper function `mod`.
+
+### Game.test.tsx
+
+Tests helper function `extractLeaderboardMap` on a normal and empty set of leaderboard data.
 
 ## Notes on Further Testing
 
@@ -106,10 +116,9 @@ Despite this, some features that would have been tested with more time include:
 - GameState functionality (server)
 - Leaderboard Functionality (server)
 - Exceptions (server)
-- TBD (client)
-- TBD (client)
-- TBD (client)
-- TBD (client)
+- RTL tests of game components (client)
+- Integration testing of websocket architecture (client)
+- Collision testing (client)
 
 A more detailed description of our plan for further (more comprehensive) testing can be found in this [Testing Plan](https://docs.google.com/document/d/1j6iOY1BceXv0l3akHTfcH9yEss6rN0mA4f7uF5ofPTQ/edit?usp=sharing).
 
