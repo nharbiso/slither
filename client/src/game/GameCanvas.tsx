@@ -1,17 +1,26 @@
+import { useEffect, Dispatch, SetStateAction } from "react";
+
 import GameState, { Position } from "./GameState";
 import Snake, { SnakeData, SNAKE_VELOCITY } from "./snake/Snake";
 import Orb, { OrbData } from "./orb/Orb";
 import Border from "./boundary/Boundary";
 import OtherSnake from "./snake/OtherSnake";
-// import { formControlUnstyledClasses } from '@mui/base';
+
 import { sendUpdatePositionMessage } from "../message/message";
-import { useEffect, useState, Dispatch, SetStateAction } from "react";
 
 const canvasSize: Position = { x: 3000, y: 3000 };
 const mousePos: Position = { x: 0, y: 0 };
 const offset: Position = { x: 0, y: 0 };
 // let lastUpdatedPosition: Position = { x: 0, y: 0 };
-let lastUpdatedTime: number = new Date().getTime();
+// let lastUpdatedTime: number = new Date().getTime();
+
+
+interface GameCanvasProps {
+  gameState: GameState;
+  setGameState: Dispatch<SetStateAction<GameState>>;
+  user: string,
+  socket: WebSocket
+}
 
 /**
  * GameCanvas renders your snake in the middle of the screen, all the other
@@ -19,39 +28,33 @@ let lastUpdatedTime: number = new Date().getTime();
  * @param param0
  * @returns
  */
-export default function GameCanvas({
-  gameState,
-  setGameState,
-  user,
-  socket,
-}: {
-  gameState: GameState;
-  setGameState: Dispatch<SetStateAction<GameState>>;
-  user: String;
-  socket: WebSocket;
-}) {
+export default function GameCanvas({gameState, setGameState, user, socket}: GameCanvasProps): JSX.Element {
   const onMouseMove = (e: MouseEvent) => {
-    mousePos.x = e.pageX; //locate mouse position
+    mousePos.x = e.pageX;
     mousePos.y = e.pageY;
   };
 
+  const updatePositions = () => {
+    const mySnake: SnakeData | undefined = gameState.snakes.get(user);
+    if (mySnake !== undefined) {
+      const newGameState: GameState = { ...gameState };
+      const updatedSnake: SnakeData = moveSnake(mySnake, gameState, socket);
+      // constantly update your own snake using moveSnake
+      newGameState.snakes.set(user, updatedSnake);
+      setGameState(newGameState);
+    }
+  };
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      //on an interval, we want to make updates, we set it to 50
-      const mySnake: SnakeData | undefined = gameState.snakes.get(user);
-      if (mySnake !== undefined) {
-        const newGameState: GameState = { ...gameState };
-        const updatedSnake: SnakeData = moveSnake(mySnake, gameState, socket);
-        //constantly update your own snake using moveSnake
-        newGameState.snakes.set(user, updatedSnake);
-        setGameState(newGameState);
-      }
-    }, 50);
-    window.addEventListener("mousemove", onMouseMove); //check mouse movement
+    // updates position of the client's snake every 50 ms
+    const interval = setInterval(updatePositions, 50);
+    // updates mouse position when moved, determines target direction for snake
+    window.addEventListener("mousemove", onMouseMove);
 
     return () => {
+      // clean up upon closing
       clearInterval(interval);
-      window.removeEventListener("mousemove", onMouseMove); //need to remove mouse event listener on interval
+      window.removeEventListener("mousemove", onMouseMove);
     };
   }, []);
 
@@ -59,7 +62,7 @@ export default function GameCanvas({
   if (mySnake !== undefined) {
     const front: Position | undefined = mySnake.snakeBody.peekFront();
     if (front !== undefined) {
-      //calculate offset to center snake and place other objects relative to snake
+      // calculate offset to center snake and place other objects relative to snake
       offset.x = window.innerWidth / 2 - front.x;
       offset.y = window.innerHeight / 2 - front.y;
     }
@@ -68,16 +71,12 @@ export default function GameCanvas({
   return (
     <div>
       {Array.from(gameState.snakes.values()).map(
-        //your snake
         (snake: SnakeData, ind: number) => (
           <Snake snake={snake} offset={offset} key={ind} />
         )
       )}
       {Array.from(gameState.orbs).map(
-        (
-          orb: OrbData,
-          ind: number //orbs
-        ) => (
+        (orb: OrbData, ind: number) => (
           <Orb orbInfo={orb} offset={offset} key={ind} />
         )
       )}
@@ -95,11 +94,7 @@ export default function GameCanvas({
  * @param socket Socket to send updated position to backend through
  * @returns
  */
-function moveSnake(
-  snake: SnakeData,
-  gameState: GameState,
-  socket: WebSocket
-): SnakeData {
+function moveSnake(snake: SnakeData,gameState: GameState, socket: WebSocket): SnakeData {
   const removePosition: Position | undefined = snake.snakeBody.pop(); //remove from the end
   const front: Position | undefined = snake.snakeBody.peekFront();
   if (front !== undefined) {
@@ -120,7 +115,7 @@ function moveSnake(
       y: front.y + snake.velocityY,
     };
 
-    snake.snakeBody.unshift({ x: newPosition.x, y: newPosition.y }); //add new position to the front
+    snake.snakeBody.unshift({ x: newPosition.x, y: newPosition.y }); // add new position to the front
 
     if (removePosition !== undefined) {
       const toAdd: Position = {
@@ -137,10 +132,11 @@ function moveSnake(
   return snake;
 }
 
+/**
+ * Takes the modulo of the first argument by the second argument (n % m)
+ * @param n the number whose modulo is being calculated
+ * @param m the modulus of the operation
+ */
 function mod(n: number, m: number): number {
   return ((n % m) + m) % m;
-}
-
-function distance(pos1: Position, pos2: Position): number {
-  return Math.sqrt(Math.pow(pos1.x - pos2.x, 2) + Math.pow(pos1.y - pos2.y, 2));
 }

@@ -1,23 +1,30 @@
 import Denque from "denque";
-import React, { useState } from "react";
+import { useState } from "react";
+
 import "./App.css";
-import Game from "./game/Game";
+
 import GameState, { Position } from "./game/GameState";
+import Game from "./game/Game";
 import { OrbData } from "./game/orb/Orb";
 import { SnakeData, SNAKE_VELOCITY } from "./game/snake/Snake";
 import Home from "./home/Home";
 
-function App() {
+/**
+ * Creates and returns the overarching HTML element representing the Slither+ 
+ * app at any given moment, appropriately either the home or in-game screen
+ * @returns the overarching HTML SLither+ app element
+ */
+export default function App(): JSX.Element {
   const [gameStarted, setGameStarted] = useState(false);
   const [scores, setScores] = useState(new Map<string, number>());
   const [gameCode, setGameCode] = useState("");
 
   const orbSet = new Set<OrbData>();
   
-  //initial snake
+  // initial snake
   const snakeBody: Position[] = [];
-  for (let i = 0; i < 20; i++) {
-    snakeBody.push({ x: 600, y: 100 + 5 * i });
+  for(let i = 0; i < 20; i++) {
+    snakeBody.push({ x: 0, y: 5 * i });
   }
   const snake: SnakeData = {
     snakeBody: new Denque(snakeBody),
@@ -40,9 +47,7 @@ function App() {
           gameState={gameState}
           setGameState={setGameState}
           scores={scores}
-          setScores={setScores}
           gameCode={gameCode}
-          setGameCode={setGameCode}
         />
       ) : (
         <Home
@@ -57,5 +62,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

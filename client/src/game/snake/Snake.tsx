@@ -21,7 +21,12 @@ export default function Snake({snake, offset}: {snake: SnakeData, offset: Positi
     return (
     <div>
         {snake.snakeBody.toArray().map((bodyPart: Position, ind: number) => 
-            <div className="snake" key={ind} style={{left: bodyPart.x + offset.x, top: bodyPart.y + offset.y}}/>)}
+            <div 
+                className="snake"
+                key={ind}
+                style={{left: bodyPart.x + offset.x, top: bodyPart.y + offset.y}}
+            />
+        )}
     </div>        
     )
 }

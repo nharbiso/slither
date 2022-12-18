@@ -1,5 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
-import Denque from "denque";
+import { Dispatch, SetStateAction } from "react";
 
 import GameState, { Position } from "./GameState";
 import GameCanvas from "./GameCanvas";
@@ -18,7 +17,48 @@ import {
   sendNewClientWithCodeMessage,
   UpdatePositionMessage,
 } from "../message/message";
-import { getPositionOfLineAndCharacter } from "typescript";
+
+
+interface GameProps {
+  gameState: GameState;
+  setGameState: Dispatch<SetStateAction<GameState>>;
+  scores: Map<string, number>;
+  gameCode: string;
+}
+
+/**
+ * Game consists of the GameCanvas, Leaderboard, and GameCode. GameCanvas has
+ * most of the actual game, leaderboard displays the top scores, and gamecode
+ * displays the current lobby's gamecode.
+ * @param
+ * @returns
+ */
+export default function Game({gameState, setGameState, scores, gameCode}: GameProps) {
+  return (
+    <div>
+      <GameCanvas
+        gameState={gameState}
+        setGameState={setGameState}
+        user={"user1"}
+        socket={socket}
+      />
+      <Leaderboard leaderboard={scores} />
+      <GameCode gameCode={gameCode} />
+    </div>
+  );
+}
+
+// extracts scores from a server response
+function extractLeaderboardMap(leaderboardData: leaderboardEntry[]) {
+  const leaderboard: Map<string, number> = new Map<string, number>();
+  leaderboardData.forEach((entry: leaderboardEntry) => {
+    leaderboard.set(entry.username, entry.score);
+  });
+  return leaderboard;
+}
+
+//----------------------------------------------------------------------------
+// Websocket with backend set-up
 
 const AppConfig = {
   PROTOCOL: "ws:",
@@ -40,8 +80,12 @@ export function registerSocket(
   hasGameCode: boolean,
   gameCode: string = ""
 ) {
-  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT); //this one is used when you are using your own localhost
-  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST); //this one is used for ngrok
+
+  // running game on localhost
+  socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST + AppConfig.PORT);
+  
+  // running game on ngrok
+  // socket = new WebSocket(AppConfig.PROTOCOL + AppConfig.HOST);
 
   socket.onopen = () => {
     console.log("client: A new client-side socket was opened!");
@@ -51,21 +95,25 @@ export function registerSocket(
       sendNewClientNoCodeMessage(socket, username);
     }
   };
-  //different message types to send to the server based on the action taken/observed by the client
+  
+  // different functionality based on received message type from server
   socket.onmessage = (response: MessageEvent) => {
     let message = JSON.parse(response.data);
     switch (message.type) {
+
       case MessageType.JOIN_SUCCESS: {
         setGameStarted(true);
         break;
       }
+
       case MessageType.JOIN_ERROR: {
         setErrorText("Error: Failed to join the game!");
-        setGameStarted(false); // shouldn't be required; just putting it here to be safe
+        setGameStarted(false); // not truly necessary, just to be safe
         break;
       }
+
       case MessageType.UPDATE_POSITION: {
-        //update position message
+        // updates position of all snakes on screen
         console.log("UPDATE POSITION MESSAGE");
         const updatePositionMessage: UpdatePositionMessage = message;
         const toAdd: Position = updatePositionMessage.data.add;
@@ -79,12 +127,14 @@ export function registerSocket(
         setGameState(newGameState);
         break;
       }
+
       case MessageType.YOU_DIED: {
         // currently just reloading to force the home screen to open
         // see if we want to do anything else here
         window.location.reload();
         break;
       }
+
       case MessageType.OTHER_USED_DIED: {
         const otherUserDiedMessage: OtherUserDiedMessage = message;
         const removePositions: Position[] =
@@ -98,23 +148,27 @@ export function registerSocket(
         setGameState(newGameState);
         break;
       }
+
       case MessageType.UPDATE_LEADERBOARD: {
         const leaderboardMessage: leaderboardData = message;
         setScores(extractLeaderboardMap(leaderboardMessage.data.leaderboard));
         break;
       }
+
       case MessageType.SET_GAME_CODE: {
         console.log("gc");
         console.log(message.data.gameCode);
         setGameCode(message.data.gameCode);
         break;
       }
+
       case MessageType.SEND_ORBS: {
         orbSet = message.data.orbSet;
         gameState.orbs = orbSet;
         setGameState(gameState);
         break;
       }
+
       case MessageType.INCREASE_OWN_LENGTH: {
         console.log("increase own length message");
         const increaseLengthMessage: IncreaseOwnLengthMessage = message;
@@ -124,13 +178,10 @@ export function registerSocket(
         newBodyParts.forEach((bodyPart: Position) => {
           newGameState.snakes.get("user1")?.snakeBody.push(bodyPart);
         });
-        console.log("before");
-        console.log(gameState.snakes.get("user1")?.snakeBody.length);
         setGameState(newGameState);
-        console.log("after");
-        console.log(gameState.snakes.get("user1")?.snakeBody.length);
         break;
       }
+
       case MessageType.INCREASE_OTHER_LENGTH: {
         const increaseLengthMessage: IncreaseOtherLengthMessage = message;
         const newBodyParts: Position[] =
@@ -146,52 +197,4 @@ export function registerSocket(
   };
 
   socket.onerror = () => setErrorText("Error: No server running!");
-}
-
-interface GameProps {
-  gameState: GameState;
-  setGameState: Dispatch<SetStateAction<GameState>>;
-  scores: Map<string, number>;
-  setScores: Dispatch<SetStateAction<Map<string, number>>>;
-  gameCode: string;
-  setGameCode: Dispatch<SetStateAction<string>>;
-}
-
-/**
- * Game consists of the GameCanvas, Leaderboard, and GameCode. GameCanvas has
- * most of the actual game, leaderboard displays the top scores, and gamecode
- * displays the current lobby's gamecode.
- * @param param0
- * @returns
- */
-export default function Game({
-  gameState,
-  setGameState,
-  scores,
-  setScores,
-  gameCode,
-  setGameCode,
-}: GameProps) {
-  return (
-    <div>
-      <GameCanvas
-        gameState={gameState}
-        setGameState={setGameState}
-        user={"user1"}
-        socket={socket}
-      />
-      <Leaderboard leaderboard={scores} />
-      <GameCode gameCode={gameCode} />
-    </div>
-    //player's score
-  );
-}
-
-//This is what actually creates/sets the scores given a set of scores from the server
-export function extractLeaderboardMap(leaderboardData: leaderboardEntry[]) {
-  const leaderboard: Map<string, number> = new Map<string, number>();
-  leaderboardData.forEach((entry: leaderboardEntry) => {
-    leaderboard.set(entry.username, entry.score);
-  });
-  return leaderboard;
 }
