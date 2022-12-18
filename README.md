@@ -1,4 +1,5 @@
 
+
 # Slither+
 
 # Project Overview
@@ -31,11 +32,23 @@ Within this section will be the summary, explanations, and justifications for th
 
 ## Backend (Server)
 
-### WIP
+The heart of the backend is the `SlitherServer`, which is responsible for synchronizing the data between all clients connected to their respective `GameState`. `SlitherServer` operates by routinely sending to and receiving messages from all clients (all properly serialized and deserialized) in order to allow for concurrent playability (via WebSockets). 
+
+Another critical portion of the backend is the `GameState`, one instance of which is assigned to each game (and thus shared by all users within a single game). The `GameState` controls routine orb re-generation, snake location updating across clients, and collision checking (with other snakes, orbs, and the map boundary). 
+
+Other key components to the backend include those in the:
+- `leaderboard` directory, which control the updating and structure of the leaderboard
+- `gamecode` directory, which manages the creation of new, unique game codes
+- `orb` directory, which controls the structure (location, size, color) of each individual orb, as well as routine orb generation
+- `message` directory, which contains all potential messages to be sent and received between the client
+- `position` directory, which contains a `Position` record outlining the format of a position (x/y coordinates)
+- `user` directory, which contains the structure of a user in a `User` class (with a unique UUID and username)
+- `exceptions` directory, which has custom exception classes for all potential exceptions to be thrown
+- `actionHandlers` directory, which has custom handlers for the updating of snake positions and the additions of new clients to new and existing games
 
 ## Frontend (Client)
 
-The front-end facing portion of the game is split into two main pieces: `Home` and `Game`.
+The frontend facing portion of the game is split into two main pieces: `Home` and `Game`.
 
 `Home` is responsible for rendering the initial landing screen that will load for the user. It contains a how-to-play button that will display the rules and objectives of the game. It also has an input box for entering a username, and a choice to create a new game or enter a gamecode to join an existing game.
 
