@@ -188,7 +188,7 @@ export default function Game({
 }
 
 //This is what actually creates/sets the scores given a set of scores from the server
-function extractLeaderboardMap(leaderboardData: leaderboardEntry[]) {
+export function extractLeaderboardMap(leaderboardData: leaderboardEntry[]) {
   const leaderboard: Map<string, number> = new Map<string, number>();
   leaderboardData.forEach((entry: leaderboardEntry) => {
     leaderboard.set(entry.username, entry.score);
