@@ -1,6 +1,6 @@
 import Denque from 'denque';
-import { Position } from '../GameState';
 import "./Snake.css"
+import { Position } from '../GameState';
 
 export interface SnakeData {
     snakeBody: Denque<Position>; //snake is a double ended queue so we can remove from the end and add to the front

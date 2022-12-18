@@ -115,7 +115,7 @@ export default function GameCanvas({gameState, setGameState, user, socket}: Game
  * @param socket The client's websocket for communication with the Slither+ server
  * @returns the newly updated metadata for the client's snake
  */
-function moveSnake(snake: SnakeData, socket: WebSocket): SnakeData {
+export function moveSnake(snake: SnakeData, socket: WebSocket): SnakeData {
   // remove last position from the end (to simulate movement)
   const removePosition: Position | undefined = snake.snakeBody.pop();
   const front: Position | undefined = snake.snakeBody.peekFront();
@@ -164,6 +164,6 @@ function moveSnake(snake: SnakeData, socket: WebSocket): SnakeData {
  * @param n the number whose modulo is being calculated
  * @param m the modulus of the operation
  */
-function mod(n: number, m: number): number {
+export function mod(n: number, m: number): number {
   return ((n % m) + m) % m;
 }
