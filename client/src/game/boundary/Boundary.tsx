@@ -1,7 +1,15 @@
 import { Position } from '../GameState';
 import "./Boundary.css"
 
-export default function Boundary({boundaries, offset}: {boundaries: Position, offset: Position}) {
+/**
+ * Renders the boundary for the map, with 4 borders placed according to the 
+ * given limits with the map centered at (0, 0), and offsetted on screen by 
+ * the given amount.
+ * @param boundaries the size of the map
+ * @param offset the offset at which to renders the boundaries
+ * @returns an HTML element rendering the map's boundary
+ */
+export default function Boundary({boundaries, offset}: {boundaries: Position, offset: Position}): JSX.Element {
     return (
     <div>
         <div className="boundary" id="top-boundary" style={{

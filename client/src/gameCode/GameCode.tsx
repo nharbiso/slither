@@ -1,10 +1,15 @@
-import React from "react";
 import "./GameCode.css";
 
-export default function GameCode({gameCode} : {gameCode: string}) {
-    return (
-        <div id = "codeDisplay">
-            <p id = "codeText">{gameCode}</p>
-        </div>
-    );
+/**
+ * Renders the current lobby's game code, in the top left.
+ * @param gameCode the lobby's game code
+ * @returns an HTML element rendering the lobby's game code
+ */
+export default function GameCode({ gameCode }: { gameCode: string }): JSX.Element {
+  return (
+    <div className="codeDisplay">
+      <p className="code-tagline">Your game code:</p>
+      <p className="codeText">{gameCode}</p>
+    </div>
+  );
 }

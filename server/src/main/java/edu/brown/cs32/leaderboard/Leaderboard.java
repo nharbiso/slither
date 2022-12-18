@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Leaderboard class to control leaderboard data and timed updating
+ */
 public class Leaderboard {
 
   private final Map<User, Integer> userScores;
@@ -19,6 +22,18 @@ public class Leaderboard {
   private final GameState gameState;
   private final SlitherServer slitherServer;
 
+  /**
+   * Leaderboard object constructor to synchronize an identical, timed-updating
+   * leaderboard across all users sharing a GameState
+   * 
+   * Note: Uses a ScheduledThreadPoolExecutor to send UPDATE_LEADERBOARD 
+   * messages to all clients linked to the specified GameState every second
+   * 
+   * @param gameState : the GameState for which all users present within such
+   * state see this Leaderboard's data
+   * @param slitherServer : the server to allow for transmitting of Leaderboard
+   * data between all clients connected to their GameState
+   */
   public Leaderboard(GameState gameState, SlitherServer slitherServer) {
     this.userScores = new HashMap<User, Integer>();
     this.gameState = gameState;
@@ -39,20 +54,16 @@ public class Leaderboard {
     }, 1, this.LEADERBOARD_UPDATE_INTERVAL, TimeUnit.SECONDS); 
   }
 
+  /**
+   * Method to send the corresponding UPDATE_LEADERBOARD Message to all other users with a matching GameState
+   * @param message : to the message to be sent to all users sharing this Leaderboard'ds stored GameState
+   */
   private void sendLeaderboardScores(Message message) {
     String json = this.slitherServer.serialize(message);
     System.out.println("Leaderboard json");
     System.out.println(json);
     this.slitherServer.sendToAllGameStateConnections(this.gameState, json);
   }
-
-  // private void sendGameCode() {
-  //   Map<String, Object> map = new HashMap<String, Object>();
-  //   map.put("gameCode", "c");
-  //   Message message = new Message(MessageType.SET_GAME_CODE, map);
-  //   String json = this.slitherServer.serialize(message);
-  //   this.slitherServer.sendToAllGameStateConnections(this.gameState, json);
-  // }
 
   /**
    * Add a provided User to the leaderboard (userScores). The initial score assigned to the new
@@ -85,6 +96,11 @@ public class Leaderboard {
     return false;
   }
 
+  /**
+   * Provides the inputted user's current score
+   * @param user : the user whose score is to be obtained
+   * @return the inputted user's current score
+   */
   public Integer getCurrentScore(User user) {
     return this.userScores.get(user);
   }
@@ -104,9 +120,6 @@ public class Leaderboard {
     }
     return false;
   }
-
-  // TODO: consider some caching strategy or regularly timed server calls at which updated data is broadcast
-  //  to all clients to prevent the need for repeatedly forming and sorting the leaderboard array
 
   /**
    * Gets the current leaderboard standings for all the players who are currently playing.

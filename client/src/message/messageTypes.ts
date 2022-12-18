@@ -1,3 +1,7 @@
+/**
+ * A enum for the possible messages sent and received to the Slither+
+ * server via a websocket.
+ */
 enum MessageType {
   NEW_CLIENT_NO_CODE = "NEW_CLIENT_NO_CODE",
   NEW_CLIENT_WITH_CODE = "NEW_CLIENT_WITH_CODE",
@@ -14,8 +18,7 @@ enum MessageType {
   ERROR = "ERROR",
   SUCCESS = "SUCCESS",
   JOIN_ERROR = "JOIN_ERROR",
-  JOIN_SUCCESS = "JOIN_SUCCESS",
-  // Update this as more code is developed
+  JOIN_SUCCESS = "JOIN_SUCCESS"
 }
 
 export default MessageType;
