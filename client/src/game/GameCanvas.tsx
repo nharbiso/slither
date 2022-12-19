@@ -20,8 +20,6 @@ const mousePos: Position = { x: 0, y: 0 };
  * middle of the window
  */
 const offset: Position = { x: 0, y: 0 };
-// let lastUpdatedPosition: Position = { x: 0, y: 0 };
-// let lastUpdatedTime: number = new Date().getTime();
 
 /**
  * An interface representing data passed to the HTML element responsible for

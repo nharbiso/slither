@@ -12,11 +12,13 @@ export default function OtherSnake({positions, offset}: {positions: Set<string>,
   positions.forEach((posString: string) => {
     parsedPositions.add(JSON.parse(posString));
   });
+
   return (
     <div>
-      {Array.from(parsedPositions).map((bodyPart: Position) => (
+      {Array.from(parsedPositions).map((bodyPart: Position, ind: number) => (
         <div
           className="snake"
+          key={ind}
           style={{ left: bodyPart.x + offset.x, top: bodyPart.y + offset.y }}
         ></div>
       ))}
