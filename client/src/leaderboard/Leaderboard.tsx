@@ -24,7 +24,7 @@ export default function Leaderboard({ leaderboard }: { leaderboard: Map<string, 
             <th className="leaderboard-title" colSpan={2}>
               Leaderboard
             </th>
-        </tr>
+          </tr>
         </thead>
         <tbody>
           {leaderboardEntries.map((entry: [string, number], ind: number) => {

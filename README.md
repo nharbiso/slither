@@ -22,7 +22,7 @@ This project had four contributors: Karan Kashyap (**`kkashyap`**), Mason Pan (*
 ### Contribution details
 * Karan: server and client-side networking (with websockets); server-side gameState manipulation: leaderboard updates, collision checking, position updates, length increasing, collision checking, and snake growth; concurrently updating all clients with the latest game state; home screen; server-side documentation
 * Mason: rendering the snake; moving the snake with the mouse; other snake rendering; client-side documentation and testing
-* Nathan: moving the snake with the mouse; panning rendered map portion to display snake at the center; server-side boundary collision checking; client-side documentation and testing
+* Nathan: snake movement; controlling the snake with the mouse; panning rendered map portion to display snake at the center; boundary rendering; server-side boundary collision checking; client-side documentation and testing
 * Paul: server-side orb generation and collision checking; client-side orb rendering; client-side game code display; backend testing and documentation; README
 
 
@@ -163,7 +163,9 @@ A more detailed description of our plan for further (more comprehensive) testing
 
 ## User Guide
 
-To utilize the project (i.e. play the game properly), first run the server in the backend. This can be done by running the `SlitherServer` class through the `server` directory. Then, navigate to the frontend, specifically the `client` directory, and type `npm start` in the terminal. *Note: If the client-side packages/libraries have not been installed before, type `npm i` in the frontend directory ***before*** `npm start`.* 
+To utilize the project (i.e. play the game properly), first run the server in the backend. This can be done by running the `SlitherServer` class through the `server` directory. One can also navigate to the `server` directory using GitBash, and there run the command `mvn package` utilizing [Maven](https://maven.apache.org/). After compiling the project, one can run the server by the command `./run`. To stop execution in the terminal, one can use the shortcut CTRL-C. (*Note the server must be continually run while any games are being played.*)
+
+Then, navigate to the frontend, specifically the `client` directory, and type `npm start` in the terminal. *Note: If the client-side packages/libraries have not been installed before, type `npm i` in the frontend directory ***before*** `npm start`.* 
 
 This should bring up the main menu of the game in your respective browser. From here, enter a username and either create a game or join an existing one with a game code.
 
@@ -181,8 +183,10 @@ Quick Nav can be disabled by tapping the left and right arrow keys simultaneousl
 
 ## Running Tests
 
-Tests may be run in two 'traditional' ways:
+Tests may be run in two 'traditional' ways for the backend:
 
 1. In the terminal, navigate to the backend directory, and then utilizing [Maven](https://maven.apache.org/) run the command `mvn test`. This will run all tests in this project and demonstrate how, in this version, they all pass.
 
-2. In the file directory, open any given testing class. Then, run that file to run only tests within that class. In IntelliJ, this is done with a green play button. In VSCode, this can be done with `npm test`, which can be accessed after running `npm i` in the `frontend` directory.
+2. In the file directory, open any given testing class in the backend. Then, run that file to run only tests within that class. In IntelliJ, this is done with a green play button.
+
+To run the tests for the frontend, run the command `npm test` in the terminal, which can be accessed after running `npm i` in the `frontend` directory.
