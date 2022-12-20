@@ -12,7 +12,7 @@ test("no entries rendered for empty leaderboard", () => {
     expect(scores.length).toBe(0);
 });
 
-test("displays entires from leaderboard, in order", () => {
+test("displays entries from leaderboard, in order", () => {
     const leaderboard: Map<string, number> = new Map();
     leaderboard.set("user1", 200);
     leaderboard.set("ad", 920);
@@ -22,17 +22,19 @@ test("displays entires from leaderboard, in order", () => {
 
     const { getAllByTestId } = render(<Leaderboard leaderboard={leaderboard} />);
   
-    const userElemsAscending: HTMLElement[] = getAllByTestId("user", {exact: false});
-    const usersAscending: string[] = ["ad", "user1", "!@$", "2", "[109h3 4"];
-    expect(userElemsAscending.length).toBe(5);
+    // tests all elements of leaderboard are present, in the correct order
+
+    const userElemsDescending: HTMLElement[] = getAllByTestId("user", {exact: false});
+    const usersDescending: string[] = ["ad", "user1", "!@$", "2", "[109h3 4"];
+    expect(userElemsDescending.length).toBe(5);
     for(let i = 0; i < 5; i++) {
-        expect(userElemsAscending[i]).toHaveTextContent(usersAscending[i]);
+        expect(userElemsDescending[i]).toHaveTextContent(usersDescending[i]);
     }
 
-    const scoreElemsAscending: HTMLElement[] = getAllByTestId("score", {exact: false});
-    const scoresAscending: string[] = ["920", "200", "90", "2", "0"];
-    expect(scoresAscending.length).toBe(5);
+    const scoreElemsDescending: HTMLElement[] = getAllByTestId("score", {exact: false});
+    const scoresDescending: string[] = ["920", "200", "90", "2", "0"];
+    expect(scoresDescending.length).toBe(5);
     for(let i = 0; i < 5; i++) {
-        expect(scoreElemsAscending[i]).toHaveTextContent(scoresAscending[i]);
+        expect(scoreElemsDescending[i]).toHaveTextContent(scoresDescending[i]);
     }
 });

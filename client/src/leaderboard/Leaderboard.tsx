@@ -19,21 +19,25 @@ export default function Leaderboard({ leaderboard }: { leaderboard: Map<string, 
   return (
     <div className="leaderboard">
       <table>
-        <tr>
-          <th className="leaderboard-title" colSpan={2}>
-            Leaderboard
-          </th>
+        <thead>
+          <tr>
+            <th className="leaderboard-title" colSpan={2}>
+              Leaderboard
+            </th>
         </tr>
-        {leaderboardEntries.map((entry: [string, number]) => {
-          const username: string = entry[0];
-          const score: number = entry[1];
-          return (
-            <tr>
-              <td className="username-entry" data-testid="user">{username}</td>
-              <td className="score-entry" data-testid="score">{score}</td>
-            </tr>
-          );
-        })}
+        </thead>
+        <tbody>
+          {leaderboardEntries.map((entry: [string, number], ind: number) => {
+            const username: string = entry[0];
+            const score: number = entry[1];
+            return (
+              <tr key={ind}>
+                <td className="username-entry" data-testid="user">{username}</td>
+                <td className="score-entry" data-testid="score">{score}</td>
+              </tr>
+            );
+          })}
+        </tbody>
       </table>
     </div>
   );
