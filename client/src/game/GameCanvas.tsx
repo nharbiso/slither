@@ -8,14 +8,14 @@ import OtherSnake from "./snake/OtherSnake";
 
 import { sendUpdatePositionMessage } from "../message/message";
 
-/** 
+/**
  * The size of the map. The map is rendered centered on the origin, so
  * the map ranges from -x/2 to x/2 horiziontally, and -y/2 to y/2 vertically
  */
 const canvasSize: Position = { x: 3000, y: 3000 };
 /** The current position of the client's mouse on the screen */
 const mousePos: Position = { x: 0, y: 0 };
-/** 
+/**
  * The offset from the coordinates of the client's snake's head to the
  * middle of the window
  */
@@ -46,7 +46,11 @@ interface GameCanvasProps {
  * @param websocket The client's websocket for communication with the Slither+ server
  * @returns a rendered representation of the current game map for the client
  */
-export default function GameCanvas({gameState, setGameState, socket}: GameCanvasProps): JSX.Element {
+export default function GameCanvas({
+  gameState,
+  setGameState,
+  socket,
+}: GameCanvasProps): JSX.Element {
   const onMouseMove = (e: MouseEvent) => {
     mousePos.x = e.pageX;
     mousePos.y = e.pageY;
@@ -73,7 +77,6 @@ export default function GameCanvas({gameState, setGameState, socket}: GameCanvas
     };
   }, []);
 
-
   // calculate offset to center snake on screen and place other objects relative to snake
   const front: Position | undefined = gameState.snake.snakeBody.peekFront();
   if (front !== undefined) {
@@ -84,14 +87,12 @@ export default function GameCanvas({gameState, setGameState, socket}: GameCanvas
   return (
     <div>
       <Snake snake={gameState.snake} offset={offset} />
-      {Array.from(gameState.orbs).map(
-        (orb: OrbData, ind: number) => (
-          <Orb orbInfo={orb} offset={offset} key={ind} />
-        )
-      )}
+      {Array.from(gameState.orbs).map((orb: OrbData, ind: number) => (
+        <Orb orbInfo={orb} offset={offset} key={ind} />
+      ))}
       <OtherSnake positions={gameState.otherBodies} offset={offset} />
       snakes
-      <Border boundaries={canvasSize} offset={offset} /> 
+      <Border boundaries={canvasSize} offset={offset} />
     </div>
   );
 }
@@ -127,7 +128,7 @@ export function moveSnake(snake: SnakeData, socket: WebSocket): SnakeData {
       x: front.x + snake.velocityX,
       y: front.y + snake.velocityY,
     };
-    
+
     // add new position to the front (to simulate movement)
     snake.snakeBody.unshift({ x: newPosition.x, y: newPosition.y });
 

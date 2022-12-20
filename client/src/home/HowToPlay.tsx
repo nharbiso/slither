@@ -9,7 +9,9 @@ import "./HowToPlay.css";
  * is currently being displayed on the home page
  * @returns an element with how-to-play instructions rendered
  */
-export default function HowToPlay({ setDisplayHowToPlay }: {
+export default function HowToPlay({
+  setDisplayHowToPlay,
+}: {
   setDisplayHowToPlay: Dispatch<SetStateAction<boolean>>;
 }) {
   return (

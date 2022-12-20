@@ -76,14 +76,13 @@ export default function App(): JSX.Element {
   );
 }
 
-
 //----------------------------------------------------------------------------
 // Websocket with backend set-up
 
 /** Metadata for forming the URL to connect with the server websocket */
 const AppConfig = {
   PROTOCOL: "ws:",
-  HOST: "//4.tcp.ngrok.io:16397",
+  HOST: "//2.tcp.ngrok.io:16211",
   PORT: ":9000",
 };
 

@@ -7,7 +7,11 @@ import "./Leaderboard.css";
  * @param leadboard a map of each user in the lobby to their score
  * @returns a HTML element rendering the leaderboard
  */
-export default function Leaderboard({leaderboard}: {leaderboard: Map<string, number>}): JSX.Element {
+export default function Leaderboard({
+  leaderboard,
+}: {
+  leaderboard: Map<string, number>;
+}): JSX.Element {
   let leaderboardEntries: [string, number][] = Array.from(
     leaderboard.entries()
   );

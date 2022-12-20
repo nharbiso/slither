@@ -7,7 +7,13 @@ import { Position } from "../GameState";
  * @param offset the offset at which the snake it to be rendered
  * @returns a rendering of all other snake positions on screen
  */
-export default function OtherSnake({positions, offset}: {positions: Set<string>, offset: Position}): JSX.Element {
+export default function OtherSnake({
+  positions,
+  offset,
+}: {
+  positions: Set<string>;
+  offset: Position;
+}): JSX.Element {
   const parsedPositions: Set<Position> = new Set();
   positions.forEach((posString: string) => {
     parsedPositions.add(JSON.parse(posString));

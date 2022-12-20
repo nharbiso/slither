@@ -18,13 +18,19 @@ export enum OrbSize {
 }
 
 /**
- * Renders an orb appropriately according to the given metadata (position, 
+ * Renders an orb appropriately according to the given metadata (position,
  * size, and color), at the given offset on the map.
  * @param orbInfo the metadata representation of the orb
  * @param offset the offset at which to render the orb
  * @returns a HTML element rendering of the orb
  */
-export default function Orb({orbInfo, offset}: {orbInfo: OrbData, offset: Position}): JSX.Element {
+export default function Orb({
+  orbInfo,
+  offset,
+}: {
+  orbInfo: OrbData;
+  offset: Position;
+}): JSX.Element {
   return (
     <div
       className="circle"

@@ -37,7 +37,7 @@ export default function Game({
   setGameState,
   scores,
   gameCode,
-  socket
+  socket,
 }: GameProps) {
   return (
     <div>

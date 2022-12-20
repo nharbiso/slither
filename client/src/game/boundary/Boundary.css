@@ -1,21 +1,5 @@
 .boundary {
-    position: absolute;
-    background-color: red;
-    border: 5px solid red;
+  position: absolute;
+  background-color: red;
+  border: 5px solid red;
 }
-
-/* #top-boundary {
-    border-top: 5px solid red;
-}
-
-#bottom-boundary {
-    border-bottom: 5px solid red;
-}
-
-#left-boundary {
-    border-left: 5px solid red;
-}
-
-#right-boundary {
-    border-right: 5px solid red;
-} */

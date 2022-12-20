@@ -2,8 +2,8 @@ import MessageType from "./messageTypes";
 import { Position } from "../game/GameState";
 import { OrbData } from "../game/orb/Orb";
 
-/** 
- * The default generic interface for any message sent or received to 
+/**
+ * The default generic interface for any message sent or received to
  * the Slither+ server.
  */
 export default interface Message {
@@ -18,7 +18,7 @@ export default interface Message {
  * the client for a new game, with no specified game code.
  */
 export interface NewClientNoCodeMessage {
- /** The type (purpose) of the message sent or received */
+  /** The type (purpose) of the message sent or received */
   type: MessageType.NEW_CLIENT_NO_CODE;
   /** The data sent with the message - the client's username */
   data: {
@@ -33,8 +33,8 @@ export interface NewClientNoCodeMessage {
 export interface NewClientOldCodeMessage {
   /** The type (purpose) of the message sent or received */
   type: MessageType.NEW_CLIENT_WITH_CODE;
-  /** 
-   * The data sent with the message - the client's username and 
+  /**
+   * The data sent with the message - the client's username and
    * specified game code for the lobby to join
    */
   data: {
@@ -132,7 +132,7 @@ export function sendUpdatePositionMessage(
 export interface leaderboardData {
   /** The type (purpose) of the message sent or received */
   type: MessageType.UPDATE_LEADERBOARD;
-  /** 
+  /**
    * The data sent with the message - a list of leaderboard
    * entries, containing each user and their score
    */
@@ -142,7 +142,7 @@ export interface leaderboardData {
 }
 
 /**
- * An interface representing an entry on the leaderboard, with 
+ * An interface representing an entry on the leaderboard, with
  * a user and their score.
  */
 export interface leaderboardEntry {
@@ -179,7 +179,7 @@ export interface orbsData {
 }
 
 /**
- * An interface representing a message received from the server to notify 
+ * An interface representing a message received from the server to notify
  * the client that they have died, from a collision.
  */
 export interface YouDiedMessage {
@@ -190,13 +190,13 @@ export interface YouDiedMessage {
 }
 
 /**
- * An interface representing a message received from the server to notify 
+ * An interface representing a message received from the server to notify
  * that another client has died.
  */
 export interface OtherUserDiedMessage {
   /** The type (purpose) of the message sent or received */
   type: MessageType.OTHER_USED_DIED;
-  /** 
+  /**
    * The data sent with the message - the positions of the other
    * client to be removed, from rendering
    */
@@ -212,8 +212,8 @@ export interface OtherUserDiedMessage {
 export interface IncreaseOwnLengthMessage {
   /** The type (purpose) of the message sent or received */
   type: MessageType.INCREASE_OWN_LENGTH;
-  /** 
-   * The data sent with the message - the positions of the segments 
+  /**
+   * The data sent with the message - the positions of the segments
    * to be added to the client's snake
    */
   data: {
@@ -228,7 +228,7 @@ export interface IncreaseOwnLengthMessage {
 export interface IncreaseOtherLengthMessage {
   /** The type (purpose) of the message sent or received */
   type: MessageType.INCREASE_OTHER_LENGTH;
-  /** 
+  /**
    * The data sent with the message - the positions of the other
    * client's snake's segments to be added
    */
